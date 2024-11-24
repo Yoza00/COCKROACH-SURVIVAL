@@ -311,6 +311,32 @@ bool Enemy::GetDotResult(const Math::Vector3& toDir)
 	return false;
 }
 
+bool Enemy::LoadWayPointsFronJson(const std::string& _filePath)
+{
+	nlohmann::json	_jsonData;
+
+	std::ifstream	_file(_filePath);
+
+	// ファイルのオープンチェック
+	if (!_file.is_open())
+	{
+		return false;			// 開けなかった場合はfalseを返す
+	}
+
+	for (const auto& _waypoints : _jsonData["waypoints"])
+	{
+		WayPoint _waypoint;
+		_waypoint.m_number	= _waypoints["number"];				// 番号を格納
+		_waypoint.m_pos.x	= _waypoints["position"]["x"];		// 座標を格納
+		_waypoint.m_pos.y	= _waypoints["position"]["y"];
+		_waypoint.m_pos.z	= _waypoints["position"]["z"];
+
+		m_wayPoints.push_back(_waypoint);						// 配列にポイント情報を追加
+	}
+
+	return true;				// 無事に開ければtrueが返る
+}
+
 // ========== ステートパターン関係 ==========
 void Enemy::ChangeState(const std::shared_ptr<StateBase>& nextSate)
 {

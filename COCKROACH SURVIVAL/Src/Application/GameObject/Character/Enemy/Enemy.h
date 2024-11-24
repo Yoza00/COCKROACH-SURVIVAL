@@ -1,6 +1,15 @@
 ﻿#pragma once
 
+#include"Json/nlohmann/json.hpp"
+
 class Player;
+
+// ウェイポイント用構造体
+struct WayPoint
+{
+	int				m_number;		// ポイントの番号
+	Math::Vector3	m_pos;			// ポイントの座標
+};
 
 class Enemy :public KdGameObject
 {
@@ -97,6 +106,10 @@ private:
 	int								m_searchTimer	= 960;						// 捜索する制限時間(無くなれば次のステートへ)
 	// ============================================
 
+	// ========== 徘徊処理に必要な変数 ==========
+	std::vector<WayPoint>			m_wayPoints;								// ウェイポイントの配列
+	// ==========================================
+
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
 
 	// 当たり判定を行う関数
@@ -106,6 +119,10 @@ private:
 	void CheckSight();
 
 	bool GetDotResult(const Math::Vector3& toDir);								// 目線のレイ判定の結果を返す
+
+	// Jsonファイルを使用するうえで必要となる関数
+	bool LoadWayPointsFronJson(const std::string& _filePath);					// Jsonファイルが開けたかどうかの確認用関数
+	// ==========================================
 
 	// ステートパターン
 private:

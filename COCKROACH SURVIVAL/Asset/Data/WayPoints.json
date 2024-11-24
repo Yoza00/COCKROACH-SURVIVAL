@@ -1,9 +1,85 @@
 {
 	"waypoints": [
 		{
-			"x": 25.65,
-			"y": 0.04,
-			"z": 56.23
+			"name": "freezer_front",
+			"number": 0,
+			"position": {
+				"x": 25.65,
+				"y": 0.04,
+				"z": 56.23
+			}
+		},
+		{
+			"name": "entrance_front",
+			"number": 1,
+			"posiyion": {
+				"x": 25.73,
+				"y": 0.04,
+				"z": -60.75
+			}
+		},
+		{
+			"name": "one_sofa_back",
+			"number": 2,
+			"position": {
+				"x": -42.45,
+				"y": 0.04,
+				"z": -60.75
+			}
+		},
+		{
+			"name": "bed_leftside",
+			"number": 3,
+			"position": {
+				"x": -42.45,
+				"y": 0.04,
+				"z": 56.23
+			}
+		},
+		{
+			"name": "勉強机左後ろ",
+			"number": 4,
+			"position": {
+				"x": -10.20,
+				"y": 0.04,
+				"z": 56.23
+			}
+		},
+		{
+			"name": "largesofa_front_rightside",
+			"number": 5,
+			"position": {
+				"x": -10.20,
+				"y": 0.04,
+				"z": 15.26
+			}
+		},
+		{
+			"name": "largesofa_front_leftside",
+			"number": 6,
+			"position": {
+				"x": -10.20,
+				"y": 0.04,
+				"z": -35.00
+			}
+		},
+		{
+			"name": "largesofa_back_leftside",
+			"number": 7,
+			"position": {
+				"x": 11.20,
+				"y": 0.04,
+				"z": -35.00
+			}
+		},
+		{
+			"name": "勉強机右後ろ",
+			"number": 8,
+			"position": {
+				"x": 11.20,
+				"y": 0.04,
+				"z": 56.23
+			}
 		}
 	]
 }

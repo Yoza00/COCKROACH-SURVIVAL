@@ -39,11 +39,6 @@ public:
 	void Init()override;
 
 	// ========== セッター ==========
-	void SetPos(const Math::Vector3& pos)	override	// 座標をセット
-	{
-		m_pos = pos;
-	}
-
 	void SetPlayer(const std::shared_ptr<Player>& spPlayer)
 	{
 		m_wpPlayer = spPlayer;
@@ -84,12 +79,10 @@ private:
 	bool							m_isSight		= false;					// 視界内かどうか
 	Math::Vector3					m_sightPos		= Math::Vector3::Zero;		// 視界の開始座標
 	Math::Matrix					m_localSightMat;							// 視界の根本の行列
-	// ==============================================
 
-	// ========== ほかの場所へ移動するときに必要な変数 ==========
-	bool							m_isMoveNextPos = false;					// 次の場所へ移動するかどうか
-	Math::Vector3					m_nextPos		= Math::Vector3::Zero;		// 次の場所の座標
-	// ==========================================================
+	int								m_searchCnt		= 0;						// Searchステートにいる間に使用するフレーム
+	const int						m_seaMaxCnt		= 180;						// Searchステートにいる最大時間
+	// ==============================================
 
 	// ========== 見失ったときに使用する変数 ==========
 	bool							m_isMoveFinish = true;						// 見失った場所まで移動できたかどうか
@@ -108,6 +101,13 @@ private:
 
 	// ========== 徘徊処理に必要な変数 ==========
 	std::vector<WayPoint>			m_wayPoints;								// ウェイポイントの配列
+	int								m_wayNumber		= 0;						// ウェイトポイントの番号
+	const int						m_minWayNumber	= 0;						// ウェイポイントの最小番号
+	const int						m_maxWayPoint	= 9;						// ウェイポイントの最大番号
+	bool							m_isMoveNextPos = false;					// 次の場所へ移動するかどうか
+	bool							m_isTurnFinish	= false;					// 回転処理が終わったかどうか(回転終わるまで移動しない)
+	Math::Vector3					m_nextPos		= Math::Vector3::Zero;		// 次の場所の座標
+	const float						m_ignoreLength	= 2.5f;						// 無視する距離
 	// ==========================================
 
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
@@ -157,6 +157,8 @@ private:
 		virtual void Enter(Enemy& owner)	{}	// その状態に入るときに１度だけ実行する処理
 		virtual void Update(Enemy& owner)	{}	// その状態の間、行う処理
 		virtual void Exit(Enemy& owner)		{}	// その状態から別の状態に変更するときに１度だけ実行する処理
+
+		virtual void CheckMoveFinish(Enemy& owner, const Math::Vector3& dist) {}
 	};
 
 	// 周囲を捜索する
@@ -181,6 +183,9 @@ private:
 		void Enter(Enemy& owner)	override;
 		void Update(Enemy& owner)	override;
 		void Exit(Enemy& owner)		override;
+
+		void Turn(Enemy& owner, const Math::Vector3& dir);				// ターン
+		void CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)override;
 	};
 
 	// 追跡

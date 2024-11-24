@@ -226,9 +226,6 @@ void GameScene::Init()
 
 		for (const auto& _object : _objects)
 		{
-			// 各オブジェクトデータを読み込む
-			//LoadObjectData(_object);
-
 			// オブジェクト生成・必要なデータをセット
 			_spObject = std::make_shared<ObjectData>();
 			_spObject->SetPath(_object.m_filePath);
@@ -257,7 +254,6 @@ void GameScene::Init()
 	Math::Vector3			_enemyPos	= { 0.0f,2.5f,20.0f };
 	std::shared_ptr<Enemy>	_spEnemy	= std::make_shared<Enemy>();
 	_spEnemy->Init();
-	_spEnemy->SetPos(_enemyPos);
 	_spEnemy->SetScale(8.0f);
 	m_objList.push_back(_spEnemy);
 

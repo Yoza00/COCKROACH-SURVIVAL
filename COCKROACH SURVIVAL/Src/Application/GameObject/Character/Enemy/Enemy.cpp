@@ -95,12 +95,20 @@ void Enemy::Init()
 		}
 	}
 	
+	// ウェイポイントの情報セット
+	if (!LoadWayPointsFronJson("Asset/Data/Json/WayPoints/WayPoints.json"))
+	{
+		assert(0 && "ファイルの読み込みに失敗しました。");		// 読み込めなかった場合はエラー表示
+		return;
+	}
+
+	m_pos = m_wayPoints[m_wayNumber].m_pos;						// 初期座標をセット
+	m_wayNumber++;
+
 	m_charaType = CharaType::E_Chara;
 
 	// 初期状態のステートを設定
 	ChangeState(std::make_shared<Search>());
-
-	
 
 	// ========== デバッグ用 ==========
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
@@ -214,6 +222,7 @@ void Enemy::CheckSight()
 	// モデルの回転処理
 	float	_angle = DirectX::XMConvertToDegrees(acos(_dot));		// 内積値のacosで角度を求める
 	
+	// 閾値よりも値が小さければ処理しない
 	if (_angle < m_rotThreshold)
 	{
 		return;
@@ -232,7 +241,7 @@ void Enemy::CheckSight()
 	{
 		m_angle -= _angle;
 
-		// 負の値にならないように制御
+		// -360.0f(１回転分)を超えないように制御
 		if (m_angle < m_minDegAngle)
 		{
 			m_angle += m_maxDegAngle;
@@ -323,15 +332,19 @@ bool Enemy::LoadWayPointsFronJson(const std::string& _filePath)
 		return false;			// 開けなかった場合はfalseを返す
 	}
 
+	// JSONデータを解析
+	_file >> _jsonData;			// jsonデータを解析
+	_file.close();				// ファイルを閉じる
+
 	for (const auto& _waypoints : _jsonData["waypoints"])
 	{
 		WayPoint _waypoint;
-		_waypoint.m_number	= _waypoints["number"];				// 番号を格納
-		_waypoint.m_pos.x	= _waypoints["position"]["x"];		// 座標を格納
+		_waypoint.m_number	= _waypoints["number"];			// 番号を格納
+		_waypoint.m_pos.x	= _waypoints["position"]["x"];	// 座標を格納
 		_waypoint.m_pos.y	= _waypoints["position"]["y"];
 		_waypoint.m_pos.z	= _waypoints["position"]["z"];
 
-		m_wayPoints.push_back(_waypoint);						// 配列にポイント情報を追加
+		m_wayPoints.push_back(_waypoint);					// 配列に追加
 	}
 
 	return true;				// 無事に開ければtrueが返る
@@ -351,7 +364,7 @@ void Enemy::ChangeState(const std::shared_ptr<StateBase>& nextSate)
 // ========== 捜索 ==========
 void Enemy::Search::Enter(Enemy& owner)
 {
-
+	owner.m_searchCnt = 0;			// カウンタをリセットしておく(０に戻しておく)
 }
 
 void Enemy::Search::Update(Enemy& owner)
@@ -362,29 +375,116 @@ void Enemy::Search::Update(Enemy& owner)
 		owner.ChangeState(std::make_shared<Chase>());			// 追跡状態に切り替え
 		return;
 	}
+
+	owner.m_searchCnt++;										// カウンタを更新
+	if (owner.m_searchCnt > owner.m_seaMaxCnt)
+	{
+		owner.ChangeState(std::make_shared<MoveOtherPos>());	// 時間が経過したらステート切り替え
+		return;
+	}
 }
 
 void Enemy::Search::Exit(Enemy& owner)
 {
-
+	owner.m_isTurnFinish = false;								// 回転完了フラグを解除
 }
 
 // ========== その他の場所へ移動 ==========
 void Enemy::MoveOtherPos::Enter(Enemy& owner)
 {
+	owner.m_isMoveNextPos	= false;											// 次の場所への移動フラグを解除
+	owner.m_nextPos			= owner.m_wayPoints[owner.m_wayNumber].m_pos;		// 移動先座標更新
 }
 
 void Enemy::MoveOtherPos::Update(Enemy& owner)
 {
 	if (owner.m_isSight)
 	{
-		owner.ChangeState(std::make_shared<Chase>());
+		owner.ChangeState(std::make_shared<Chase>());			// 見つけたらステート切り替え
 		return;
+	}
+
+	Math::Vector3	_toDir = owner.m_nextPos - owner.m_pos;		// 次の場所への方向ベクトル
+	_toDir.Normalize();
+
+	if (!owner.m_isTurnFinish)
+	{
+		Turn(owner,_toDir);										// ターンが終わっていなければ、ターンさせる
+	}
+	else
+	{
+		if (owner.m_isMoveNextPos)
+		{
+			owner.m_pos += _toDir * owner.m_moveSpeed;			// 移動
+		}
 	}
 }
 
 void Enemy::MoveOtherPos::Exit(Enemy& owner)
 {
+}
+
+void Enemy::MoveOtherPos::Turn(Enemy& owner,const Math::Vector3& dir)
+{
+	Math::Vector3	_nowDir = owner.m_mWorld.Backward();		// 現在の向き
+	Math::Vector3	_toDir	= dir;								// 次の場所へのベクトル
+
+	// ベクトルの正規化
+	_nowDir.Normalize();
+	
+	// 内積計算
+	float			_dot = _nowDir.Dot(_toDir);
+
+	// 内積値の補正
+	_dot = std::clamp(_dot, -1.0f, 1.0f);
+
+	float			_angle = DirectX::XMConvertToDegrees(acos(_dot));
+
+	if (_angle < owner.m_rotThreshold)
+	{
+		owner.m_isTurnFinish	= true;							// ターン終了フラグを起動
+		owner.m_isMoveNextPos	= true;							// 次の場所への移動フラグを起動
+		return;
+	}
+
+	// 角度制御
+	if (_angle > owner.m_maxAngle)
+	{
+		_angle = owner.m_maxAngle;
+	}
+
+	// 外積計算
+	Math::Vector3	_cross = _toDir.Cross(_nowDir);
+
+	if (_cross.y >= 0.0f)
+	{
+		owner.m_angle -= _angle;
+
+		if (owner.m_angle < owner.m_minDegAngle)
+		{
+			owner.m_angle += owner.m_maxDegAngle;
+		}
+	}
+	else
+	{
+		owner.m_angle += _angle;
+
+		if (owner.m_angle >= owner.m_maxDegAngle)
+		{
+			owner.m_angle -= owner.m_maxDegAngle;
+		}
+	}
+}
+
+void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)
+{
+	Math::Vector3	_dist = dist;
+
+	if (_dist.LengthSquared() <= owner.m_ignoreLength)
+	{
+		owner.ChangeState(std::make_shared<Search>());			// ステート切り替え
+		return;
+	}
 }
 
 // ========== 追跡 ==========
@@ -496,7 +596,7 @@ void Enemy::LoseSight::CheckMoveFinish(Enemy& owner)
 	Math::Vector3	_dist = owner.m_loseSightPos - owner.m_pos;			// 距離
 
 	// 距離を確認
-	if (_dist.LengthSquared() <= 2.5f)
+	if (_dist.LengthSquared() <= owner.m_ignoreLength)
 	{
 		owner.ChangeState(std::make_shared<SearchAround>());			// ステートを切り替える
 		return;

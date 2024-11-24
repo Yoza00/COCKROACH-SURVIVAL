@@ -1,0 +1,616 @@
+{
+    "UI": [
+        {
+            "filePath": "Asset/Textures/GameObject/UI/bar/Hungry/bar_hungry_back2.png",
+            "name": "bar_hungry_frame",
+            "position": {
+                "x": -550.0,
+                "y": 255.0
+            },
+            "type": "bar_frame"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/bar/Hungry/bar_hungry.png",
+            "name": "bar_hungry",
+            "position": {
+                "x": -549.0,
+                "y": 255.5
+            },
+            "type": "bar_hungry"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/TitleScene/GameTitle/GameTitle.png",
+            "name": "GameTitle",
+            "position": {
+                "x": -320.0,
+                "y": 200.0
+            },
+            "type": "GameTitle"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/ResultScene/Result/Result.png",
+            "name": "ResultString",
+            "position": {
+                "x": -202.0,
+                "y": 260.0
+            },
+            "type": "Result"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/bar/Frame_Bar_Clear.png",
+            "name": "bar_hp_frame",
+            "position": {
+                "x": -550.0,
+                "y": 300.0
+            },
+            "type": "bar_frame"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/bar/HP/HP_Bar_Clear.png",
+            "name": "bar_hp",
+            "position": {
+                "x": -550.0,
+                "y": 300.0
+            },
+            "type": "bar_hp"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/Clock/Clock_TimeLimit.png",
+            "name": "TimeLimit",
+            "position": {
+                "x": 0.0,
+                "y": 280.0
+            },
+            "type": "TimeLimit"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/TitleScene/TitleMenu/Click_To_Start/Start3.png",
+            "name": "Click_To_Start",
+            "position": {
+                "x": -210.0,
+                "y": -250.0
+            },
+            "type": "StartButton"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/GameMenu/Menu_Icon.png",
+            "name": "Menu_Button",
+            "position": {
+                "x": -640.0,
+                "y": -277.0
+            },
+            "type": "Menu_Icon"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/GameMenu/Menu_BackScreen.png",
+            "name": "Menu_BackScreen",
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "type": "Menu_BackScreen"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/GameMenu/Menu_Base.png",
+            "name": "Menu_Base",
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "type": "Menu_Base"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/GameMenu/BackButton.png",
+            "name": "Back",
+            "position": {
+                "x": -170.0,
+                "y": 180.0
+            },
+            "type": "BackButton"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/GameMenu/GuideButton.png",
+            "name": "Guide",
+            "position": {
+                "x": -170.0,
+                "y": 0.0
+            },
+            "type": "GruideButton"
+        },
+        {
+            "filePath": "Asset/Textures/GameObject/UI/GameMenu/TitleButton.png",
+            "name": "Title",
+            "position": {
+                "x": -170.0,
+                "y": -150.0
+            },
+            "type": "TitleButton"
+        }
+    ],
+    "objects": [
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/Light/cieling_light.gltf",
+            "name": "cielinglight",
+            "position": {
+                "x": 0.0,
+                "y": 36.56999969482422,
+                "z": 0.0
+            },
+            "rotate": 0.0,
+            "scale": 2.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/bed/bed.gltf",
+            "name": "bed",
+            "position": {
+                "x": -55.32999954223633,
+                "y": 3.549999952316284,
+                "z": 66.6500015258789
+            },
+            "rotate": 0.0,
+            "scale": 2.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/table/tv_board.gltf",
+            "name": "tv_board",
+            "position": {
+                "x": -56.1,
+                "y": 3.299999952316284,
+                "z": -8.479999542236328
+            },
+            "rotate": 270.0,
+            "scale": 2.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/device/tv.gltf",
+            "name": "tv",
+            "position": {
+                "x": -56.1,
+                "y": 10.5,
+                "z": -8.479999542236328
+            },
+            "rotate": 270.0,
+            "scale": 2.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/sofa/sofa_triple.gltf",
+            "name": "sofa_triple",
+            "position": {
+                "x": 0.0,
+                "y": 4.5,
+                "z": -9.0
+            },
+            "rotate": 0.0,
+            "scale": 3.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/table/table_glass.gltf",
+            "name": "table_glass",
+            "position": {
+                "x": -25.0,
+                "y": 2.0,
+                "z": -9.0
+            },
+            "rotate": 0.0,
+            "scale": 5.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/table/tableA.gltf",
+            "name": "table_normal",
+            "position": {
+                "x": 0.0,
+                "y": 4.300000190734863,
+                "z": 75.5
+            },
+            "rotate": 0.0,
+            "scale": 2.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/chairs/chair.gltf",
+            "name": "chair_gaming",
+            "position": {
+                "x": 0.0,
+                "y": 4.3,
+                "z": 66.5
+            },
+            "rotate": 180.0,
+            "scale": 1.75
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/device/laptop.gltf",
+            "name": "laptop",
+            "position": {
+                "x": 0.0,
+                "y": 8.600000381469727,
+                "z": 75.58000183105469
+            },
+            "rotate": 0.0,
+            "scale": 2.3299999237060547
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/device/phone.gltf",
+            "name": "phone",
+            "position": {
+                "x": 6.5,
+                "y": 8.100000381469727,
+                "z": 74.91999816894531
+            },
+            "rotate": 0.0,
+            "scale": 1.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/shelf/shelf.gltf",
+            "name": "shelf",
+            "position": {
+                "x": 29.100000381469727,
+                "y": 8.0,
+                "z": 77.2
+            },
+            "rotate": 0.0,
+            "scale": 1.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/shelf/shelf.gltf",
+            "name": "shelf2",
+            "position": {
+                "x": 20.0,
+                "y": 8.0,
+                "z": 77.2
+            },
+            "rotate": 0.0,
+            "scale": 1.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/bin.gltf",
+            "name": "bin",
+            "position": {
+                "x": 12.1899995803833,
+                "y": 3.5999999046325684,
+                "z": 75.5
+            },
+            "rotate": 0.0,
+            "scale": 2.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/plant_mini.gltf",
+            "name": "plant_mini",
+            "position": {
+                "x": 31.510000228881836,
+                "y": 5.5,
+                "z": 77.3
+            },
+            "rotate": 180.0,
+            "scale": 2.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/device/keyboard_mouse.gltf",
+            "name": "keyboard",
+            "position": {
+                "x": 22.100000381469727,
+                "y": 8.270000457763672,
+                "z": 77.69000244140625
+            },
+            "rotate": 0.0,
+            "scale": 1.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/Light/light_on_table.gltf",
+            "name": "light_mini",
+            "position": {
+                "x": 17.540000915527344,
+                "y": 5.349999904632568,
+                "z": 77.5999984741211
+            },
+            "rotate": 0.0,
+            "scale": 1.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/bookA.gltf",
+            "name": "bookA1",
+            "position": {
+                "x": 22.200000762939453,
+                "y": 5.300000190734863,
+                "z": 77.5
+            },
+            "rotate": 180.0,
+            "scale": 1.75
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/bookA.gltf",
+            "name": "bookA2",
+            "position": {
+                "x": 31.299999237060547,
+                "y": 9.140000343322754,
+                "z": 77.5
+            },
+            "rotate": 180.0,
+            "scale": 1.75
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/bookB.gltf",
+            "name": "bookB1",
+            "position": {
+                "x": 26.420000076293945,
+                "y": 9.140000343322754,
+                "z": 77.5
+            },
+            "rotate": 180.0,
+            "scale": 1.75
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/bookB.gltf",
+            "name": "bookB2",
+            "position": {
+                "x": 17.450000762939453,
+                "y": 9.140000343322754,
+                "z": 77.5
+            },
+            "rotate": 180.0,
+            "scale": 1.75
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/bookB.gltf",
+            "name": "bookB3",
+            "position": {
+                "x": 18.739999771118164,
+                "y": 13.0600004196167,
+                "z": 77.55000305175781
+            },
+            "rotate": 180.0,
+            "scale": 2.200000047683716
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/bookB.gltf",
+            "name": "bookB4",
+            "position": {
+                "x": 26.329999923706055,
+                "y": 4.940000057220459,
+                "z": 77.5999984741211
+            },
+            "rotate": 180.0,
+            "scale": 1.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/speaker.gltf",
+            "name": "speaker",
+            "position": {
+                "x": -56.30000076293945,
+                "y": 5.409999904632568,
+                "z": 14.619999885559082
+            },
+            "rotate": 270.0,
+            "scale": 7.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/speaker.gltf",
+            "name": "speaker2",
+            "position": {
+                "x": -56.30000076293945,
+                "y": 5.409999904632568,
+                "z": -31.0
+            },
+            "rotate": 270.0,
+            "scale": 7.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/drawer/drawer_normal.gltf",
+            "name": "drawer",
+            "position": {
+                "x": -29.299999237060547,
+                "y": 5.400000095367432,
+                "z": 73.0
+            },
+            "rotate": 0.0,
+            "scale": 2.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/alarm.gltf",
+            "name": "alarm",
+            "position": {
+                "x": -36.5,
+                "y": 10.100000381469727,
+                "z": 75.5
+            },
+            "rotate": 0.0,
+            "scale": 4.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/sink.gltf",
+            "name": "sink",
+            "position": {
+                "x": 55.0,
+                "y": 3.5,
+                "z": 25.0
+            },
+            "rotate": 0.0,
+            "scale": 3.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/kitchin_stand_drawer.gltf",
+            "name": "kitchin_drawer",
+            "position": {
+                "x": 55.0,
+                "y": 3.5,
+                "z": 37.29999923706055
+            },
+            "rotate": 0.0,
+            "scale": 3.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/kitchin_stand.gltf",
+            "name": "kitchin_stand",
+            "position": {
+                "x": 55.0,
+                "y": 3.5,
+                "z": 49.0
+            },
+			"rotate": 0.0,
+            "scale": 3.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/freezer.gltf",
+            "name": "freezer",
+            "position": {
+                "x": 52.29999923706055,
+                "y": 15.100000381469727,
+                "z": 70.94000244140625
+            },
+            "rotate": 0.0,
+            "scale": 2.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/kitchin_bin.gltf",
+            "name": "bin_kitchin",
+            "position": {
+                "x": 53.0,
+                "y": 3.200000047683716,
+                "z": 59.18000030517578
+            },
+            "rotate": 0.0,
+            "scale": 5.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/kitchin_stand.gltf",
+            "name": "kitchin_stand2",
+            "position": {
+                "x": 55.0,
+                "y": 3.5,
+                "z": 13.300000190734863
+            },
+            "rotate": 0.0,
+            "scale": 3.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/stove.gltf",
+            "name": "stove",
+            "position": {
+                "x": 51.10999847412109,
+                "y": 2.0,
+                "z": 1.350000023841858
+            },
+            "rotate": 180.0,
+            "scale": 5.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/vent.gltf",
+            "name": "vent",
+            "position": {
+                "x": 53.0,
+                "y": 37.0,
+                "z": -1.6299999952316284
+            },
+            "rotate": 180.0,
+            "scale": 4.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/cupboard2.gltf",
+            "name": "cupboard2",
+            "position": {
+                "x": 53.8,
+                "y": 29.5,
+                "z": 46.5
+            },
+            "rotate": 180.0,
+            "scale": 5.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/toster.gltf",
+            "name": "toster",
+            "position": {
+                "x": 51.91999816894531,
+                "y": 12.500000190734863,
+                "z": 47.5
+            },
+            "rotate": 180.0,
+            "scale": 2.700000047683716
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/microwaver.gltf",
+            "name": "microwaver",
+            "position": {
+                "x": 45.80000076293945,
+                "y": 14.75,
+                "z": -35.5
+            },
+            "rotate": 0.0,
+            "scale": 4.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/sofa/sofa.gltf",
+            "name": "sofa",
+            "position": {
+                "x": -25.0,
+                "y": 6.000000095367432,
+                "z": -44.5
+            },
+            "rotate": 180.0,
+            "scale": 3.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/plant.gltf",
+            "name": "plant",
+            "position": {
+                "x": -56.5,
+                "y": 9.800000190734863,
+                "z": -78.70999908447266
+            },
+            "rotate": 0.0,
+            "scale": 4.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/home_design/plant.gltf",
+            "name": "plant2",
+            "position": {
+                "x": 50.79999923706055,
+                "y": 12.300000190734863,
+                "z": -78.70999908447266
+            },
+            "rotate": 0.0,
+            "scale": 5.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/door/door.gltf",
+            "name": "door",
+            "position": {
+                "x": 0.0,
+                "y": 11.5,
+                "z": -85.35
+            },
+            "rotate": 0.0,
+            "scale": 2.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/carpet/carpetA.gltf",
+            "name": "carpet",
+            "position": {
+                "x": 0.0,
+                "y": 0.1,
+                "z": -76.5
+            },
+            "rotate": 0.0,
+            "scale": 2.0
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/kitchin_stand.gltf",
+            "name": "kitchin_stand3",
+            "position": {
+                "x": 55.0,
+                "y": 3.5,
+                "z": -11.5600004196167
+            },
+            "rotate": 0.0,
+            "scale": 3.5
+        },
+        {
+            "filePath": "Asset/Models/Terrains/GameScene/furniture/kitchin/kitchin_stand_corner.gltf",
+            "name": "kitchin_stand_corner",
+            "position": {
+                "x": 51.119998931884766,
+                "y": 3.5,
+                "z": -40.38999938964844
+            },
+            "rotate": 0.0,
+            "scale": 3.5
+        }
+    ]
+}

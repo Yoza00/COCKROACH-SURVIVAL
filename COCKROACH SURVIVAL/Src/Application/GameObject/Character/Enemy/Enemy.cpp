@@ -8,17 +8,8 @@ void Enemy::Update()
 {
 	if (!m_spModel)return;
 
-	// ねみー本体から見た視界の根本の座標
+	// エネミー本体から見た視界の根本の座標
 	Math::Vector3 _sightPos = (m_localSightMat * m_mWorld).Translation();
-
-	// ========== デバッグ表示 ==========
-	m_pDebugWire->AddDebugSphere
-	(
-		_sightPos,
-		0.5f,
-		kBlackColor
-	);
-	// ==================================
 
 	m_sightPos = _sightPos;
 
@@ -102,7 +93,8 @@ void Enemy::Init()
 		return;
 	}
 
-	m_pos = m_wayPoints[m_wayNumber].m_pos;						// 初期座標をセット
+	m_wayNumber = m_minWayNumber;								// 念のため、ポイント番号を初期座標に変更
+	m_pos		= m_wayPoints[m_wayNumber].m_pos;				// 初期座標をセット
 	m_wayNumber++;
 
 	m_charaType = CharaType::E_Chara;
@@ -386,12 +378,13 @@ void Enemy::Search::Update(Enemy& owner)
 
 void Enemy::Search::Exit(Enemy& owner)
 {
-	owner.m_isTurnFinish = false;								// 回転完了フラグを解除
+
 }
 
 // ========== その他の場所へ移動 ==========
 void Enemy::MoveOtherPos::Enter(Enemy& owner)
 {
+	owner.m_isTurnFinish	= false;											// ターン官僚フラグを解除
 	owner.m_isMoveNextPos	= false;											// 次の場所への移動フラグを解除
 	owner.m_nextPos			= owner.m_wayPoints[owner.m_wayNumber].m_pos;		// 移動先座標更新
 }
@@ -404,7 +397,8 @@ void Enemy::MoveOtherPos::Update(Enemy& owner)
 		return;
 	}
 
-	Math::Vector3	_toDir = owner.m_nextPos - owner.m_pos;		// 次の場所への方向ベクトル
+	Math::Vector3	_dist	= owner.m_nextPos - owner.m_pos;	// 距離
+	Math::Vector3	_toDir	= _dist;							// 次の場所への方向ベクトル
 	_toDir.Normalize();
 
 	if (!owner.m_isTurnFinish)
@@ -416,6 +410,8 @@ void Enemy::MoveOtherPos::Update(Enemy& owner)
 		if (owner.m_isMoveNextPos)
 		{
 			owner.m_pos += _toDir * owner.m_moveSpeed;			// 移動
+
+			CheckMoveFinish(owner, _dist);
 		}
 	}
 }
@@ -476,13 +472,21 @@ void Enemy::MoveOtherPos::Turn(Enemy& owner,const Math::Vector3& dir)
 	}
 }
 
-void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)
+void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist)
 {
-	Math::Vector3	_dist = dist;
-
-	if (_dist.LengthSquared() <= owner.m_ignoreLength)
+	// 次の場所との距離が一定以下まで近づいた
+	if (dist.LengthSquared() <= owner.m_ignoreLength)
 	{
-		owner.ChangeState(std::make_shared<Search>());			// ステート切り替え
+		//owner.ChangeState(std::make_shared<Search>());			// ステート切り替え
+		owner.ChangeState(std::make_shared<SearchAround>());	// ステート切り替え
+		owner.m_wayNumber++;									// 移動場所の更新
+		
+		// 配列外に行かないように制御
+		if (owner.m_wayNumber >= owner.m_maxWayPoint)
+		{
+			owner.m_wayNumber = owner.m_minWayNumber;
+		}
+
 		return;
 	}
 }
@@ -536,8 +540,15 @@ void Enemy::LoseSight::Update(Enemy& owner)
 		return;
 	}
 
+	if (owner.m_isSight)
+	{
+		owner.ChangeState(std::make_shared<Chase>());			// 視界内にいる場合は追跡モードに切り替える
+		return;
+	}
+
+	Math::Vector3	_dist	= owner.m_loseSightPos - owner.m_pos;	// 距離
 	Math::Vector3	_nowDir = owner.m_mWorld.Backward();			// エネミーの正面方向のベクトル
-	Math::Vector3	_toDir	= owner.m_loseSightPos - owner.m_pos;	// 向きたい方向
+	Math::Vector3	_toDir	= _dist;								// 向きたい方向
 
 	// それぞれのベクトル正規化
 	_nowDir.Normalize();
@@ -546,7 +557,7 @@ void Enemy::LoseSight::Update(Enemy& owner)
 	// ========== 移動処理 ===========
 	owner.m_pos += _toDir * owner.m_moveSpeed;
 
-	CheckMoveFinish(owner);
+	CheckMoveFinish(owner, _dist);
 	// ===============================
 
 	// ========== 内積を計算 ==========
@@ -588,17 +599,15 @@ void Enemy::LoseSight::Update(Enemy& owner)
 
 void Enemy::LoseSight::Exit(Enemy& owner)
 {
-	owner.m_isMoveFinish = true;
+
 }
 
-void Enemy::LoseSight::CheckMoveFinish(Enemy& owner)
+void Enemy::LoseSight::CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)
 {
-	Math::Vector3	_dist = owner.m_loseSightPos - owner.m_pos;			// 距離
-
-	// 距離を確認
-	if (_dist.LengthSquared() <= owner.m_ignoreLength)
+	if (dist.LengthSquared() <= owner.m_ignoreLength)
 	{
-		owner.ChangeState(std::make_shared<SearchAround>());			// ステートを切り替える
+		owner.ChangeState(std::make_shared<SearchAround>());			// ステート切り替え
+		owner.m_isMoveFinish = true;									// 移動完了状態
 		return;
 	}
 }
@@ -607,8 +616,9 @@ void Enemy::LoseSight::CheckMoveFinish(Enemy& owner)
 void Enemy::SearchAround::Enter(Enemy& owner)
 {
 	owner.m_searchPhase = SearchPhase::RotRight;
-	owner.m_searchTimer = 960;
+	owner.m_searchTimer = owner.m_resetTimer;
 	owner.m_baseAngle	= owner.m_angle;
+	owner.m_isNowRotFin = false;
 }
 
 void Enemy::SearchAround::Update(Enemy& owner)
@@ -622,8 +632,7 @@ void Enemy::SearchAround::Update(Enemy& owner)
 		return;
 	}
 
-	// カウンタを参照して処理分岐
-	if(owner.m_searchTimer >= 0)
+	if (owner.m_searchTimer >= 0 || !owner.m_isNowRotFin)
 	{
 		SearchPlayer(owner);				// プレイヤーを捜索
 	}
@@ -635,6 +644,7 @@ void Enemy::SearchAround::Update(Enemy& owner)
 	// 探索終了
 	if (owner.m_isSearchFin)
 	{
+		FixNextPos(owner);											// 次の場所を決定
 		owner.ChangeState(std::make_shared<MoveOtherPos>());		// ステート切り替え
 		return;
 	}
@@ -650,8 +660,13 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 	// 現在の状態から判断
 	switch (owner.m_searchPhase)
 	{
-	case SearchPhase::RotRight:	// 右回転
-		
+	case SearchPhase::RotRight:
+
+		if (owner.m_isNowRotFin)
+		{
+			owner.m_isNowRotFin = false;			// 回転完了状態であれば、観点途中状態に変更
+		}
+
 		owner.m_angle += owner.m_rotationSpd;		// 回転角度更新
 
 		// 念のための回転制御
@@ -663,8 +678,10 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 		// 回転終了
 		if (owner.m_angle >= owner.m_baseAngle + owner.m_maxDegAng)
 		{
-			owner.m_angle = owner.m_baseAngle + owner.m_maxDegAng;
-			owner.m_frameCnt = 0;
+			owner.m_isNowRotFin = true;				// 回転完了状態に変更
+
+			owner.m_angle		= owner.m_baseAngle + owner.m_maxDegAng;
+			owner.m_frameCnt	= 0;
 			owner.m_searchPhase = SearchPhase::PauseRight;
 		}
 		break;
@@ -682,6 +699,11 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 
 	case SearchPhase::RotLeft:
 
+		if (owner.m_isNowRotFin)
+		{
+			owner.m_isNowRotFin = false;			// 回転完了状態であれば、回転途中状態に変更
+		}
+
 		owner.m_angle -= owner.m_rotationSpd;
 
 		// 念のための回転制御
@@ -693,6 +715,8 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 		// 回転終了
 		if (owner.m_angle <= owner.m_baseAngle - owner.m_maxDegAng)
 		{
+			owner.m_isNowRotFin = true;
+
 			owner.m_angle = owner.m_baseAngle - owner.m_maxDegAng;
 			owner.m_frameCnt = 0;
 			owner.m_searchPhase = SearchPhase::PauseLeft;
@@ -709,4 +733,9 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 		}
 		break;
 	}
+}
+
+void Enemy::SearchAround::FixNextPos(Enemy& owner)
+{
+
 }

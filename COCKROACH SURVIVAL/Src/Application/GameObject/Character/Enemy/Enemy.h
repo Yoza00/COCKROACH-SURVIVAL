@@ -91,12 +91,14 @@ private:
 
 	// ========== 周囲の捜索に必要な変数 ==========
 	bool							m_isSearchFin	= false;					// 周囲の捜索が終了したかどうか
+	bool							m_isNowRotFin	= false;					// 今、回転終了しているかどうか(途中であれば、回転完了まで待つ)
 	SearchPhase						m_searchPhase	= SearchPhase::RotRight;	// 今の状態
 	float							m_baseAngle		= 0.0f;						// 基準角度(ステートに入ったとき、一度だけ現在の角度を代入する)
 	int								m_frameCnt		= 0;						// フレームカウンタ
 	const float						m_rotationSpd	= 1.0f;						// 回転速度
 	const float						m_maxDegAng		= 60.0f;					// 最大回転角度
-	int								m_searchTimer	= 960;						// 捜索する制限時間(無くなれば次のステートへ)
+	int								m_searchTimer	= 600;						// 捜索する制限時間(無くなれば次のステートへ)
+	const int						m_resetTimer	= 600;						// タイマーのリセット値
 	// ============================================
 
 	// ========== 徘徊処理に必要な変数 ==========
@@ -178,14 +180,14 @@ private:
 	{
 	public:
 
-		~MoveOtherPos()						{}
+		~MoveOtherPos()								{}
 
-		void Enter(Enemy& owner)	override;
-		void Update(Enemy& owner)	override;
-		void Exit(Enemy& owner)		override;
+		void Enter(Enemy& owner)			override;
+		void Update(Enemy& owner)			override;
+		void Exit(Enemy& owner)				override;
 
 		void Turn(Enemy& owner, const Math::Vector3& dir);				// ターン
-		void CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)override;
+		void CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)	override;
 	};
 
 	// 追跡
@@ -205,13 +207,13 @@ private:
 	{
 	public:
 
-		~LoseSight()						{}
+		~LoseSight()								{}
 
-		void Enter(Enemy& owner)	override;
-		void Update(Enemy& owner)	override;
-		void Exit(Enemy& owner)		override;
+		void Enter(Enemy& owner)			override;
+		void Update(Enemy& owner)			override;
+		void Exit(Enemy& owner)				override;
 
-		void CheckMoveFinish(Enemy& owner);
+		void CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)	override;
 	};
 
 	// 周囲の捜索(周囲にプレイヤーがいるかどうかを確かめるためのステート)
@@ -226,6 +228,7 @@ private:
 		void Exit(Enemy& owner)		override;
 
 		void SearchPlayer(Enemy& owner);		// プレイヤーを捜索
+		void FixNextPos(Enemy& owner);			// 次の場所を決定
 	};
 
 	// ステート切り替え関数

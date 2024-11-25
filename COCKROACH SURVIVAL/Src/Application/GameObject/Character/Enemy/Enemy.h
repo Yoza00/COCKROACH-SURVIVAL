@@ -72,7 +72,7 @@ private:
 	// ========== 視界関係で必要となる変数 ==========
 	const float						m_sightSize		= 80.0f;					// 中心からの角度
 	const float						m_sightAreaSize = 100.0f;					// ぼんやりと見えている範囲
-	const float						m_sightRange	= 1000.0f;					// 判定の距離
+	const float						m_sightRange	= 2000.0f;					// 判定の距離
 	float							m_angle			= 0.0f;						// モデルの回転角度
 	const float						m_maxAngle		= 1.0f;						// 回転角度の最大値
 	const float						m_rotThreshold	= 3.5f;						// 回転する閾値(回転度数がここよりも小さい場合は回転処理をしない)
@@ -114,6 +114,13 @@ private:
 	// ==========================================
 
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
+
+	// ========== CSV関連 ==========
+	std::vector<std::vector<int>>	m_csvData;									// CSVデータを格納する2次元可変長配列
+
+	// CSVデータ読み込み関数
+	void CSVDataLoad(const std::string& filePath);
+	// =============================
 
 	// 当たり判定を行う関数
 	void HitCheck();

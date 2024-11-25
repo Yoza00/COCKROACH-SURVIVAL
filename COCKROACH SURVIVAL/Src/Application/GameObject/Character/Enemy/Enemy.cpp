@@ -93,6 +93,8 @@ void Enemy::Init()
 		return;
 	}
 
+	CSVDataLoad("Asset/Data/CSV/map_grid.csv");					// マップデータ読み込み
+
 	m_wayNumber = m_minWayNumber;								// 念のため、ポイント番号を初期座標に変更
 	m_pos		= m_wayPoints[m_wayNumber].m_pos;				// 初期座標をセット
 	m_wayNumber++;
@@ -105,6 +107,40 @@ void Enemy::Init()
 	// ========== デバッグ用 ==========
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 	// ================================
+}
+
+void Enemy::CSVDataLoad(const std::string& filePath)
+{
+	std::ifstream	_file(filePath);					// ファイル読み込み
+	
+	// オープンチェック
+	if (!_file.is_open())
+	{
+		assert(0 && "csvデータの読み込みに失敗しました。");
+		return;
+	}
+
+	std::string		_lineString;						// １列分の文字列を格納するための変数
+
+	// ファイルから１文字ずつ取得
+	while (std::getline(_file, _lineString))
+	{
+		std::istringstream	_iss(_lineString);			// 文字列を操作する変数
+		std::string			_commaString;				// コンマ区切りにした文字列
+		std::vector<int>	_tmpList;					// ２次元可変長配列に格納する可変長配列
+
+		// 文字列をコンマ区切りにする
+		while (std::getline(_iss, _commaString, ','))
+		{
+			// 文字を数値に変換
+			int	_tmpData = stoi(_commaString);			// 数値に変換
+			_tmpList.push_back(_tmpData);				// リストに追加
+		}
+
+		m_csvData.push_back(_tmpList);					// 完成したtmpListを追加
+	}
+
+	_file.close();			// ファイルを閉じる
 }
 
 // オブジェクトとの当たり判定を調べる

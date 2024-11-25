@@ -110,6 +110,7 @@ private:
 	bool							m_isTurnFinish	= false;					// 回転処理が終わったかどうか(回転終わるまで移動しない)
 	Math::Vector3					m_nextPos		= Math::Vector3::Zero;		// 次の場所の座標
 	const float						m_ignoreLength	= 2.5f;						// 無視する距離
+	bool							m_isFixNextPos	= false;					// 次の場所を決定すべきかどうか(見失ってから、巡回ルートに戻る際に使用する)
 	// ==========================================
 
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ

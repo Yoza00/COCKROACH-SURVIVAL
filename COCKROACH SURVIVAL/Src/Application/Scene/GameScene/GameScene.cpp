@@ -251,11 +251,11 @@ void GameScene::Init()
 	m_wpPlayer = _spPlayer;
 
 	// エネミー
-	Math::Vector3			_enemyPos	= { 0.0f,2.5f,20.0f };
+	/*Math::Vector3			_enemyPos	= { 0.0f,2.5f,20.0f };
 	std::shared_ptr<Enemy>	_spEnemy	= std::make_shared<Enemy>();
 	_spEnemy->Init();
 	_spEnemy->SetScale(8.0f);
-	m_objList.push_back(_spEnemy);
+	m_objList.push_back(_spEnemy);*/
 
 	// UI
 	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/ObjectData.json"))
@@ -367,7 +367,7 @@ void GameScene::Init()
 	//_spCamera->ResistHitObject(_spRight);
 	//_spCamera->ResistHitObject(_spLeft);
 	_spPlayer->SetCamera(_spCamera);		// プレイヤーにカメラのポインタをセット
-	_spEnemy->SetPlayer(_spPlayer);
+	//_spEnemy->SetPlayer(_spPlayer);
 
 	// 乱数生成機
 	m_RandomGen = std::make_shared<KdRandomGenerator>();

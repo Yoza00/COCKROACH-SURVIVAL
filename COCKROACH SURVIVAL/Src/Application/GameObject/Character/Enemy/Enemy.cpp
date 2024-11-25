@@ -477,7 +477,6 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 	// 次の場所との距離が一定以下まで近づいた
 	if (dist.LengthSquared() <= owner.m_ignoreLength)
 	{
-		//owner.ChangeState(std::make_shared<Search>());			// ステート切り替え
 		owner.ChangeState(std::make_shared<SearchAround>());	// ステート切り替え
 		owner.m_wayNumber++;									// 移動場所の更新
 		
@@ -599,7 +598,7 @@ void Enemy::LoseSight::Update(Enemy& owner)
 
 void Enemy::LoseSight::Exit(Enemy& owner)
 {
-
+	owner.m_isFixNextPos = true;
 }
 
 void Enemy::LoseSight::CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)
@@ -644,7 +643,12 @@ void Enemy::SearchAround::Update(Enemy& owner)
 	// 探索終了
 	if (owner.m_isSearchFin)
 	{
-		FixNextPos(owner);											// 次の場所を決定
+		// 巡回ルートに戻る為に次の場所を決定する必要がある場合に、場所を決定する
+		if (owner.m_isFixNextPos)
+		{
+			FixNextPos(owner);										// 現在位置から一番近いウェイポイントを検出
+		}
+
 		owner.ChangeState(std::make_shared<MoveOtherPos>());		// ステート切り替え
 		return;
 	}
@@ -652,7 +656,8 @@ void Enemy::SearchAround::Update(Enemy& owner)
 
 void Enemy::SearchAround::Exit(Enemy& owner)
 {
-	owner.m_isSearchFin = false;		// 起動状態のフラグを解除
+	owner.m_isSearchFin		= false;		// 起動状態のフラグを解除
+	owner.m_isFixNextPos	= false;		// 次の場所を決定すべきで無い
 }
 
 void Enemy::SearchAround::SearchPlayer(Enemy& owner)
@@ -737,5 +742,22 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 
 void Enemy::SearchAround::FixNextPos(Enemy& owner)
 {
+	int				_pointNumber	= 0;		// 座標番号
+	Math::Vector3	_dist = owner.m_wayPoints[_pointNumber].m_pos - owner.m_pos;			// エネミーとウェイポイント0番目の距離
 
+	for (int i = 1; i < owner.m_wayPoints.size(); i++)
+	{
+		Math::Vector3	_distance = owner.m_wayPoints[i].m_pos - owner.m_pos;				// エネミーとウェイポイントi番目の距離
+
+		// ２つの距離を比較
+		if (_dist.LengthSquared() > _distance.LengthSquared())
+		{
+			_dist			= _distance;			// 座標情報をコピー
+			_pointNumber	= i;					// 番号更新
+		}
+	}
+
+	// ループが終了したら、最終的な番号が取れるので
+	// それを使用して、一番近いポイントをセットしておく
+	owner.m_wayNumber = _pointNumber;
 }

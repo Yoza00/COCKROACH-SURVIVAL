@@ -82,8 +82,6 @@ void Player::Update()
 		}
 	}
 
-	//Application::Instance().m_log.AddLog("%f\n", m_pos.y);
-
 	UINT	_tmpActionType = m_actionType;		// アクションタイプを一時的に保存しておく
 	//			↑現時点でのアクションタイプを格納するための変数
 	m_actionType = ActionType::Idle;			// 待機モーションを入れておく
@@ -204,7 +202,7 @@ void Player::Update()
 	//m_mWorld = _scaleMat * (/*m_modelRotMat * */m_rotMat) * _transMat;
 
 	// デバッグ用
-	//Application::Instance().m_log.AddLog("x : %0.2f\ny : %0.2f\nz : %0.2f\n", m_pos.x, m_pos.y, m_pos.z);
+	Application::Instance().m_log.AddLog("x : %0.2f\ny : %0.2f\nz : %0.2f\n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Player::PostUpdate()

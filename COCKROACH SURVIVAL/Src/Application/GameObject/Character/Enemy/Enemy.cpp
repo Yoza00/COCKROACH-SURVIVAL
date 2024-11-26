@@ -19,12 +19,12 @@ void Enemy::Update()
 	// ========================================
 
 	// 視界判定(判定し終えてから更新処理を行う)
-	CheckSight();
+	//CheckSight();
 
 	// ステートパターンを使用して、状態に応じた処理を行うように処理する
 	if (m_nowState)
 	{
-		m_nowState->Update(*this);
+		//m_nowState->Update(*this);
 	}
 
 	/*

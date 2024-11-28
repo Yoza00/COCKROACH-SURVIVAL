@@ -2,6 +2,9 @@
 
 #include"../BaseScene/BaseScene.h"
 #include"../../GameObject/Stage/ObjectManager/ObjectManager.h"
+#include"../Json/nlohmann/json.hpp"
+
+#include"../../ASter/ASter.h"
 
 class Player;
 //class TimeLimit;
@@ -20,6 +23,13 @@ private:
 	void Init() override;
 
 	void RandomMakePos();
+
+	// ========== 経路探索関連 ==========
+	bool LoadMapData(const std::string& filePath);
+
+	std::vector<std::vector<int>> m_grid;
+	ASter	m_Aster;
+	// ==================================
 
 	// 食べ物関連
 	int m_foodCnt = 0;					// ゲームシーン中の食べ物を生成するまでのフレーム

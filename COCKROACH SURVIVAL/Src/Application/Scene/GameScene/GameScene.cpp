@@ -201,6 +201,13 @@ void GameScene::Init()
 	_spFloor->Init();
 	m_objList.push_back(_spFloor);
 
+	// マップデータ
+	if (!LoadMapData("Asset/Data/Json/MapData/MapData.json"))
+	{
+		assert(0 && "マップデータの読み込みに失敗しました。");
+		return;
+	}
+
 	/*std::shared_ptr<WallFront>	_spFront = std::make_shared<WallFront>();
 	_spFront->Init();
 	m_objList.push_back(_spFront);
@@ -251,8 +258,7 @@ void GameScene::Init()
 	m_wpPlayer = _spPlayer;
 
 	// エネミー
-	Math::Vector3			_enemyPos	= { 0.0f,2.5f,20.0f };
-	std::shared_ptr<Enemy>	_spEnemy	= std::make_shared<Enemy>();
+	std::shared_ptr<Enemy>	_spEnemy = std::make_shared<Enemy>();
 	_spEnemy->Init();
 	_spEnemy->SetScale(8.0f);
 	m_objList.push_back(_spEnemy);
@@ -369,6 +375,9 @@ void GameScene::Init()
 	_spPlayer->SetCamera(_spCamera);		// プレイヤーにカメラのポインタをセット
 	_spEnemy->SetPlayer(_spPlayer);
 
+	_spEnemy->SetMapGrid(m_grid);
+	_spEnemy->SetASter(m_Aster);
+
 	// 乱数生成機
 	m_RandomGen = std::make_shared<KdRandomGenerator>();
 
@@ -390,4 +399,24 @@ void GameScene::RandomMakePos()
 	float	_posZ = m_RandomGen->GetFloat(_minZ, _maxZ);
 
 	m_makePos = { _posX,1.4f,_posZ };
+}
+
+bool GameScene::LoadMapData(const std::string& filePath)
+{
+	std::ifstream	_file(filePath);
+
+	if (!_file.is_open())
+	{
+		return false;
+	}
+
+	nlohmann::json	_jsonData;
+
+	_file >> _jsonData;
+
+	_file.close();
+
+	m_grid = _jsonData["map"];
+
+	return true;
 }

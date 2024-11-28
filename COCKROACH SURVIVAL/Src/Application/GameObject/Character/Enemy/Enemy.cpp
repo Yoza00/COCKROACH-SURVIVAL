@@ -19,12 +19,12 @@ void Enemy::Update()
 	// ========================================
 
 	// 視界判定(判定し終えてから更新処理を行う)
-	//CheckSight();
+	CheckSight();
 
 	// ステートパターンを使用して、状態に応じた処理を行うように処理する
 	if (m_nowState)
 	{
-		//m_nowState->Update(*this);
+		m_nowState->Update(*this);
 	}
 
 	/*
@@ -85,15 +85,13 @@ void Enemy::Init()
 			m_localSightMat = _pNode->m_worldTransform;
 		}
 	}
-	
+
 	// ウェイポイントの情報セット
 	if (!LoadWayPointsFronJson("Asset/Data/Json/WayPoints/WayPoints.json"))
 	{
 		assert(0 && "ファイルの読み込みに失敗しました。");		// 読み込めなかった場合はエラー表示
 		return;
 	}
-
-	CSVDataLoad("Asset/Data/CSV/map_grid.csv");					// マップデータ読み込み
 
 	m_wayNumber = m_minWayNumber;								// 念のため、ポイント番号を初期座標に変更
 	m_pos		= m_wayPoints[m_wayNumber].m_pos;				// 初期座標をセット
@@ -109,38 +107,39 @@ void Enemy::Init()
 	// ================================
 }
 
-void Enemy::CSVDataLoad(const std::string& filePath)
+void Enemy::MoveTowardsPlayer()
 {
-	std::ifstream	_file(filePath);					// ファイル読み込み
-	
-	// オープンチェック
-	if (!_file.is_open())
+	// プレイヤー情報を取得
+	const std::shared_ptr<Player>	_spPlayer = m_wpPlayer.lock();
+	if (!_spPlayer)
 	{
-		assert(0 && "csvデータの読み込みに失敗しました。");
-		return;
+		return;				// プレイヤー情報の取得ができなければリターン	
 	}
 
-	std::string		_lineString;						// １列分の文字列を格納するための変数
+	Math::Vector3	_playerPos = _spPlayer->GetPos();		// プレイヤー座標取得
 
-	// ファイルから１文字ずつ取得
-	while (std::getline(_file, _lineString))
+	// グリッド座標を計算
+	auto [startX, startZ]	= std::make_tuple(static_cast<int>(m_pos.x / 9.0f), static_cast<int>(m_pos.z / 9.0f));
+	auto [goalX, goalZ]		= std::make_tuple(static_cast<int>(_playerPos.x / 9.0f), static_cast<int>(_playerPos.z / 9.0f));
+
+	// 経路探索
+	std::vector<std::tuple<int, int>>	_path = m_aster->FindPath(startX, startZ, goalX, goalZ, m_mapGrid);
+
+	// 中身がある場合
+	if (!_path.empty())
 	{
-		std::istringstream	_iss(_lineString);			// 文字列を操作する変数
-		std::string			_commaString;				// コンマ区切りにした文字列
-		std::vector<int>	_tmpList;					// ２次元可変長配列に格納する可変長配列
+		auto [nextX, nextZ] = _path.front();
+		Math::Vector3	_target(nextX * 9.0f, m_pos.y, nextZ * 9.0f);
+		
+		// 現在位置をターゲットに向けて補間
+		m_pos = Math::Vector3::Lerp(m_pos, _target, m_moveSpeed);
 
-		// 文字列をコンマ区切りにする
-		while (std::getline(_iss, _commaString, ','))
+		Math::Vector3	_dist = m_pos - _target;
+		if (_dist.LengthSquared() < m_ignoreLength)
 		{
-			// 文字を数値に変換
-			int	_tmpData = stoi(_commaString);			// 数値に変換
-			_tmpList.push_back(_tmpData);				// リストに追加
+			m_pos = _target;			// ターゲットに到着
 		}
-
-		m_csvData.push_back(_tmpList);					// 完成したtmpListを追加
 	}
-
-	_file.close();			// ファイルを閉じる
 }
 
 // オブジェクトとの当たり判定を調べる
@@ -529,31 +528,33 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 // ========== 追跡 ==========
 void Enemy::Chase::Enter(Enemy& owner)
 {
+	
 }
 
 void Enemy::Chase::Update(Enemy& owner)
 {
-	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-	if (!_spPlayer)
-	{
-		owner.ChangeState(std::make_shared<Search>());			// 探索状態に切り替え
-		return;
-	}
+	owner.MoveTowardsPlayer();
+	//const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+	//if (!_spPlayer)
+	//{
+	//	owner.ChangeState(std::make_shared<Search>());			// 探索状態に切り替え
+	//	return;
+	//}
 
-	Math::Vector3	_playerPos = _spPlayer->GetPos();			// プレイヤー座標取得
+	//Math::Vector3	_playerPos = _spPlayer->GetPos();			// プレイヤー座標取得
 
-	// 視界判定の結果、プレイヤーが視界外に居る場合、ステートを切り替える
-	if (!owner.m_isSight)
-	{
-		owner.m_loseSightPos = _playerPos;						// 見失った座標をコピー
-		owner.ChangeState(std::make_shared<LoseSight>());		// 見失った状態に切り替え
-		return;
-	}
+	//// 視界判定の結果、プレイヤーが視界外に居る場合、ステートを切り替える
+	//if (!owner.m_isSight)
+	//{
+	//	owner.m_loseSightPos = _playerPos;						// 見失った座標をコピー
+	//	owner.ChangeState(std::make_shared<LoseSight>());		// 見失った状態に切り替え
+	//	return;
+	//}
 
-	Math::Vector3	_VectorDir = _playerPos - owner.m_pos;		// 自分から見たプレイヤーへのベクトルを算出
-	_VectorDir.Normalize();										// 方向ベクトルなので正規化しておく
+	//Math::Vector3	_VectorDir = _playerPos - owner.m_pos;		// 自分から見たプレイヤーへのベクトルを算出
+	//_VectorDir.Normalize();										// 方向ベクトルなので正規化しておく
 
-	owner.m_pos	+= _VectorDir * owner.m_moveSpeed;				// 座標を更新
+	//owner.m_pos	+= _VectorDir * owner.m_moveSpeed;				// 座標を更新
 }
 
 void Enemy::Chase::Exit(Enemy& owner)

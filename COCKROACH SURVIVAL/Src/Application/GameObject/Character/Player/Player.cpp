@@ -202,7 +202,7 @@ void Player::Update()
 	//m_mWorld = _scaleMat * (/*m_modelRotMat * */m_rotMat) * _transMat;
 
 	// デバッグ用
-	Application::Instance().m_log.AddLog("x : %0.2f\ny : %0.2f\nz : %0.2f\n", m_pos.x, m_pos.y, m_pos.z);
+	//Application::Instance().m_log.AddLog("x : %0.2f\ny : %0.2f\nz : %0.2f\n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Player::PostUpdate()
@@ -213,12 +213,6 @@ void Player::PostUpdate()
 
 	// 当たり判定
 	HitJudge();
-
-	//else
-	//{
-	//	// オブジェクトから法線を取得できなかった＝近くでオブジェクトに触れていない
-	//	//m_gravityDir = Math::Vector3::Down;			// 重力方向切り替え
-	//}
 
 	// アニメーションの更新
 	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());

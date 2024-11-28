@@ -190,6 +190,9 @@
     <Filter Include="Src\Application\GameObject\Character\Enemy">
       <UniqueIdentifier>{36ee473b-661b-402f-8666-9c18d849c3af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\ASter">
+      <UniqueIdentifier>{31e981e9-755e-4c2f-9da6-37f2c032f4f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -567,6 +570,9 @@
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\Enemy.h">
       <Filter>Src\Application\GameObject\Character\Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\ASter\ASter.h">
+      <Filter>Src\Application\ASter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -781,6 +787,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\Enemy.cpp">
       <Filter>Src\Application\GameObject\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\ASter\ASter.cpp">
+      <Filter>Src\Application\ASter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

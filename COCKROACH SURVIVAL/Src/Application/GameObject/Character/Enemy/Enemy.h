@@ -2,6 +2,8 @@
 
 #include"Json/nlohmann/json.hpp"
 
+#include"../../../ASter/ASter.h"
+
 class Player;
 
 // ウェイポイント用構造体
@@ -15,8 +17,8 @@ class Enemy :public KdGameObject
 {
 public:
 
-	Enemy() {}
-	~Enemy()								override {}
+	Enemy()												{}
+	~Enemy()								override	{}
 
 	// 周囲の捜索に必要なやつ
 	enum SearchPhase
@@ -49,6 +51,18 @@ public:
 		m_scale = scale;
 	}
 	// ==============================
+
+	// ========== 経路探索用 ==========
+	void SetMapGrid(const std::vector<std::vector<int>>& mapGrid)
+	{
+		m_mapGrid = mapGrid;
+	}
+
+	void SetASter(ASter& ASter)
+	{
+		m_aster = &ASter;
+	}
+	// ================================
 
 private:
 
@@ -115,12 +129,11 @@ private:
 
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
 
-	// ========== CSV関連 ==========
-	std::vector<std::vector<int>>	m_csvData;									// CSVデータを格納する2次元可変長配列
-
-	// CSVデータ読み込み関数
-	void CSVDataLoad(const std::string& filePath);
-	// =============================
+	// ========== 経路探索用 ==========
+	std::vector<std::vector<int>>	m_mapGrid;
+	ASter*							m_aster;
+	void MoveTowardsPlayer();													// プレイヤーの場所までの経路探索
+	// ================================
 
 	// 当たり判定を行う関数
 	void HitCheck();

@@ -4,8 +4,6 @@
 #include"../../GameObject/Stage/ObjectManager/ObjectManager.h"
 #include"../Json/nlohmann/json.hpp"
 
-#include"../../ASter/ASter.h"
-
 class Player;
 //class TimeLimit;
 class Menu_Icon;
@@ -28,7 +26,6 @@ private:
 	bool LoadMapData(const std::string& filePath);
 
 	std::vector<std::vector<int>> m_grid;
-	ASter	m_Aster;
 	// ==================================
 
 	// 食べ物関連

@@ -258,7 +258,7 @@ void GameScene::Init()
 	m_wpPlayer = _spPlayer;
 
 	// エネミー
-	std::shared_ptr<Enemy>	_spEnemy = std::make_shared<Enemy>();
+	std::shared_ptr<Enemy>	_spEnemy = std::make_shared<Enemy>(m_grid);
 	_spEnemy->Init();
 	_spEnemy->SetScale(8.0f);
 	m_objList.push_back(_spEnemy);
@@ -374,9 +374,6 @@ void GameScene::Init()
 	//_spCamera->ResistHitObject(_spLeft);
 	_spPlayer->SetCamera(_spCamera);		// プレイヤーにカメラのポインタをセット
 	_spEnemy->SetPlayer(_spPlayer);
-
-	_spEnemy->SetMapGrid(m_grid);
-	_spEnemy->SetASter(m_Aster);
 
 	// 乱数生成機
 	m_RandomGen = std::make_shared<KdRandomGenerator>();

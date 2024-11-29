@@ -4,14 +4,22 @@
 
 #include"../../../main.h"
 
+Enemy::Enemy(std::vector<std::vector<int>>& grid) :
+	m_grid(&grid)
+{
+
+}
+
 void Enemy::Update()
 {
 	if (!m_spModel)return;
 
 	// エネミー本体から見た視界の根本の座標
-	Math::Vector3 _sightPos = (m_localSightMat * m_mWorld).Translation();
+	{
+		Math::Vector3 _sightPos = (m_localSightMat * m_mWorld).Translation();
 
-	m_sightPos = _sightPos;
+		m_sightPos = _sightPos;
+	}
 
 	// ========== 重力による座標更新 ==========
 	m_gravity	+= m_gravityPow;
@@ -36,9 +44,9 @@ void Enemy::Update()
 	// 行列関連
 	{
 		// 各要素の行列を作成
-		Math::Matrix	_scaleMat	= Math::Matrix::CreateScale(m_scale);									// 拡縮行列
-		Math::Matrix	_rotMat		= Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));	// Y軸における回転行列
-		Math::Matrix	_transMat	= Math::Matrix::CreateTranslation(m_pos);								// 座標行列
+		Math::Matrix	_scaleMat = Math::Matrix::CreateScale(m_scale);									// 拡縮行列
+		Math::Matrix	_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));	// Y軸における回転行列
+		Math::Matrix	_transMat = Math::Matrix::CreateTranslation(m_pos);								// 座標行列
 
 		// ワールド行列を作成(各要素の行列を合成したもの)
 		m_mWorld = _scaleMat * _rotMat * _transMat;
@@ -107,39 +115,90 @@ void Enemy::Init()
 	// ================================
 }
 
-void Enemy::MoveTowardsPlayer()
+void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 {
-	// プレイヤー情報を取得
-	const std::shared_ptr<Player>	_spPlayer = m_wpPlayer.lock();
-	if (!_spPlayer)
+	m_path.clear();					// 経路を初期化
+	Node	_start	= WorldToGrid(start);
+	Node	_goal	= WorldToGrid(goal);
+
+	std::priority_queue < Node, std::vector<Node>, std::function<bool(Node, Node)>>	_openList
 	{
-		return;				// プレイヤー情報の取得ができなければリターン	
-	}
-
-	Math::Vector3	_playerPos = _spPlayer->GetPos();		// プレイヤー座標取得
-
-	// グリッド座標を計算
-	auto [startX, startZ]	= std::make_tuple(static_cast<int>(m_pos.x / 9.0f), static_cast<int>(m_pos.z / 9.0f));
-	auto [goalX, goalZ]		= std::make_tuple(static_cast<int>(_playerPos.x / 9.0f), static_cast<int>(_playerPos.z / 9.0f));
-
-	// 経路探索
-	std::vector<std::tuple<int, int>>	_path = m_aster->FindPath(startX, startZ, goalX, goalZ, m_mapGrid);
-
-	// 中身がある場合
-	if (!_path.empty())
-	{
-		auto [nextX, nextZ] = _path.front();
-		Math::Vector3	_target(nextX * 9.0f, m_pos.y, nextZ * 9.0f);
-		
-		// 現在位置をターゲットに向けて補間
-		m_pos = Math::Vector3::Lerp(m_pos, _target, m_moveSpeed);
-
-		Math::Vector3	_dist = m_pos - _target;
-		if (_dist.LengthSquared() < m_ignoreLength)
+		[](Node a,Node b)
 		{
-			m_pos = _target;			// ターゲットに到着
+			return a.fCost() > b.fCost();
+		}
+	};
+
+	std::unordered_map<Node, float, NodeHash>	_gScore;
+	_openList.push(_start);
+	_gScore[_start] = 0;
+
+	while (!_openList.empty())
+	{
+		Node	_current = _openList.top();
+		_openList.pop();
+
+		if (_current == _goal)
+		{
+			for (Node* node = &_current; node != nullptr; node = node->parent)
+			{
+				m_path.push_back(*node);
+			}
+
+			std::reverse(m_path.begin(), m_path.end());
+			m_currentPathIndex = 0;
+			return;
+		}
+
+		const std::vector<std::pair<int, int>>	_directions = {
+			{1,0},
+			{0,1},
+			{-1,0},
+			{0,-1}
+		};
+
+		for (auto& dir : _directions)
+		{
+			Node	_neighbor = { _current.x + dir.first,_current.z + dir.second };
+
+			if (_neighbor.x < 0 || _neighbor.z < 0 || _neighbor.x >= m_grid->size() || _neighbor.z >= (*m_grid)[0].size())
+			{
+				continue;
+			}
+
+			if ((*m_grid)[_neighbor.x][_neighbor.z] == 1)
+			{
+				continue;
+			}
+
+			float	_tentativeGScore = _gScore[_current] + 1;
+
+			if (_gScore.find(_neighbor) == _gScore.end() || _tentativeGScore < _gScore[_neighbor])
+			{
+				_gScore[_neighbor]	= _tentativeGScore;
+				_neighbor.gCost		= _tentativeGScore;
+				_neighbor.hCost		= Heuristic(_neighbor, _goal);
+				_neighbor.parent	= new Node(_current);
+				_openList.push(_neighbor);
+			}
 		}
 	}
+}
+
+Node Enemy::WorldToGrid(const Math::Vector3& WorldPos)
+{
+	int	_gridX = static_cast<int>(std::round(WorldPos.x - m_mapOrigin.x));
+	int	_gridZ = static_cast<int>(std::round(m_mapOrigin.z - WorldPos.z));
+
+	return { _gridX,_gridZ };
+}
+
+Math::Vector3 Enemy::GridToWorld(const Node& node)
+{
+	float	_worldX = m_mapOrigin.x + node.x;
+	float	_worldZ = m_mapOrigin.z - node.z;
+
+	return { _worldX,0.04f,_worldZ };
 }
 
 // オブジェクトとの当たり判定を調べる
@@ -528,12 +587,46 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 // ========== 追跡 ==========
 void Enemy::Chase::Enter(Enemy& owner)
 {
-	
+	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+	if (_spPlayer)
+	{
+		owner.SetGoal(_spPlayer->GetPos());
+	}
 }
 
 void Enemy::Chase::Update(Enemy& owner)
 {
-	owner.MoveTowardsPlayer();
+	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+	if (!_spPlayer)
+	{
+		return;
+	}
+
+	Math::Vector3	_playerPos = _spPlayer->GetPos();
+
+	// プレイヤーの位置が変わるたびに経路を再計算
+	if (owner.ShouldRecalculatePath(_playerPos))
+	{
+		owner.SetGoal(_playerPos);
+	}
+
+	if (owner.m_currentPathIndex < owner.m_path.size())
+	{
+		Math::Vector3	_target = owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);
+		Math::Vector3	_direction = _target - owner.m_pos;
+
+		if (_direction.LengthSquared() < owner.m_moveSpeed || _direction.LengthSquared() < owner.m_ignoreLength)
+		{
+			owner.m_pos = _target;
+			owner.m_currentPathIndex++;
+		}
+		else
+		{
+			_direction.Normalize();
+			owner.m_pos += _direction * owner.m_moveSpeed;
+		}
+	}
+
 	//const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
 	//if (!_spPlayer)
 	//{

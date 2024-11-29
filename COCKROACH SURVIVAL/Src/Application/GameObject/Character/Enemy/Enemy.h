@@ -2,8 +2,6 @@
 
 #include"Json/nlohmann/json.hpp"
 
-#include"../../../ASter/ASter.h"
-
 class Player;
 
 // ウェイポイント用構造体
@@ -13,11 +11,42 @@ struct WayPoint
 	Math::Vector3	m_pos;			// ポイントの座標
 };
 
+// ========== 経路探索用 ==========
+	// グリッド情報を定義
+struct Node
+{
+	int		x, z;							// ノードの座標
+	float	gCost = 0;					// スタートからこのノードまでのコスト
+	float	hCost = 0;					// このノードからゴールまでの推定コスト
+	Node* parent = nullptr;				// 親ノード
+
+	// 総コスト計算
+	float fCost()const
+	{
+		return gCost + hCost;
+	}
+
+	bool operator==(const Node& other)const
+	{
+		return x == other.x && z == other.z;
+	}
+};
+
+// ノードをハッシュ化するための関数
+struct NodeHash
+{
+	size_t operator()(const Node& node) const
+	{
+		return std::hash<int>()(node.x) ^ std::hash<int>()(node.z);
+	}
+};
+// ================================
+
 class Enemy :public KdGameObject
 {
 public:
 
-	Enemy()												{}
+	Enemy(std::vector<std::vector<int>>& grid);
 	~Enemy()								override	{}
 
 	// 周囲の捜索に必要なやつ
@@ -53,14 +82,11 @@ public:
 	// ==============================
 
 	// ========== 経路探索用 ==========
-	void SetMapGrid(const std::vector<std::vector<int>>& mapGrid)
+	// ゴールの設定と経路探索
+	void SetGoal(const Math::Vector3& goalPos)
 	{
-		m_mapGrid = mapGrid;
-	}
-
-	void SetASter(ASter& ASter)
-	{
-		m_aster = &ASter;
+		m_currentGoal = goalPos;
+		FindPath(m_pos, goalPos);		// 経路計算
 	}
 	// ================================
 
@@ -130,9 +156,31 @@ private:
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
 
 	// ========== 経路探索用 ==========
-	std::vector<std::vector<int>>	m_mapGrid;
-	ASter*							m_aster;
-	void MoveTowardsPlayer();													// プレイヤーの場所までの経路探索
+	std::vector<Node>				m_path;					// 計算された経路
+	Math::Vector3					m_currentGoal;			// 現在の目標座標
+	size_t							m_currentPathIndex = 0;	// 現在の経路インデックス
+	std::vector<std::vector<int>>*	m_grid;					// 参照するグリッド
+	Math::Vector3					m_mapOrigin = { -62.0f,0.04f,79.0f };		// グリッドの原点補正用
+
+	// ヒューリスティック関数
+	float Heuristic(const Node& a, const Node& b)
+	{
+		return std::abs(a.x - b.x) + std::abs(a.z - b.z);
+	}
+
+	// 経路探索(A*)
+	void FindPath(const Math::Vector3& start, const Math::Vector3& goal);
+
+	// Vector3をグリッド座標に変換
+	Node WorldToGrid(const Math::Vector3& WorldPos);
+
+	// グリッド座標をVector3に変換
+	Math::Vector3 GridToWorld(const Node& node);
+
+	bool ShouldRecalculatePath(const Math::Vector3& newGoal)
+	{
+		return (m_currentGoal - newGoal).LengthSquared() > 0.01f;	// 目標が変化したかどうか
+	}
 	// ================================
 
 	// 当たり判定を行う関数

@@ -133,6 +133,9 @@ void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 	_openList.push(_start);
 	_gScore[_start] = 0;
 
+	// 動的確保したノード追跡用リスト
+	std::vector<Node*>	_allocatedNodes;
+
 	while (!_openList.empty())
 	{
 		Node	_current = _openList.top();
@@ -142,11 +145,18 @@ void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 		{
 			for (Node* node = &_current; node != nullptr; node = node->parent)
 			{
-				m_path.push_back(*node);
+ 				m_path.push_back(*node);		// 経路に追加
 			}
 
 			std::reverse(m_path.begin(), m_path.end());
 			m_currentPathIndex = 0;
+
+			// 動的確保したノードを解放
+			for (Node* node : _allocatedNodes)
+			{
+				delete node;
+			}
+
 			return;
 		}
 
@@ -161,12 +171,14 @@ void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 		{
 			Node	_neighbor = { _current.x + dir.first,_current.z + dir.second };
 
-			if (_neighbor.x < 0 || _neighbor.z < 0 || _neighbor.x >= m_grid->size() || _neighbor.z >= (*m_grid)[0].size())
+			// 範囲外の探索をしないように制御
+			if (_neighbor.z < 0 || _neighbor.x < 0 || _neighbor.z >= m_grid->size() || _neighbor.x >= (*m_grid)[0].size())
 			{
 				continue;
 			}
 
-			if ((*m_grid)[_neighbor.x][_neighbor.z] == 1)
+			// 障害物があれば処理しない
+			if ((*m_grid)[_neighbor.z][_neighbor.x] == 1)
 			{
 				continue;
 			}
@@ -178,10 +190,20 @@ void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 				_gScore[_neighbor]	= _tentativeGScore;
 				_neighbor.gCost		= _tentativeGScore;
 				_neighbor.hCost		= Heuristic(_neighbor, _goal);
+
+				// 親ノードを動的確保し、追跡リストに追加
 				_neighbor.parent	= new Node(_current);
+				_allocatedNodes.push_back(_neighbor.parent);
+
 				_openList.push(_neighbor);
 			}
 		}
+	}
+
+	// 探索失敗時、動的確保したノードを解放
+	for (Node* node : _allocatedNodes)
+	{
+		delete node;
 	}
 }
 

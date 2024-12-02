@@ -121,6 +121,10 @@ void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 	Node	_start	= WorldToGrid(start);
 	Node	_goal	= WorldToGrid(goal);
 
+	// ========== デバッグ用 ==========
+	Application::Instance().m_log.AddLog("x : %d\nz : %d\n", _goal.x, _goal.z);
+	// ================================
+
 	std::priority_queue < Node, std::vector<Node>, std::function<bool(Node, Node)>>	_openList
 	{
 		[](Node a,Node b)
@@ -621,10 +625,20 @@ void Enemy::Chase::Update(Enemy& owner)
 	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
 	if (!_spPlayer)
 	{
+		owner.ChangeState(std::make_shared<Search>());			// ステート切り替え
 		return;
 	}
 
+	// プレイヤーの座標を取得
 	Math::Vector3	_playerPos = _spPlayer->GetPos();
+
+	// 視界外に居る場合
+	if (!owner.m_isSight)
+	{
+		owner.m_loseSightPos = _playerPos;						// 見失った座標を更新
+		owner.ChangeState(std::make_shared<LoseSight>());		// ステート切り替え
+		return;
+	}
 
 	// プレイヤーの位置が変わるたびに経路を再計算
 	if (owner.ShouldRecalculatePath(_playerPos))

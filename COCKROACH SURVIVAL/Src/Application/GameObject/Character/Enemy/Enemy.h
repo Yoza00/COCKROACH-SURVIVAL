@@ -179,7 +179,8 @@ private:
 
 	bool ShouldRecalculatePath(const Math::Vector3& newGoal)
 	{
-		return (m_currentGoal - newGoal).LengthSquared() > 0.01f;	// 目標が変化したかどうか
+		//return (m_currentGoal - newGoal).LengthSquared() > 0.01f;	// 目標が変化したかどうか
+		return (m_currentGoal - newGoal).LengthSquared() > 1.0f;
 	}
 	// ================================
 

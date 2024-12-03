@@ -125,7 +125,7 @@ private:
 	// ==============================================
 
 	// ========== 見失ったときに使用する変数 ==========
-	bool							m_isMoveFinish = true;						// 見失った場所まで移動できたかどうか
+	//bool							m_isMoveFinish = true;						// 見失った場所まで移動できたかどうか
 	//	初期状態でtrueにしているが、ステートに入った瞬間にfalseに変更しておくこと
 	// ================================================
 
@@ -177,11 +177,9 @@ private:
 	// グリッド座標をVector3に変換
 	Math::Vector3 GridToWorld(const Node& node);
 
-	bool ShouldRecalculatePath(const Math::Vector3& newGoal)
-	{
-		//return (m_currentGoal - newGoal).LengthSquared() > 0.01f;	// 目標が変化したかどうか
-		return (m_currentGoal - newGoal).LengthSquared() > 1.0f;
-	}
+	// 見失ったところが障害物であった際に使用する
+	// 移動可能範囲内でできる限り近づくことのできる経路を探索するための関数
+	Node FindNearestWalkableNode(const Node& targetNode);
 	// ================================
 
 	// 当たり判定を行う関数

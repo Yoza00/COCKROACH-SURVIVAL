@@ -227,6 +227,61 @@ Math::Vector3 Enemy::GridToWorld(const Node& node)
 	return { _worldX,0.04f,_worldZ };
 }
 
+Node Enemy::FindNearestWalkableNode(const Node& targetNode)
+{
+	std::queue<Node>					_searchQueue;
+	std::unordered_set<Node, NodeHash>	_visited;
+
+	_searchQueue.push(targetNode);
+	_visited.insert(targetNode);
+
+	const std::vector<std::pair<int, int>>	_directions = {
+			{1,0},
+			{0,1},
+			{-1,0},
+			{0,-1}
+	};
+
+	// 周囲のノードを探索して最も近い移動可能なノードを探索する
+	// 中身がある場合
+	while (!_searchQueue.empty())
+	{
+		Node	_currentNode = _searchQueue.front();
+		_searchQueue.pop();
+
+		// 現在のノードが移動可能ならそれを返す
+		if ((*m_grid)[_currentNode.z][_currentNode.x] == 0)
+		{
+			return	_currentNode;
+		}
+
+		// 周囲のノードを探索
+		for (auto& dir : _directions)
+		{
+			Node	_neighbor = { _currentNode.x + dir.first,_currentNode.z + dir.second };
+
+			// 範囲外チェック
+			if (_neighbor.x < 0 || _neighbor.z < 0 || _neighbor.x >= (*m_grid)[0].size() || _neighbor.z >= m_grid->size())
+			{
+				continue;
+			}
+
+			// 訪問済みか確認
+			if (_visited.find(_neighbor) != _visited.end())
+			{
+				continue;
+			}
+
+			// キューに追加
+			_searchQueue.push(_neighbor);
+			_visited.insert(_neighbor);
+		}
+	}
+
+	// 適切な移動先が見つからなかった場合、デフォルトで元のターゲットノードを返す
+	return	targetNode;
+}
+
 // オブジェクトとの当たり判定を調べる
 void Enemy::HitCheck()
 {
@@ -640,26 +695,99 @@ void Enemy::Chase::Update(Enemy& owner)
 		return;
 	}
 
-	// プレイヤーの位置が変わるたびに経路を再計算
-	if (owner.ShouldRecalculatePath(_playerPos))
-	{
-		owner.SetGoal(_playerPos);
-	}
-
 	if (owner.m_currentPathIndex < owner.m_path.size())
 	{
+		// 現在のターゲットノード
 		Math::Vector3	_target = owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);
+		
+		// エネミーの現在位置とターゲットの位置の間を補間
 		Math::Vector3	_direction = _target - owner.m_pos;
 
-		if (_direction.LengthSquared() < owner.m_moveSpeed || _direction.LengthSquared() < owner.m_ignoreLength)
+		// 移動速度よりもターゲットまでの距離が短い場合(移動してしまうとターゲットを通過してしまう場合)
+		if (_direction.LengthSquared() < owner.m_moveSpeed)
 		{
-			owner.m_pos = _target;
-			owner.m_currentPathIndex++;
+			owner.m_pos = _target;				// 座標をターゲットの座標に更新
+			owner.m_currentPathIndex++;			// 次のノードへ
 		}
 		else
 		{
 			_direction.Normalize();
+			owner.m_pos += _direction * owner.m_moveSpeed;		// エネミーをターゲットの方向へ移動
+		}
+	}
+	else
+	{
+		owner.SetGoal(_playerPos);
+	}
+}
+
+void Enemy::Chase::Exit(Enemy& owner)
+{
+}
+
+// ========== 見失った ==========
+void Enemy::LoseSight::Enter(Enemy& owner)
+{
+	//owner.m_isMoveFinish = false;			// フラグ切り替え(移動が完了していない状態に)
+
+	// 見失った座標をグリッド座標に変換
+	Node	_loseSightNode = owner.WorldToGrid(owner.m_loseSightPos);
+
+	//// 見失った座標が障害物かどうかを確認
+	//if ((*owner.m_grid)[_loseSightNode.z][_loseSightNode.x] == 1)
+	//{
+	//	// 障害物の場合、周囲で最も近い移動可能なノードをゴールとして探索
+	//	_loseSightNode = owner.FindNearestWalkableNode(_loseSightNode);
+	//}
+	//else
+	//{
+	//	// 経路探索
+	//	owner.FindPath(owner.m_pos, owner.GridToWorld(_loseSightNode));
+	//}
+
+	// 障害物の場合、周囲で最も近い移動可能なノードをゴールとして探索
+	_loseSightNode = owner.FindNearestWalkableNode(_loseSightNode);
+}
+
+void Enemy::LoseSight::Update(Enemy& owner)
+{
+	// 視界にプレイヤーを確認したらステートを切り替える
+	if (owner.m_isSight)
+	{
+		owner.ChangeState(std::make_shared<Chase>());
+		return;
+	}
+
+	if (owner.m_currentPathIndex < owner.m_path.size())
+	{
+		// 現在のターゲットノード
+		Math::Vector3	_targetPos = owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);
+
+		// エネミーの現在位置とターゲット位置の間を補間
+		Math::Vector3	_direction			= _targetPos - owner.m_pos;
+
+		if (_direction.LengthSquared() < owner.m_moveSpeed)
+		{
+			// ターゲットノードに到着
+			owner.m_pos = _targetPos;
+			owner.m_currentPathIndex++;		// 次のノードへ
+		}
+		else
+		{
+			// ターゲット方向にエネミー速度で移動
+			_direction.Normalize();
 			owner.m_pos += _direction * owner.m_moveSpeed;
+		}
+	}
+	else
+	{
+		Math::Vector3	_dist = owner.m_loseSightPos - owner.m_pos;		// 見失った座標とエネミー座標との距離
+
+		// 距離が短かった場合
+		if (_dist.LengthSquared() < owner.m_ignoreLength * 10.0f)
+		{
+			owner.ChangeState(std::make_shared<SearchAround>());		// ステート切り替え
+			return;
 		}
 	}
 
@@ -670,96 +798,62 @@ void Enemy::Chase::Update(Enemy& owner)
 	//	return;
 	//}
 
-	//Math::Vector3	_playerPos = _spPlayer->GetPos();			// プレイヤー座標取得
-
-	//// 視界判定の結果、プレイヤーが視界外に居る場合、ステートを切り替える
-	//if (!owner.m_isSight)
+	//if (owner.m_isSight)
 	//{
-	//	owner.m_loseSightPos = _playerPos;						// 見失った座標をコピー
-	//	owner.ChangeState(std::make_shared<LoseSight>());		// 見失った状態に切り替え
+	//	owner.ChangeState(std::make_shared<Chase>());			// 視界内にいる場合は追跡モードに切り替える
 	//	return;
 	//}
 
-	//Math::Vector3	_VectorDir = _playerPos - owner.m_pos;		// 自分から見たプレイヤーへのベクトルを算出
-	//_VectorDir.Normalize();										// 方向ベクトルなので正規化しておく
+	//Math::Vector3	_dist	= owner.m_loseSightPos - owner.m_pos;	// 距離
+	//Math::Vector3	_nowDir = owner.m_mWorld.Backward();			// エネミーの正面方向のベクトル
+	//Math::Vector3	_toDir	= _dist;								// 向きたい方向
 
-	//owner.m_pos	+= _VectorDir * owner.m_moveSpeed;				// 座標を更新
-}
+	//// それぞれのベクトル正規化
+	//_nowDir.Normalize();
+	//_toDir.Normalize();
 
-void Enemy::Chase::Exit(Enemy& owner)
-{
-}
+	//// ========== 移動処理 ===========
+	//owner.m_pos += _toDir * owner.m_moveSpeed;
 
-// ========== 見失った ==========
-void Enemy::LoseSight::Enter(Enemy& owner)
-{
-	owner.m_isMoveFinish = false;			// フラグ切り替え(移動が完了していない状態に)
-}
+	//// 移動完了かチェック
+	//CheckMoveFinish(owner, _dist);
+	//// ===============================
 
-void Enemy::LoseSight::Update(Enemy& owner)
-{
-	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-	if (!_spPlayer)
-	{
-		owner.ChangeState(std::make_shared<Search>());			// 探索状態に切り替え
-		return;
-	}
+	//// ========== 内積を計算 ==========
+	//float	_dot	= _nowDir.Dot(_toDir);
+	//_dot			= std::clamp(_dot, -1.0f, 1.0f);				// 内積値を補正
+	//// ================================
 
-	if (owner.m_isSight)
-	{
-		owner.ChangeState(std::make_shared<Chase>());			// 視界内にいる場合は追跡モードに切り替える
-		return;
-	}
+	//// ========== モデルの回転処理 ==========
+	//float	_angle = DirectX::XMConvertToDegrees(acos(_dot));		// 内積値のacosで角度を求める
 
-	Math::Vector3	_dist	= owner.m_loseSightPos - owner.m_pos;	// 距離
-	Math::Vector3	_nowDir = owner.m_mWorld.Backward();			// エネミーの正面方向のベクトル
-	Math::Vector3	_toDir	= _dist;								// 向きたい方向
+	//if (_angle > owner.m_maxAngle)
+	//{
+	//	_angle = owner.m_maxAngle;
+	//}
 
-	// それぞれのベクトル正規化
-	_nowDir.Normalize();
-	_toDir.Normalize();
+	//Math::Vector3	_cross = _toDir.Cross(_nowDir);					// 外積の計算
 
-	// ========== 移動処理 ===========
-	owner.m_pos += _toDir * owner.m_moveSpeed;
+	//if (_cross.y >= 0.0f)
+	//{
+	//	owner.m_angle -= _angle;
 
-	CheckMoveFinish(owner, _dist);
-	// ===============================
+	//	// 角度が範囲外に行かないように制御
+	//	if (owner.m_angle < owner.m_minDegAngle)
+	//	{
+	//		owner.m_angle += owner.m_maxDegAngle;
+	//	}
+	//}
+	//else
+	//{
+	//	owner.m_angle += _angle;
 
-	// ========== 内積を計算 ==========
-	float	_dot	= _nowDir.Dot(_toDir);
-	_dot			= std::clamp(_dot, -1.0f, 1.0f);				// 内積値を補正
-	// ================================
-
-	// ========== モデルの回転処理 ==========
-	float	_angle = DirectX::XMConvertToDegrees(acos(_dot));		// 内積値のacosで角度を求める
-
-	if (_angle > owner.m_maxAngle)
-	{
-		_angle = owner.m_maxAngle;
-	}
-
-	Math::Vector3	_cross = _toDir.Cross(_nowDir);					// 外積の計算
-
-	if (_cross.y >= 0.0f)
-	{
-		owner.m_angle -= _angle;
-
-		// 角度が範囲外に行かないように制御
-		if (owner.m_angle < owner.m_minDegAngle)
-		{
-			owner.m_angle += owner.m_maxDegAngle;
-		}
-	}
-	else
-	{
-		owner.m_angle += _angle;
-
-		if (owner.m_angle >= owner.m_maxDegAngle)
-		{
-			owner.m_angle -= owner.m_maxDegAngle;
-		}
-	}
-	// ======================================
+	//	if (owner.m_angle >= owner.m_maxDegAngle)
+	//	{
+	//		owner.m_angle -= owner.m_maxDegAngle;
+	//	}
+	//}
+	//// ======================================
 }
 
 void Enemy::LoseSight::Exit(Enemy& owner)
@@ -772,7 +866,7 @@ void Enemy::LoseSight::CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)
 	if (dist.LengthSquared() <= owner.m_ignoreLength)
 	{
 		owner.ChangeState(std::make_shared<SearchAround>());			// ステート切り替え
-		owner.m_isMoveFinish = true;									// 移動完了状態
+		//owner.m_isMoveFinish = true;									// 移動完了状態
 		return;
 	}
 }

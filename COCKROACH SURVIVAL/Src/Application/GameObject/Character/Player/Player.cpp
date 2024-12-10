@@ -673,15 +673,15 @@ void Player::GroundCheck()
 	}
 	else // レイにあたっていない
 	{
-		//ChangeMovePosition(6);
+		ChangeMovePosition(6);
 		// この設計だと、レイが当たっていなければ問答無用で重力方向を変更されてしまう
 
 		// 未来座標を使用して未来でも当たり判定が実行されないのか検証
 		// 進行方向のベクトルがある場合に限り実行されるものとする
-		if (!FutureGroundCheck())
-		{
-			ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
-		}
+		//if (!FutureGroundCheck())
+		//{
+		//	ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
+		//}
 	}
 }
 

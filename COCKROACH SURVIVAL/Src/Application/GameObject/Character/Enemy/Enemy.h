@@ -89,6 +89,9 @@ public:
 private:
 
 	std::shared_ptr<KdModelWork>	m_spModel		= nullptr;					// モデル
+
+	std::shared_ptr<KdAnimator>		m_spAnimator	= nullptr;					// アニメーター
+
 	Math::Vector3					m_pos			= Math::Vector3::Zero;		// 座標
 	const float						m_moveSpeed		= 0.1f;						// 移動速度
 	float							m_scale			= 1.0f;						// 拡縮サイズ

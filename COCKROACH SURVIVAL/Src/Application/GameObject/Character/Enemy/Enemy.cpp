@@ -58,6 +58,10 @@ void Enemy::PostUpdate()
 	if (!m_spModel)return;
 
 	HitCheck();			// オブジェクトとの当たり判定を調べる
+
+	// アニメーションの更新
+	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
+	m_spModel->CalcNodeMatrices();
 }
 
 // ========== 描画関連 ==========
@@ -82,8 +86,9 @@ void Enemy::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy.gltf");
+		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy.gltf");
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people.gltf");
+		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation2.gltf");
 
 		// モデルからポイントノードを探して取得
 		const KdModelWork::Node* _pNode = m_spModel->FindNode("sightPoint");
@@ -109,6 +114,10 @@ void Enemy::Init()
 
 	// 初期状態のステートを設定
 	ChangeState(std::make_shared<Search>());
+
+	// アニメーション関連
+	m_spAnimator = std::make_shared<KdAnimator>();
+	m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"));	// 初期アニメーション設定
 
 	// ========== デバッグ用 ==========
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
@@ -644,6 +653,9 @@ void Enemy::MoveOtherPos::Enter(Enemy& owner)
 	owner.m_isTurnFinish	= false;											// ターン官僚フラグを解除
 	owner.m_isMoveNextPos	= false;											// 次の場所への移動フラグを解除
 	owner.m_nextPos			= owner.m_wayPoints[owner.m_wayNumber].m_pos;		// 移動先座標更新
+
+	// アニメーション変更
+	owner.m_spAnimator->SetAnimation(owner.m_spModel->GetData()->GetAnimation("Walk"));
 }
 
 void Enemy::MoveOtherPos::Update(Enemy& owner)
@@ -751,11 +763,15 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 // ========== 追跡 ==========
 void Enemy::Chase::Enter(Enemy& owner)
 {
+	// プレイヤーの座標からゴールまでの経路を算出
 	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
 	if (_spPlayer)
 	{
 		owner.SetGoal(_spPlayer->GetPos());
 	}
+
+	// アニメーション変更
+	owner.m_spAnimator->SetAnimation(owner.m_spModel->GetData()->GetAnimation("Run"));
 }
 
 void Enemy::Chase::Update(Enemy& owner)

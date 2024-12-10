@@ -234,6 +234,7 @@ private:
 	void HitJudge();
 	void NormalCheck();			// 法線取得用レイ判定
 	void GroundCheck();			// 重力方向へのレイ(足場確認用)
+	bool FutureGroundCheck();	// 未来座標を利用して、オブジェクトの側面に張り付いたりする
 	void HitSphereCheck();		// 横との当たり判定を確認するためのスフィア
 	void EatFoodSphereCheck();	// 食事用スフィア
 };

@@ -115,6 +115,28 @@ void Enemy::Init()
 	// ================================
 }
 
+// Math::Vector3をNodeに変換し、ゴールノードの情報に応じて使用する経路探索の処理を変更する
+void Enemy::SetGoal(const Math::Vector3& goalPos)
+{
+	m_currentGoal = goalPos;
+
+	// 現在のゴールのグリッド座標
+	Node	_goalNode = WorldToGrid(m_currentGoal);
+
+	// ゴールのグリッド座標をもとに実行する経路探索の判定
+	if ((*m_grid)[_goalNode.z][_goalNode.x] == 0)
+	{
+		// 通常の経路探索で、スタートからゴールまでの経路が求められる
+		FindPath(m_pos, goalPos);			// 経路計算
+	}
+	else if ((*m_grid)[_goalNode.z][_goalNode.x] == 1)
+	{
+		// ゴールが障害物の場所であり、移動可能な範囲で一番近づくことができる経路を求められる
+		FindNearestWalkableNode(_goalNode);	// 経路探索
+	}
+}
+
+// 通常の経路探索(スタートからゴールまでの経路を探索する(ゴールが障害物の場合は経路探索の終了までに時間がかかる)
 void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 {
 	m_path.clear();					// 経路を初期化
@@ -211,22 +233,7 @@ void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 	}
 }
 
-Node Enemy::WorldToGrid(const Math::Vector3& WorldPos)
-{
-	int	_gridX = static_cast<int>(std::round(WorldPos.x - m_mapOrigin.x));
-	int	_gridZ = static_cast<int>(std::round(m_mapOrigin.z - WorldPos.z));
-
-	return { _gridX,_gridZ };
-}
-
-Math::Vector3 Enemy::GridToWorld(const Node& node)
-{
-	float	_worldX = m_mapOrigin.x + node.x;
-	float	_worldZ = m_mapOrigin.z - node.z;
-
-	return { _worldX,0.04f,_worldZ };
-}
-
+// ゴールノードが障害物のある場所である際に使用する経路探索(移動できる範囲内で一番近くに移動できる経路を探索する)
 Node Enemy::FindNearestWalkableNode(const Node& targetNode)
 {
 	std::queue<Node>					_searchQueue;
@@ -280,6 +287,24 @@ Node Enemy::FindNearestWalkableNode(const Node& targetNode)
 
 	// 適切な移動先が見つからなかった場合、デフォルトで元のターゲットノードを返す
 	return	targetNode;
+}
+
+// Math::Vector3型の座標ををNode座標(グリッド座標)に変換
+Node Enemy::WorldToGrid(const Math::Vector3& WorldPos)
+{
+	int	_gridX = static_cast<int>(std::round(WorldPos.x - m_mapOrigin.x));
+	int	_gridZ = static_cast<int>(std::round(m_mapOrigin.z - WorldPos.z));
+
+	return { _gridX,_gridZ };
+}
+
+// Node座標(グリッド座標)をMath::Vector3型の座標に変換
+Math::Vector3 Enemy::GridToWorld(const Node& node)
+{
+	float	_worldX = m_mapOrigin.x + node.x;
+	float	_worldZ = m_mapOrigin.z - node.z;
+
+	return { _worldX,0.04f,_worldZ };
 }
 
 // オブジェクトとの当たり判定を調べる
@@ -404,6 +429,63 @@ void Enemy::CheckSight()
 	_cross = _mixVecDir.Cross(_nowDir);	// 外積計算
 
 	// Y軸回転のみ行うため、Y要素にのみ処理を作成
+	if (_cross.y >= 0.0f)
+	{
+		m_angle -= _angle;
+
+		// -360.0f(１回転分)を超えないように制御
+		if (m_angle < m_minDegAngle)
+		{
+			m_angle += m_maxDegAngle;
+		}
+	}
+	else
+	{
+		m_angle += _angle;
+
+		// 360.0f(１回転分)を超えないように制御
+		if (m_angle >= m_maxDegAngle)
+		{
+			m_angle -= m_maxDegAngle;
+		}
+	}
+}
+
+void Enemy::RotateToDirection(const Math::Vector3& toDir)
+{
+	// ゼロベクトルなら処理しない
+	if (toDir.LengthSquared() < 0.0001f)
+	{
+		return;
+	}
+
+	// 正規化された進行方向
+	Math::Vector3	_normalizedDirection = toDir;		// 向きたい方向ベクトルをコピー
+	_normalizedDirection.Normalize();					// 先ほど作成したものを正規化
+	Math::Vector3	_nowDir = m_mWorld.Backward();
+	_nowDir.Normalize();
+
+	// 内積を用いて回転角度を計算
+	float	_dot	= _nowDir.Dot(_normalizedDirection);	// モデルの前方方向へのベクトルと向きたい方向ベクトルとの内積を算出
+	_dot = std::clamp(_dot, -1.0f, 1.0f);								// 内積の値を-1～1の範囲に制限
+	float	_angle	= DirectX::XMConvertToDegrees(acos(_dot));			// 逆余弦関数で求められたラジアン角の値をディグリー角に変換
+
+	// 閾値よりも値が小さければ処理しない
+	if (_angle < m_rotThreshold)
+	{
+		return;
+	}
+
+	// 回転角度が最大値よりも大きい場合は、回転角度を最大値に設定する
+	if (_angle > m_maxAngle)					// 角度制御
+	{
+		_angle = m_maxAngle;
+	}
+
+	// 外積を用いて回転軸を計算
+	Math::Vector3	_cross = _normalizedDirection.Cross(_nowDir);
+
+	// 徐々に回転させる
 	if (_cross.y >= 0.0f)
 	{
 		m_angle -= _angle;
@@ -568,26 +650,27 @@ void Enemy::MoveOtherPos::Update(Enemy& owner)
 {
 	if (owner.m_isSight)
 	{
-		owner.ChangeState(std::make_shared<Chase>());			// 見つけたらステート切り替え
-		return;
+		if (owner.m_isTurnFinish)
+		{
+			owner.ChangeState(std::make_shared<Chase>());			// 見つけたらステート切り替え
+			return;
+		}
 	}
 
 	Math::Vector3	_dist	= owner.m_nextPos - owner.m_pos;	// 距離
 	Math::Vector3	_toDir	= _dist;							// 次の場所への方向ベクトル
 	_toDir.Normalize();
 
+	// 回転が終了していなければ回転処理を行う
 	if (!owner.m_isTurnFinish)
 	{
 		Turn(owner,_toDir);										// ターンが終わっていなければ、ターンさせる
 	}
 	else
 	{
-		if (owner.m_isMoveNextPos)
-		{
-			owner.m_pos += _toDir * owner.m_moveSpeed;			// 移動
+		owner.m_pos += _toDir * owner.m_moveSpeed;			// 移動
 
-			CheckMoveFinish(owner, _dist);
-		}
+		CheckMoveFinish(owner, _dist);
 	}
 }
 
@@ -712,6 +795,9 @@ void Enemy::Chase::Update(Enemy& owner)
 		else
 		{
 			_direction.Normalize();
+
+			owner.RotateToDirection(_direction);
+
 			owner.m_pos += _direction * owner.m_moveSpeed;		// エネミーをターゲットの方向へ移動
 		}
 	}
@@ -723,30 +809,24 @@ void Enemy::Chase::Update(Enemy& owner)
 
 void Enemy::Chase::Exit(Enemy& owner)
 {
+
 }
 
 // ========== 見失った ==========
 void Enemy::LoseSight::Enter(Enemy& owner)
 {
-	//owner.m_isMoveFinish = false;			// フラグ切り替え(移動が完了していない状態に)
-
 	// 見失った座標をグリッド座標に変換
 	Node	_loseSightNode = owner.WorldToGrid(owner.m_loseSightPos);
 
-	//// 見失った座標が障害物かどうかを確認
-	//if ((*owner.m_grid)[_loseSightNode.z][_loseSightNode.x] == 1)
-	//{
-	//	// 障害物の場合、周囲で最も近い移動可能なノードをゴールとして探索
-	//	_loseSightNode = owner.FindNearestWalkableNode(_loseSightNode);
-	//}
-	//else
-	//{
-	//	// 経路探索
-	//	owner.FindPath(owner.m_pos, owner.GridToWorld(_loseSightNode));
-	//}
+	// 見失ったグリッド座標が進行不能オブジェクトであるかを確認
+	if ((*owner.m_grid)[_loseSightNode.z][_loseSightNode.x] == 1)
+	{
+		// 移動可能な範囲内で最も近づくことのできる経路を計算
+		_loseSightNode = owner.FindNearestWalkableNode(_loseSightNode);
+	}
 
-	// 障害物の場合、周囲で最も近い移動可能なノードをゴールとして探索
-	_loseSightNode = owner.FindNearestWalkableNode(_loseSightNode);
+	// 経路計算
+	owner.FindPath(owner.m_pos, owner.GridToWorld(_loseSightNode));
 }
 
 void Enemy::LoseSight::Update(Enemy& owner)
@@ -781,14 +861,9 @@ void Enemy::LoseSight::Update(Enemy& owner)
 	}
 	else
 	{
-		Math::Vector3	_dist = owner.m_loseSightPos - owner.m_pos;		// 見失った座標とエネミー座標との距離
-
-		// 距離が短かった場合
-		if (_dist.LengthSquared() < owner.m_ignoreLength * 10.0f)
-		{
-			owner.ChangeState(std::make_shared<SearchAround>());		// ステート切り替え
-			return;
-		}
+		// 経路の移動が完了したらステートを変更する
+		owner.ChangeState(std::make_shared<SearchAround>());		// ステート切り替え
+		return;
 	}
 
 	//const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();

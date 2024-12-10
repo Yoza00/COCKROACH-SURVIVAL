@@ -83,11 +83,7 @@ public:
 
 	// ========== 経路探索用 ==========
 	// ゴールの設定と経路探索
-	void SetGoal(const Math::Vector3& goalPos)
-	{
-		m_currentGoal = goalPos;
-		FindPath(m_pos, goalPos);		// 経路計算
-	}
+	void SetGoal(const Math::Vector3& goalPos);
 	// ================================
 
 private:
@@ -124,11 +120,6 @@ private:
 	const int						m_seaMaxCnt		= 180;						// Searchステートにいる最大時間
 	// ==============================================
 
-	// ========== 見失ったときに使用する変数 ==========
-	//bool							m_isMoveFinish = true;						// 見失った場所まで移動できたかどうか
-	//	初期状態でtrueにしているが、ステートに入った瞬間にfalseに変更しておくこと
-	// ================================================
-
 	// ========== 周囲の捜索に必要な変数 ==========
 	bool							m_isSearchFin	= false;					// 周囲の捜索が終了したかどうか
 	bool							m_isNowRotFin	= false;					// 今、回転終了しているかどうか(途中であれば、回転完了まで待つ)
@@ -153,15 +144,18 @@ private:
 	bool							m_isFixNextPos	= false;					// 次の場所を決定すべきかどうか(見失ってから、巡回ルートに戻る際に使用する)
 	// ==========================================
 
+	// ========== 追跡処理に必要な変数 ==========
+	// ==========================================
+
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
 
 	// ========== 経路探索用 ==========
-	std::vector<Node>				m_path;					// 計算された経路
-	Math::Vector3					m_currentGoal;			// 現在の目標座標
-	size_t							m_currentPathIndex = 0;	// 現在の経路インデックス
-	std::vector<std::vector<int>>*	m_grid;					// 参照するグリッド
-	Math::Vector3					m_mapOrigin = { -62.0f,0.04f,79.0f };		// グリッドの原点補正用
-
+	std::vector<Node>				m_path;											// 計算された経路
+	Math::Vector3					m_currentGoal;									// 現在の目標座標
+	size_t							m_currentPathIndex	= 0;						// 現在の経路インデックス
+	std::vector<std::vector<int>>*	m_grid;											// 参照するグリッド
+	const Math::Vector3				m_mapOrigin			= { -62.0f,0.04f,79.0f };	// グリッドの原点補正用
+	
 	// ヒューリスティック関数
 	float Heuristic(const Node& a, const Node& b)
 	{
@@ -188,11 +182,15 @@ private:
 	// 視界内にプレイヤーがいるかの確認
 	void CheckSight();
 
+	// モデルを進行方向に向ける関数
+	void RotateToDirection(const Math::Vector3& toDir);
+
+	// ========== 自クラスで使用するゲッター ==========
 	bool GetDotResult(const Math::Vector3& toDir);								// 目線のレイ判定の結果を返す
 
 	// Jsonファイルを使用するうえで必要となる関数
 	bool LoadWayPointsFronJson(const std::string& _filePath);					// Jsonファイルが開けたかどうかの確認用関数
-	// ==========================================
+	// ================================================
 
 	// ステートパターン
 private:

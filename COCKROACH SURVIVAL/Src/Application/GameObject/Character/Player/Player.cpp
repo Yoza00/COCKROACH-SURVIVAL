@@ -201,8 +201,6 @@ void Player::Update()
 	//m_mWorld = _scaleMat * _rotMat * _transMat;
 	//m_mWorld = _scaleMat * (/*m_modelRotMat * */m_rotMat) * _transMat;
 
-	// デバッグ用
-	//Application::Instance().m_log.AddLog("x : %0.2f\ny : %0.2f\nz : %0.2f\n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Player::PostUpdate()
@@ -243,10 +241,8 @@ void Player::Init()
 	{
 		// モデルデータのロード
 		m_spModel = std::make_shared<KdModelWork>();
-		//m_spModel->SetModelData("Asset/Models/Character/Player/Player.gltf");
 		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Player/Player_1.gltf");
 		//m_spModel->SetModelData("Asset/Models/Character/Player/Player_1.gltf");
-		//m_spModel->SetModelData("Asset/Models/Terrains/GameScene/food/food.gltf");
 
 		// コライダー設定
 		m_pCollider = std::make_unique<KdCollider>();
@@ -549,7 +545,6 @@ void Player::NormalCheck()
 	m_wpObject.reset();
 
 	std::list<KdCollider::CollisionResult>	_retNormalRayList;
-	std::vector<std::shared_ptr<KdGameObject>> _spObjList;
 
 	// 全オブジェクトからレイ情報をもとに当たっているオブジェクトをリストに格納する
 	for (auto& _object : SceneManager::Instance().GetObjList())
@@ -672,26 +667,108 @@ void Player::GroundCheck()
 			_directionDir.Normalize();
 			Math::Vector3	_overlap = _directionDir * m_adJustHeight;
 			m_pos = _groundPos - _overlap;
-
-			// この向きのこの重なり量だけ押し返して
-			/*_hitDir.Normalize();
-			m_pos += _hitDir * _maxOverLap;*/
 		}
-		m_gravity = 0.0f;				// 重力の強さをリセット
 
-		//CheckMovePosition(m_normal);	// 法線情報をもとに移動状態を変更する
+		m_gravity = 0.0f;				// 重力の強さをリセット
 	}
 	else // レイにあたっていない
 	{
-		//// 壁に触れていない
-		//if (!m_touchWall)
-		//{
-		//	// 重力方向切り替え
-		//	m_gravityDir = Math::Vector3::Down;		// 重力下向き
-		//}
+		//ChangeMovePosition(6);
+		// この設計だと、レイが当たっていなければ問答無用で重力方向を変更されてしまう
 
-		ChangeMovePosition(6);
+		// 未来座標を使用して未来でも当たり判定が実行されないのか検証
+		// 進行方向のベクトルがある場合に限り実行されるものとする
+		if (!FutureGroundCheck())
+		{
+			ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
+		}
 	}
+}
+
+bool Player::FutureGroundCheck()
+{
+	// 進行方向への方向ベクトルがゼロベクトルならリターン
+	if (m_moveDir.LengthSquared() == 0.0f)
+	{
+		return false;
+	}
+
+	Math::Vector3	_moveDir	= m_moveDir;		// 移動方向
+	Math::Vector3	_gravityDir = m_gravityDir;		// 重力方向
+
+	// 作成した変数を正規化
+	_moveDir.Normalize();
+	_gravityDir.Normalize();
+
+	// 作成した変数を使用してレイ情報を設定
+	KdCollider::RayInfo	_rayInfo;
+	_rayInfo.m_pos		= m_pos + (_moveDir * m_moveSpeed) + (_gravityDir * m_gravity);
+	_rayInfo.m_dir		= _moveDir * -1;
+	_rayInfo.m_range	= m_adJustHeight + 0.05f;
+	_rayInfo.m_type		= KdCollider::TypeGround;
+	
+	/*
+	進行方向に進んで重力方向に異動した座標から進行方向と反対方向にレイを発射している。
+	長さは通常の地面を判定する際に使用するレイの長さと同じで、レイと当たり判定を行うオブジェクトタイプも同じ
+	*/
+
+	// オブジェクト情報をリセット
+	m_wpObject.reset();
+
+	std::list<KdCollider::CollisionResult>	_retRayList;	// ヒットオブジェクト格納用リスト
+
+	// レイ情報をもとにすべてのオブジェクトと当たり判定を行い、ヒットオブジェクトがあればリストに格納する
+	for (auto& obj : SceneManager::Instance().GetObjList())
+	{
+		if (obj->Intersects(_rayInfo, &_retRayList))
+		{
+			// ヒットオブジェクトが家具タイプであればウィークポイントとしてポインタを保持しておく
+			// 保持しておくのは、家具オブジェクトの回転角度を取得るため
+			if (obj->GetStageObjeType() == StageObjectType::Furniture)
+			{
+				m_wpObject = obj;
+			}
+		}
+	}
+
+	Math::Vector3	_groundPos	= {};		// ヒットした座標
+	Math::Vector3	_normalVec	= {};		// 法線ベクトル
+	float			_maxOverLap = 0.0f;		// 重なり量
+	float			_rotY		= 0.0f;		// 家具の回転角度
+	bool			_isHit		= false;	// 一番近くでヒットしているオブジェクトを求められたかどうか
+
+	for (auto& ret : _retRayList)
+	{
+		// 当たり判定の結果、その時点の重なり量よりも重なり量が大きければ
+		// 各パラメータを更新する
+		if (_maxOverLap < ret.m_overlapDistance)
+		{
+			_maxOverLap = ret.m_overlapDistance;	// 重なり量更新
+			_groundPos	= ret.m_hitPos;				// ヒット座標更新
+			_normalVec	= ret.m_normal;				// ヒットオブジェクトの面からの法線ベクトル更新
+			_isHit		= true;						// 一番近くでヒットしたオブジェクトが更新されたのでフラグも更新
+		}
+	}
+
+	if (_isHit)
+	{
+		_normalVec.Normalize();		// 最終的な法線ベクトルを正規化
+
+		const std::shared_ptr<KdGameObject>	_spObj = m_wpObject.lock();
+		
+		// アクセスチェックして、ヒットオブジェクトの回転角度を取得
+		if (_spObj)
+		{
+			_rotY = _spObj->GetRotationY();
+		}
+
+		// 法線は回転が考慮されていないので、回転を考慮した法線ベクトルに変換する
+		CheckMovePosition(_normalVec, _rotY);
+
+		return true;
+	}
+
+	return false;
 }
 
 void Player::HitSphereCheck()

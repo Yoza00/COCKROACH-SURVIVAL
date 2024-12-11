@@ -88,7 +88,8 @@ void Enemy::Init()
 		m_spModel = std::make_shared<KdModelWork>();
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy.gltf");
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people.gltf");
-		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation2.gltf");
+		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation2.gltf");
+		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation3.gltf");
 
 		// モデルからポイントノードを探して取得
 		const KdModelWork::Node* _pNode = m_spModel->FindNode("sightPoint");

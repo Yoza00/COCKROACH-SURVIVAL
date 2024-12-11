@@ -534,12 +534,12 @@ void Player::NormalCheck()
 	// =============================
 	// デバッグ用
 	// =============================
-	m_pDebugWire->AddDebugLine(
+	/*m_pDebugWire->AddDebugLine(
 		_normalCheckRay.m_pos,
 		_normalCheckRay.m_dir,
 		_normalCheckRay.m_range,
 		kRedColor
-	);
+	);*/
 	// =============================
 
 	m_wpObject.reset();
@@ -673,15 +673,15 @@ void Player::GroundCheck()
 	}
 	else // レイにあたっていない
 	{
-		ChangeMovePosition(6);
+		//ChangeMovePosition(6);
 		// この設計だと、レイが当たっていなければ問答無用で重力方向を変更されてしまう
 
 		// 未来座標を使用して未来でも当たり判定が実行されないのか検証
 		// 進行方向のベクトルがある場合に限り実行されるものとする
-		//if (!FutureGroundCheck())
-		//{
-		//	ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
-		//}
+		if (!FutureGroundCheck())
+		{
+			ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
+		}
 	}
 }
 
@@ -708,7 +708,7 @@ bool Player::FutureGroundCheck()
 	_rayInfo.m_type		= KdCollider::TypeGround;
 	
 	/*
-	進行方向に進んで重力方向に異動した座標から進行方向と反対方向にレイを発射している。
+	進行方向に進んで重力方向に移動した座標から進行方向と反対方向にレイを発射している。
 	長さは通常の地面を判定する際に使用するレイの長さと同じで、レイと当たり判定を行うオブジェクトタイプも同じ
 	*/
 

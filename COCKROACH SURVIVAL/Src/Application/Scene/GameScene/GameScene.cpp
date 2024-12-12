@@ -216,7 +216,7 @@ void GameScene::Init()
 	m_objList.push_back(_spLeft);*/
 
 	// ステージ内のオブジェクト
-	if (ObjectManager::Instance().LoadObjectsFromJson("Asset/Data/ObjectData.json"))
+	if (ObjectManager::Instance().LoadObjectsFromJson("Asset/Data/Json/ObjectData/ObjectData.json"))
 	{
 		std::shared_ptr<ObjectData>	_spObject;
 

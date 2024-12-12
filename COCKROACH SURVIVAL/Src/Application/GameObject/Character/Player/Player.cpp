@@ -673,15 +673,15 @@ void Player::GroundCheck()
 	}
 	else // レイにあたっていない
 	{
-		//ChangeMovePosition(6);
+		ChangeMovePosition(6);
 		// この設計だと、レイが当たっていなければ問答無用で重力方向を変更されてしまう
 
 		// 未来座標を使用して未来でも当たり判定が実行されないのか検証
 		// 進行方向のベクトルがある場合に限り実行されるものとする
-		if (!FutureGroundCheck())
-		{
-			ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
-		}
+		//if (!FutureGroundCheck())
+		//{
+		//	ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
+		//}
 	}
 }
 
@@ -700,9 +700,12 @@ bool Player::FutureGroundCheck()
 	_moveDir.Normalize();
 	_gravityDir.Normalize();
 
+	// レイの長さ
+	Math::Vector3	_rayPos = m_pos + (_moveDir * m_moveSpeed) + (_gravityDir * m_gravity);
+
 	// 作成した変数を使用してレイ情報を設定
 	KdCollider::RayInfo	_rayInfo;
-	_rayInfo.m_pos		= m_pos + (_moveDir * m_moveSpeed) + (_gravityDir * m_gravity);
+	_rayInfo.m_pos		= _rayPos;
 	_rayInfo.m_dir		= _moveDir * -1;
 	_rayInfo.m_range	= m_adJustHeight + 0.05f;
 	_rayInfo.m_type		= KdCollider::TypeGround;

@@ -188,15 +188,6 @@ void GameScene::Init()
 
 	m_foodCnt = MAKE_FOOD_TIME;
 
-	// ステージ
-	//std::shared_ptr<Stage>	_spStage = std::make_shared<Stage>();
-	////_spStage->SetModel("Asset/Models/Terrains/GameScene/Stage_Model2.gltf");
-	//_spStage->Init();
-	//m_objList.push_back(_spStage);
-	/*std::shared_ptr<Ceiling>	_spCeiling = std::make_shared<Ceiling>();
-	_spCeiling->Init();
-	m_objList.push_back(_spCeiling);*/
-
 	std::shared_ptr<Floor>	_spFloor = std::make_shared<Floor>();
 	_spFloor->Init();
 	m_objList.push_back(_spFloor);
@@ -243,6 +234,11 @@ void GameScene::Init()
 			_spObject->SetScale(_object.m_scale);
 			m_objList.push_back(_spObject);
 		}
+
+		// ==============================================
+		// エラー防止用
+		// ==============================================
+		ObjectManager::Instance().ListClear();		// リストの中身全削除
 	}
 
 	// プレイヤー
@@ -264,7 +260,7 @@ void GameScene::Init()
 	m_objList.push_back(_spEnemy);
 
 	// UI
-	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/ObjectData.json"))
+	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json"))
 	{
 		const std::vector<Object>& _uis = ObjectManager::Instance().GetObjects();
 
@@ -301,20 +297,7 @@ void GameScene::Init()
 				m_UIList.push_back(_spBarHp);
 				m_objList.push_back(_spBarHp);
 			}
-			//else if (_ui.m_uiType == "TimeLimit")
-			//{
-			//	std::shared_ptr<TimeLimit>	_spLimit = std::make_shared<TimeLimit>();
-			//	_spLimit->SetFilePath(_ui.m_filePath);
-			//	_spLimit->Init();
-			//	_spLimit->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
-			//	m_UIList.push_back(_spLimit);
-			//	m_objList.push_back(_spLimit);
-
-			//	// 必要な情報をセット
-			//	_spPlayer->SetLimit(_spLimit);
-			//	m_wpLimit = _spLimit;
-			//}
-			/*else if (_ui.m_uiType == "Menu_Icon")
+			else if (_ui.m_uiType == "Menu_Icon")
 			{
 				std::shared_ptr<Menu_Icon>	_spMIcon = std::make_shared<Menu_Icon>();
 				_spMIcon->SetFilePath(_ui.m_filePath);
@@ -345,17 +328,28 @@ void GameScene::Init()
 				_spMBase->SetMIcon(m_wpMIcon.lock());
 				_spMBase->SetAlpha(1.0f);
 				m_UIList.push_back(_spMBase);
-			}*/
-			/*
+			}
 			else
 			{
+				// とりあえず、応急処置として特定のものだけ処理しないようにする
+				// 理想は、タイトル・ゲーム・リザルトと使用するタイプを指定して読み込む範囲を決められるように変更したい
+				if (_ui.m_uiType == "GameTitle" || _ui.m_uiType == "StartButton" || _ui.m_uiType == "Result")
+				{
+					continue;
+				}
+
 				std::shared_ptr<UI>	_spBarFrame = std::make_shared<UI>();
 				_spBarFrame->SetFilePath(_ui.m_filePath);
 				_spBarFrame->Init();
 				_spBarFrame->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
 				m_UIList.push_back(_spBarFrame);
-			}*/
+			}
 		}
+
+		// ==============================================
+		// エラー防止用
+		// ==============================================
+		ObjectManager::Instance().ListClear();		// リストの中身全削除
 	}
 
 	// カメラ

@@ -1,0 +1,121 @@
+{
+	"UI": [
+		{
+			"filePath": "Asset/Textures/GameObject/UI/bar/Hungry/bar_hungry_back2.png",
+			"name": "bar_hungry_frame",
+			"position": {
+				"x": -550.0,
+				"y": 255.0
+			},
+			"type": "bar_frame"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/bar/Hungry/bar_hungry.png",
+			"name": "bar_hungry",
+			"position": {
+				"x": -549.0,
+				"y": 255.5
+			},
+			"type": "bar_hungry"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/TitleScene/GameTitle/GameTitle.png",
+			"name": "GameTitle",
+			"position": {
+				"x": -320.0,
+				"y": 200.0
+			},
+			"type": "GameTitle"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/ResultScene/Result/Result.png",
+			"name": "ResultString",
+			"position": {
+				"x": -202.0,
+				"y": 260.0
+			},
+			"type": "Result"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/bar/Frame_Bar_Clear.png",
+			"name": "bar_hp_frame",
+			"position": {
+				"x": -550.0,
+				"y": 300.0
+			},
+			"type": "bar_frame"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/bar/HP/HP_Bar_Clear.png",
+			"name": "bar_hp",
+			"position": {
+				"x": -550.0,
+				"y": 300.0
+			},
+			"type": "bar_hp"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/TitleScene/TitleMenu/Click_To_Start/Start3.png",
+			"name": "Click_To_Start",
+			"position": {
+				"x": -210.0,
+				"y": -250.0
+			},
+			"type": "StartButton"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/GameMenu/Menu_Icon.png",
+			"name": "Menu_Button",
+			"position": {
+				"x": -640.0,
+				"y": -277.0
+			},
+			"type": "Menu_Icon"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/GameMenu/Menu_BackScreen.png",
+			"name": "Menu_BackScreen",
+			"position": {
+				"x": 0.0,
+				"y": 0.0
+			},
+			"type": "Menu_BackScreen"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/GameMenu/Menu_Base.png",
+			"name": "Menu_Base",
+			"position": {
+				"x": 0.0,
+				"y": 0.0
+			},
+			"type": "Menu_Base"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/GameMenu/BackButton.png",
+			"name": "Back",
+			"position": {
+				"x": -170.0,
+				"y": 180.0
+			},
+			"type": "BackButton"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/GameMenu/GuideButton.png",
+			"name": "Guide",
+			"position": {
+				"x": -170.0,
+				"y": 0.0
+			},
+			"type": "GruideButton"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/GameMenu/TitleButton.png",
+			"name": "Title",
+			"position": {
+				"x": -170.0,
+				"y": -150.0
+			},
+			"type": "TitleButton"
+		}
+	]
+}

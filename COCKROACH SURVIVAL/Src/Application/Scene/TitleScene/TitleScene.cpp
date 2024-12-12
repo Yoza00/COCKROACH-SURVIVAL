@@ -34,11 +34,6 @@ void TitleScene::Event()
 		{
 			m_isStart = true;
 
-			/*SceneManager::Instance().SetNextScene
-			(
-				SceneManager::SceneType::Game
-			);*/
-
 			std::shared_ptr<SceneChange>	_spChange = std::make_shared<SceneChange>();
 			_spChange->SetFilePath("Asset/Textures/GameObject/SceneChange/BlackScreen.png");
 			_spChange->Init();
@@ -60,12 +55,6 @@ void TitleScene::Init()
 
 	// 背景オブジェクト
 	// 家
-	//std::shared_ptr<Stage>	_spStage = std::make_shared<Stage>();
-	////_spStage->SetModel("Asset/Models/Terrains/TitleScene/House/house_model2.gltf");
-	////_spStage->SetTitleHouse("Asset/Models/Terrains/TitleScene/House/house_model2.gltf");
-	//_spStage->Init();
-	////_spStage->SetModel("Asset/Models/Terrains/TitleScene/House/house_model2.gltf");
-	//m_objList.push_back(_spStage);
 	std::shared_ptr<House>	_spHouse = std::make_shared<House>();
 	_spHouse->SetModel("Asset/Models/Terrains/TitleScene/House/house_model2.gltf");
 	_spHouse->Init();
@@ -82,7 +71,7 @@ void TitleScene::Init()
 	m_objList.push_back(_spPlayer);
 
 	// UI
-	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/ObjectData.json"))
+	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json"))
 	{
 		const std::vector<Object>& _uis = ObjectManager::Instance().GetObjects();
 
@@ -109,7 +98,14 @@ void TitleScene::Init()
 			}
 		}
 
-		ObjectManager::Instance().ListClear();
+		// ==============================================
+		// エラー防止用
+		// 
+		// ゲーム中のオブジェクトもUIもm_objectsという配列でデータを管理している。
+		// そのため、配列を削除しておかないと、オブジェクトなのにスプライトで描画しようとしたりUIなのにモデル表示しようとしたりしてエラーが発生するので、
+		// 防止するためにリストのデータをすべて削除する
+		// ==============================================
+		ObjectManager::Instance().ListClear();		// リストの中身全削除
 	}
 
 	// カメラ

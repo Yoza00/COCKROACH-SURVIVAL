@@ -4,6 +4,9 @@ void UI::DrawSprite()
 {
 	if (!m_spTex)return;
 
+	// 描画フラグチェック
+	if (!m_isDraw)return;
+
 	// 値が最小の時に表示する幅
 	//float _width = m_width / 100.0f;		// 画像の幅の1/100サイズ
 

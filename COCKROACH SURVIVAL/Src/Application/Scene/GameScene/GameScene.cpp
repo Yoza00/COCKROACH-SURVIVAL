@@ -337,11 +337,11 @@ void GameScene::Init()
 			}
 			else
 			{
-				std::shared_ptr<UI>	_spBarFrame = std::make_shared<UI>();
-				_spBarFrame->SetFilePath(_ui.m_filePath);
-				_spBarFrame->Init();
-				_spBarFrame->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
-				m_UIList.push_back(_spBarFrame);
+				std::shared_ptr<UI>	_spUI = std::make_shared<UI>();
+				_spUI->SetFilePath(_ui.m_filePath);
+				_spUI->Init();
+				_spUI->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
+				m_UIList.push_back(_spUI);
 			}
 		}
 

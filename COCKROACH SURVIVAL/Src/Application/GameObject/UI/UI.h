@@ -25,6 +25,12 @@ public:
 		m_drawPos = _pos;
 	}
 
+	// 描画フラグをセットするためのセッター
+	virtual void SetIsDraw(bool isDraw)
+	{
+		m_isDraw = isDraw;
+	}
+
 protected:
 
 	std::shared_ptr<KdTexture>	m_spTex;							// 画像ポインタ
@@ -35,4 +41,6 @@ protected:
 	float						m_height	= 0.0f;					// 画像高さ
 
 	std::string					m_filePath;
+
+	bool						m_isDraw	= false;				// 描画するかどうか
 };

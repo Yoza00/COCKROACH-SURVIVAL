@@ -77,6 +77,12 @@ void TitleScene::Init()
 
 		for (const auto& _ui : _uis)
 		{
+			if (_ui.m_useScene != "title")
+			{
+				// 使用場面がタイトルでないものは処理を実行しない
+				continue;
+			}
+
 			// 更新を行う必要があるUIはm_objListへも追加する
 			// 必要がない場合は、m_uiListのみの追加でよい
 			if (_ui.m_uiType == "GameTitle")

@@ -11,12 +11,13 @@ struct Position
 
 struct Object
 {
-	std::string m_uiType;
-	std::string	m_name;
-	std::string	m_filePath;
-	Position	m_pos;
-	float		m_rot;
-	float		m_scale;
+	std::string	m_useScene;		// 使用する場面
+	std::string m_uiType;		// オブジェクトのタイプ
+	std::string	m_name;			// オブジェクトの名前
+	std::string	m_filePath;		// データのファイルパス
+	Position	m_pos;			// 描画座標
+	float		m_rot;			// 回転角度
+	float		m_scale;		// 拡縮率
 };
 
 class ObjectManager

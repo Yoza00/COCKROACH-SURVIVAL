@@ -266,6 +266,12 @@ void GameScene::Init()
 
 		for (const auto& _ui : _uis)
 		{
+			if (_ui.m_useScene != "game")
+			{
+				// 使用場面がゲームでない場合は処理しない
+				continue;
+			}
+
 			// HPのUIはUIの中で最後に追加すること。
 			if (_ui.m_uiType == "bar_frame")
 			{
@@ -331,13 +337,6 @@ void GameScene::Init()
 			}
 			else
 			{
-				// とりあえず、応急処置として特定のものだけ処理しないようにする
-				// 理想は、タイトル・ゲーム・リザルトと使用するタイプを指定して読み込む範囲を決められるように変更したい
-				if (_ui.m_uiType == "GameTitle" || _ui.m_uiType == "StartButton" || _ui.m_uiType == "Result")
-				{
-					continue;
-				}
-
 				std::shared_ptr<UI>	_spBarFrame = std::make_shared<UI>();
 				_spBarFrame->SetFilePath(_ui.m_filePath);
 				_spBarFrame->Init();

@@ -1,4 +1,4 @@
-﻿#include "SceneChange.h"
+﻿#include"SceneChange.h"
 
 #include"../../../Scene/SceneManager.h"
 
@@ -36,7 +36,7 @@ void SceneChange::DrawSprite()
 	Math::Rectangle	_rec = { long(m_startPos.x),long(m_startPos.y),long(m_width),long(m_height) };
 
 	// 切り取り範囲をもとに描画
-	// 更新された切り取り範囲を利用して描画
+	// 更新された切り取り範囲を利用して描画する
 	Math::Color	_color = { 0.0f,0.0f,0.0f,m_alpha };
 	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spTex, m_drawPos.x, m_drawPos.y, _rec.width, _rec.height, &_rec, &_color, { 0.5f,0.5f });
 }
@@ -51,21 +51,32 @@ void SceneChange::ChangeScene()
 	switch (SceneManager::Instance().GetSceneType())
 	{
 	case SceneManager::SceneType::Title:
+		
 		SceneManager::Instance().SetNextScene(
 			SceneManager::SceneType::Game
 		);
+
 		break;
+
 	case SceneManager::SceneType::Game:
+		
 		SceneManager::Instance().SetNextScene(
 			SceneManager::SceneType::Result
 		);
+
 		break;
+
 	case SceneManager::SceneType::Result:
+		
 		SceneManager::Instance().SetNextScene(
 			SceneManager::SceneType::Title
 		);
+
 		break;
+
 	default:
+
 		break;
 	}
+
 }

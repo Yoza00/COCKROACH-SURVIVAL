@@ -14,22 +14,36 @@ public:
 	// ==================== セッター関連 ====================
 
 	// ファイルパスをセットする
-	virtual void SetFilePath(const std::string& _filePath)
+	void SetFilePath(const std::string& _filePath)
 	{
 		m_filePath = _filePath;
 	}
 
 	// 描画する座標をセットする
-	virtual void SetDrawPos(Math::Vector2 _pos = Math::Vector2::Zero)
+	void SetDrawPos(Math::Vector2 _pos = Math::Vector2::Zero)
 	{
 		m_drawPos = _pos;
 	}
 
 	// 描画フラグをセットするためのセッター
-	virtual void SetIsDraw(bool isDraw)
+	void SetIsDraw(bool isDraw)
 	{
 		m_isDraw = isDraw;
 	}
+
+	void SetIsMenu(bool isMenu)
+	{
+		m_isMenu = isMenu;
+	}
+
+	// ======================================================
+
+	// ========== ゲッター関連 =============
+	const bool GetIsMenu()const
+	{
+		return m_isMenu;
+	}
+	// =====================================
 
 protected:
 
@@ -42,5 +56,7 @@ protected:
 
 	std::string					m_filePath;
 
-	bool						m_isDraw	= false;				// 描画するかどうか
+	bool						m_isDraw	= true;					// 描画するかどうか
+
+	bool						m_isMenu	= false;				// メニュー画面かどうか
 };

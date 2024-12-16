@@ -8,8 +8,6 @@
 #include"../../../GameObject/Stage/ObjectData/ObjectData.h"
 //#include"../../../GameObject/UI/Clock/TimeLimit/TimeLimit.h"
 
-#include"../../../GameObject/UI/Menu_Icon/Menu_Icon.h"
-
 Player::Player() :
 	m_actionType(ActionType::Idle),
 	m_nowMovingPos(Position::Ground)
@@ -18,15 +16,6 @@ Player::Player() :
 
 void Player::Update()
 {
-	const std::shared_ptr<Menu_Icon> _spMIcon = m_wpMIcon.lock();
-	if (_spMIcon)
-	{
-		m_isMenu = _spMIcon->IsMenu();
-	}
-
-	if (m_isMenu)return;		// ここでメニューを開いていたら更新をしないようにしておく用に処理をしているが
-	// 一時的にメニュー関連の処理しか実行されないようにする。(オブジェクトリストの更新をしている奴の制御)
-
 	if (m_isDead)return;
 
 	// フラグ制御
@@ -191,6 +180,8 @@ void Player::Update()
 		Math::Matrix	_rotZMat = Math::Matrix::CreateRotationZ(DirectX::XMConvertToRadians(m_modelRotate.z));
 
 		m_modelRotMat = _rotXMat * _rotYMat * _rotZMat;
+
+		//Application::Instance().m_log.AddLog("%0.2f\n", m_modelRotate.y);
 	}
 	//Math::Matrix	_rotMat = _cameraMat;
 
@@ -241,8 +232,9 @@ void Player::Init()
 	{
 		// モデルデータのロード
 		m_spModel = std::make_shared<KdModelWork>();
-		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Player/Player_1.gltf");
+		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Player/Player_1.gltf");
 		//m_spModel->SetModelData("Asset/Models/Character/Player/Player_1.gltf");
+		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Player/Player_mini-animation.gltf");
 
 		// コライダー設定
 		m_pCollider = std::make_unique<KdCollider>();
@@ -283,12 +275,6 @@ void Player::SetAteFood(float life, float restNum, int score)
 	{
 		m_restNum = 100.0f;
 	}
-}
-
-void Player::SetModelRotate(const Math::Vector3& rotate)
-{
-	// 回転情報をセット
-	m_modelRotate = rotate;
 }
 
 void Player::AnimationUpdate()
@@ -358,7 +344,7 @@ void Player::ChangeMovePosition(int num)
 	*/
 
 	// モデル回転用変数(実際は内積を使用して回転角度を算出し、外積を使用して回転させる方がコードもきれいだし、わかりやすい)
-	Math::Vector3	_modelRotate = { 0.0f,180.0f,0.0f };		// 通常の状態
+	Math::Vector3	_modelRotate = { 0.0f,0.0f,0.0f };		// 通常の状態
 	// この関数が実行されると最初にこの値が入る。
 	// この後の条件分岐で必要に応じて値を操作する。
 
@@ -369,10 +355,13 @@ void Player::ChangeMovePosition(int num)
 		// オブジェクトの上移動状態
 		// 下から上方向への方向ベクトル
 		m_nowMovingPos = Position::Ground;
-		m_modelRot = 180.0f;
+		//m_modelRot = 180.0f;
+		//m_modelRot = 0.0f;
 		m_gravityDir = Math::Vector3::Down;
 		//m_touchWall = false;
+
 		break;
+
 	case 1:
 		// 天井にぶら下がっている状態
 		// 上から下方向への方向ベクトル
@@ -381,44 +370,54 @@ void Player::ChangeMovePosition(int num)
 		m_touchWall = true;
 		m_isCeiling = true;
 
-		_modelRotate = { 0.0f,180.0f,180.0f };
+		_modelRotate = { 0.0f,180.0f,0.0f };
 		break;
+
 	case 2:
 		// 側面右
 		m_nowMovingPos = Position::Wall_Left;
 		m_gravityDir = Math::Vector3::Left;		// 右から左のベクトル
 		//m_gravityDir = Math::Vector3::Right;		// 右から左のベクトル
 		m_touchWall = true;
+
 		break;
+
 	case 3:
 		// 側面左
 		m_nowMovingPos = Position::Wall_Right;
 		m_gravityDir = Math::Vector3::Right;	// 左から右のベクトル
 		//m_gravityDir = Math::Vector3::Left;	// 左から右のベクトル
 		m_touchWall = true;
+
 		break;
+
 	case 4:
 		// 側面手前
 		m_nowMovingPos = Position::Wall_Backward;
 		m_gravityDir = Math::Vector3::Backward;
 		//m_gravityDir = Math::Vector3::Forward;
 		m_touchWall = true;
+
 		break;
+
 	case 5:
 		// 側面奥
 		m_nowMovingPos = Position::Wall_Forward;
 		m_gravityDir = Math::Vector3::Forward;
 		//m_gravityDir = Math::Vector3::Backward;
 		m_touchWall = true;
+
 		break;
+
 	case 6:
 		// 飛行状態
 		// 上記のどれにも該当しない
 		m_nowMovingPos = Position::Flying;
-		m_modelRot = 180.0f;
+		//m_modelRot = 180.0f;
 		m_gravityDir = Math::Vector3::Down;
 		//m_touchWall = false;
 		m_isJump = true;
+
 		break;
 	}
 
@@ -427,6 +426,11 @@ void Player::ChangeMovePosition(int num)
 	if (_spCamera)
 	{
 		_spCamera->SetMovingPos(m_nowMovingPos);
+	}
+
+	if (m_isTitle)
+	{
+		return;
 	}
 
 	// 最終的な回転角度をセットする

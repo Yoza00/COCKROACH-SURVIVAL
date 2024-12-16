@@ -181,14 +181,17 @@
     <Filter Include="Src\Application\GameObject\UI\SceneChange">
       <UniqueIdentifier>{84259659-92db-4c92-bd04-e00ad5b649da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\UI\Menu_Screen">
-      <UniqueIdentifier>{0498a5c4-a02f-449a-a51c-75f753576a60}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\UI\Menu_Icon">
       <UniqueIdentifier>{b1439ee0-e85f-414b-9627-78a0eda65e0c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Src\Application\GameObject\Character\Enemy">
       <UniqueIdentifier>{36ee473b-661b-402f-8666-9c18d849c3af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Screen">
+      <UniqueIdentifier>{0498a5c4-a02f-449a-a51c-75f753576a60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\ClickUI">
+      <UniqueIdentifier>{602330d1-33af-4739-ac79-76ef09c22940}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -559,13 +562,16 @@
       <Filter>Src\Application\GameObject\UI\SceneChange</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.h">
-      <Filter>Src\Application\GameObject\UI\Menu_Screen</Filter>
+      <Filter>Src\Application\GameObject\UI\Menu_Icon\Menu_Screen</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.h">
       <Filter>Src\Application\GameObject\UI\Menu_Icon</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\Enemy.h">
       <Filter>Src\Application\GameObject\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\ClickUI\ClickUI.h">
+      <Filter>Src\Application\GameObject\UI\ClickUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -774,13 +780,16 @@
       <Filter>Src\Application\GameObject\UI\SceneChange</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.cpp">
-      <Filter>Src\Application\GameObject\UI\Menu_Screen</Filter>
+      <Filter>Src\Application\GameObject\UI\Menu_Icon\Menu_Screen</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.cpp">
       <Filter>Src\Application\GameObject\UI\Menu_Icon</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\Enemy.cpp">
       <Filter>Src\Application\GameObject\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\ClickUI\ClickUI.cpp">
+      <Filter>Src\Application\GameObject\UI\ClickUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

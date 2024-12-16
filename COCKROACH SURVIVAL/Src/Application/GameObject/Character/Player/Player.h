@@ -4,7 +4,6 @@ class TPSCamera;
 //class FPSCamera;
 
 //class TimeLimit;
-class Menu_Icon;
 
 class Player :public KdGameObject
 {
@@ -59,25 +58,27 @@ public:
 		m_wpLimit = _spLimit;
 	}*/
 
-	void SetMIcon(const std::shared_ptr<Menu_Icon>& spMIcon)
-	{
-		m_wpMIcon = spMIcon;
-	}
-
 	// プレイヤー座標をセットする
 	void SetPos(const Math::Vector3	_pos)
 	{
 		m_pos = _pos;
 	}
 
-	void SetModelRot(const float	_deg)
+	// プレイヤーの回転角度を渡す
+	void SetModelRotate(const Math::Vector3& modelRotate)
 	{
-		m_modelRot = _deg;
+		m_modelRotate = modelRotate;
 	}
 
 	void SetModelHeight(const float	_height)
 	{
 		m_adJustHeight = _height;
+	}
+
+	// タイトルフラグをセットするためのセッター
+	void SetIsTitle(bool isTitle)
+	{
+		m_isTitle = isTitle;
 	}
 
 	// 食事が完了した結果をセットする
@@ -100,9 +101,6 @@ public:
 	// 生存フラグを返す
 	const bool IsDead()const { return m_isDead; }
 
-	// ============== 確認用 ===============
-	void SetModelRotate(const Math::Vector3& rotate);
-
 private:
 
 	// アニメーションを変更する必要があるときに実行される関数
@@ -121,7 +119,7 @@ private:
 	//Math::Vector3					m_pos			= Math::Vector3::Zero;
 	Math::Vector3					m_pos = { 0.0f,10.0f,0.0f };
 
-	float						m_adJustHeight	= 0.0f;				// 座標補正用
+	float							m_adJustHeight	= 0.0f;				// 座標補正用
 	// ↑モデルの原点がモデルのおなかの位置になっているので、それを補正するための変数
 
 	float							m_enableStepHeight = 0.005f;			// 自然に飛び越えられる高さの許容範囲
@@ -148,7 +146,6 @@ private:
 
 	Math::Matrix					m_modelRotMat	= Math::Matrix::Identity;
 	// ↑モデルの向き補正用行列
-	float							m_modelRot		= 0.0f;
 
 	// ごり押し用
 	Math::Vector3					m_moveDir	= Math::Vector3::Zero;
@@ -195,7 +192,6 @@ private:
 	// ↑スコアをここに足しこんでいき、リザルトシーンに渡す
 
 	//std::weak_ptr<TimeLimit>	m_wpLimit;
-	std::weak_ptr<Menu_Icon>	m_wpMIcon;
 
 	bool						m_isMenu = false;
 
@@ -208,6 +204,8 @@ private:
 	bool m_isJump = false;					// ジャンプしたかどうか
 
 	bool m_isCeiling = false;				// 天井かどうか？
+
+	bool m_isTitle = false;					// タイトルかどうか				
 
 	// 進行方向を指定した角度だけ下向きに調整
 	const Math::Vector3 AdJustDirection(const Math::Vector3& dir, float angleInDegrees);

@@ -12,7 +12,6 @@ public:
 	~Menu_Screen()			override	{}
 
 	void DrawSprite()		override;
-	void Init()				override;
 
 	void SetAlpha(float alpha)
 	{

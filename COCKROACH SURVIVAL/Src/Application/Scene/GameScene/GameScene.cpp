@@ -24,11 +24,39 @@
 #include"../../GameObject/UI/SceneChange/SceneChange.h"
 #include"../../GameObject/UI/Menu_Icon/Menu_Icon.h"
 #include"../../GameObject/UI/Menu_Screen/Menu_Screen.h"
+#include"../../GameObject/UI/ClickUI/ClickUI.h"
 
 #include"../../GameObject/Character/Enemy/Enemy.h"
 
 void GameScene::Event()
 {
+	const std::shared_ptr<Menu_Icon> _spMenu = m_wpMIcon.lock();
+
+	bool _isFlgUpdate = false;		// フラグ更新が必要かどうか
+
+	if (_spMenu)
+	{
+		if (m_isMenu != _spMenu->GetIsMenu())
+		{
+			m_isMenu = _spMenu->GetIsMenu();
+
+			_isFlgUpdate = true;	// フラグ更新します！
+		}
+	}
+
+	if (_isFlgUpdate)
+	{
+		for (auto& ui : m_uiVec)
+		{
+			const std::shared_ptr<UI> _spUI = ui.lock();
+			if (_spUI)
+			{
+				_spUI->SetIsMenu(m_isMenu);
+				_spUI->SetIsDraw(m_isMenu);
+			}
+		}
+	}
+
 	// ============================================
 	// デバッグ用
 	// ============================================
@@ -84,24 +112,6 @@ void GameScene::Event()
 			}
 		}
 	}
-
-	/*if (_spLimit)
-	{
-		if (_spLimit->GetisFinish() == true)
-		{
-			if (!m_isSceneChange)
-			{
-				m_isSceneChange = true;
-
-				std::shared_ptr<SceneChange>	_spChange = std::make_shared<SceneChange>();
-				_spChange->SetFilePath("Asset/Textures/GameObject/SceneChange/BlackScreen.png");
-				_spChange->Init();
-				_spChange->SetDrawPos({ 0.0f,0.0f });
-				m_UIList.push_back(_spChange);
-				m_objList.push_back(_spChange);
-			}
-		}
-	}*/
 
 	/*if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 	{
@@ -180,6 +190,9 @@ void GameScene::Init()
 {
 	ShowCursor(false);
 
+	// ウィークポインタの配列をクリーン
+	m_uiVec.clear();
+
 	// ステージの描画関連
 	//KdShaderManager::Instance().WorkAmbientController().SetDirLight(Math::Vector3::Down, { 2.5f,2.5f,2.5f });
 	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 1.0f,1.0f,1.0f,0.75f });
@@ -247,7 +260,8 @@ void GameScene::Init()
 	_spPlayer->Init();
 	_spPlayer->SetPos(_playerPos);
 	//_spPlayer->SetModelRot(180.0f);
-	_spPlayer->SetModelRotate({ 0.0f,180.0f,0.0f });
+	_spPlayer->SetModelRotate({ 0.0f,0.0f,0.0f });
+	_spPlayer->SetIsTitle(false);
 	_spPlayer->SetModelHeight(0.1985f);
 	m_objList.push_back(_spPlayer);
 
@@ -272,17 +286,7 @@ void GameScene::Init()
 				continue;
 			}
 
-			// HPのUIはUIの中で最後に追加すること。
-			if (_ui.m_uiType == "bar_frame")
-			{
-				std::shared_ptr<UI>	_spBarFrame = std::make_shared<UI>();
-				_spBarFrame->SetFilePath(_ui.m_filePath);
-				_spBarFrame->Init();
-				_spBarFrame->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
-				//m_objList.push_back(_spBarFrame);
-				m_UIList.push_back(_spBarFrame);
-			}
-			else if (_ui.m_uiType == "bar_hungry")
+			if (_ui.m_uiType == "bar_hungry")
 			{
 				std::shared_ptr<BarHungry>	_spBarHung = std::make_shared<BarHungry>();
 				_spBarHung->SetFilePath(_ui.m_filePath);
@@ -313,7 +317,6 @@ void GameScene::Init()
 				m_objList.push_back(_spMIcon);
 
 				m_wpMIcon = _spMIcon;
-				_spPlayer->SetMIcon(_spMIcon);
 			}
 			else if (_ui.m_uiType == "Menu_BackScreen")
 			{
@@ -323,6 +326,7 @@ void GameScene::Init()
 				_spMSc->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
 				_spMSc->SetMIcon(m_wpMIcon.lock());
 				_spMSc->SetAlpha(0.5f);
+				m_uiVec.push_back(_spMSc);
 				m_UIList.push_back(_spMSc);
 			}
 			else if (_ui.m_uiType == "Menu_Base")
@@ -333,7 +337,20 @@ void GameScene::Init()
 				_spMBase->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
 				_spMBase->SetMIcon(m_wpMIcon.lock());
 				_spMBase->SetAlpha(1.0f);
+				m_uiVec.push_back(_spMBase);
 				m_UIList.push_back(_spMBase);
+			}
+			else if (_ui.m_uiType == "BackButton" || "GuideButton" || "TitleButton")
+			{
+				std::shared_ptr<ClickUI>	_spUI = std::make_shared<ClickUI>();
+				_spUI->SetFilePath(_ui.m_filePath);
+				_spUI->Init();
+				_spUI->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
+				_spUI->SetIsDraw(false);					// 通常は描画しないuiはフラグを解除して描画を行わないようにしておく
+				m_UIList.push_back(_spUI);
+				m_objList.push_back(_spUI);
+
+				m_uiVec.push_back(_spUI);
 			}
 			else
 			{
@@ -341,6 +358,7 @@ void GameScene::Init()
 				_spUI->SetFilePath(_ui.m_filePath);
 				_spUI->Init();
 				_spUI->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
+				_spUI->SetIsDraw(false);					// 通常は描画しないuiはフラグを解除して描画を行わないようにしておく
 				m_UIList.push_back(_spUI);
 			}
 		}

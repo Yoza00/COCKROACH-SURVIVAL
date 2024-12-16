@@ -16,6 +16,8 @@ void UI::DrawSprite()
 
 	// 描画
 	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spTex, m_drawPos.x, m_drawPos.y, _rec.width, _rec.height, &_rec, nullptr, { 0.0f,0.5f });
+	// 引数は
+	// 画像データ, 描画座標(x), 描画座標(y), 切り取り範囲の横幅, 切り取り範囲の縦幅, 切り取り範囲, 色, 原点の座標
 }
 
 void UI::Init()

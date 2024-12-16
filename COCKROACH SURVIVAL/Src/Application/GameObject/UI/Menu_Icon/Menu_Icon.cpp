@@ -6,18 +6,32 @@ void Menu_Icon::Update()
 
 	if (GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
-		if (!m_isMenu)
+		// フラグが解除されていれば処理を実行する
+		// ただし、一度でも入力されればフラグは起動され、
+		// 入力を終えるまで解除されない
+		if (!m_isKeyPush)
 		{
-			m_isMenu = true;
+			m_isKeyPush = true;			// フラグ起動
+
+			if (!m_isMenu)
+			{
+				m_isMenu = true;
+			}
+			else
+			{
+				m_isMenu = false;
+			}
 		}
+	}
+	else
+	{
+		// キー入力がされていなければフラグを解除
+		m_isKeyPush = false;
 	}
 }
 
 void Menu_Icon::DrawSprite()
 {
-	if (!m_spTex)return;
-
-	// メニューを開いている場合は表示しない
 	if (m_isMenu)return;
 
 	UI::DrawSprite();

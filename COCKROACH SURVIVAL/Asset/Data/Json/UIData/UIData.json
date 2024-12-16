@@ -97,12 +97,12 @@
 			"name": "Back",
 			"position": {
 				"x": -170.0,
-				"y": 180.0
+				"y": 150.0
 			}
 		},
 		{
 			"use": "game",
-			"type": "GruideButton",
+			"type": "GuideButton",
 			"filePath": "Asset/Textures/GameObject/UI/GameMenu/GuideButton.png",
 			"name": "Guide",
 			"position": {

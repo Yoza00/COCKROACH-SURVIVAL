@@ -66,7 +66,8 @@ void TitleScene::Init()
 	std::shared_ptr<Player>	_spPlayer = std::make_shared<Player>();
 	_spPlayer->Init();
 	_spPlayer->SetPos(_playerPos);
-	_spPlayer->SetModelRot(0.0f);
+	_spPlayer->SetModelRotate({ 0.0f,180.0f,0.0f });
+	_spPlayer->SetIsTitle(true);
 	_spPlayer->SetModelHeight(0.185f);
 	m_objList.push_back(_spPlayer);
 

@@ -4,8 +4,9 @@
 #include"../../GameObject/Stage/ObjectManager/ObjectManager.h"
 #include"../Json/nlohmann/json.hpp"
 
+class UI;
+
 class Player;
-//class TimeLimit;
 class Menu_Icon;
 
 class GameScene : public BaseScene
@@ -14,6 +15,11 @@ public :
 
 	GameScene() { Init(); }
 	~GameScene() override {}
+
+	const bool GetIsMenu()const
+	{
+		return m_isMenu;
+	}
 
 private:
 
@@ -39,8 +45,11 @@ private:
 	//std::weak_ptr<TimeLimit>m_wpLimit;
 	std::weak_ptr<Menu_Icon>m_wpMIcon;
 
+	std::vector<std::weak_ptr<UI>>	m_uiVec;
+
 	Math::Vector3	m_makePos = {};
 	std::shared_ptr<KdRandomGenerator>	m_RandomGen;
 
 	bool		m_isSceneChange = false;// シーン切替中かどうか
+	bool		m_isMenu		= false;// メニュー画面かどうか
 };

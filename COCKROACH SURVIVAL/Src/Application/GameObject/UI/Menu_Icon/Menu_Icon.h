@@ -13,17 +13,8 @@ public:
 	void DrawSprite()	override;
 	void Init()			override;
 
-	// フラグをセット
-	void SetIsMenu(bool isMenu)
-	{
-		m_isMenu = isMenu;
-	}
-
-	// フラグを取得
-	const bool IsMenu()const { return m_isMenu; }
-
 private:
 
-	bool	m_isMenu = false;		// メニューを開いているかどうか
-
+	// キーの入力制御用
+	bool	m_isKeyPush = false;		// キーが入力されているか
 };

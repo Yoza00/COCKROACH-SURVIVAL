@@ -174,6 +174,7 @@
     <ClInclude Include="Src\Application\GameObject\Stage\Wall\Right\WallRight.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\ClickUI\ClickUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.h" />
     <ClInclude Include="Src\Application\GameObject\UI\SceneChange\SceneChange.h" />
@@ -294,6 +295,7 @@
     <ClCompile Include="Src\Application\GameObject\Stage\Wall\Right\WallRight.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\ClickUI\ClickUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\SceneChange\SceneChange.cpp" />

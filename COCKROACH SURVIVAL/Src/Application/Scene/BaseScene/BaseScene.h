@@ -50,6 +50,11 @@ public :
 		m_UIList.pop_back();
 	}
 
+	virtual const bool GetIsMenu()const 
+	{
+		return false;
+	}
+
 protected :
 
 	// 継承先シーンで必要ならオーバーライドする

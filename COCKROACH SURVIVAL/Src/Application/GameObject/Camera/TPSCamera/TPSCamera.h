@@ -10,7 +10,13 @@ public:
 	void Init()				override;
 	void Update()			override;
 
+	// カメラの回転処理を行うかどうかのフラグのセッター
+	void SetIsCamRotUpdate(bool isCamRotUpdate)
+	{
+		m_isCamRotUpdate = isCamRotUpdate;
+	}
+
 private:
 
-	bool	m_isSight = false;
+	bool	m_isCamRotUpdate = false;
 };

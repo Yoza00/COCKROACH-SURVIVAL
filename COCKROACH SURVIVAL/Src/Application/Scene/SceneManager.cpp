@@ -73,6 +73,11 @@ void SceneManager::DeleteUI()
 {
 	m_currentScene->DeleteUI();
 }
+const bool SceneManager::GetIsMenu() const
+{
+	return m_currentScene->GetIsMenu();
+}
+
 //========================================
 
 void SceneManager::ChangeScene(SceneType sceneType)

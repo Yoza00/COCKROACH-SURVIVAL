@@ -5,6 +5,8 @@ class TPSCamera;
 
 //class TimeLimit;
 
+class GameScene;
+
 class Player :public KdGameObject
 {
 public:
@@ -205,7 +207,7 @@ private:
 
 	bool m_isCeiling = false;				// 天井かどうか？
 
-	bool m_isTitle = false;					// タイトルかどうか				
+	bool m_isTitle = false;					// タイトルかどうか	
 
 	// 進行方向を指定した角度だけ下向きに調整
 	const Math::Vector3 AdJustDirection(const Math::Vector3& dir, float angleInDegrees);

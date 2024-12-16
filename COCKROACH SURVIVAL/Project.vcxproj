@@ -172,6 +172,7 @@
     <ClInclude Include="Src\Application\GameObject\Stage\Wall\Front\WallFront.h" />
     <ClInclude Include="Src\Application\GameObject\Stage\Wall\Left\WallLeft.h" />
     <ClInclude Include="Src\Application\GameObject\Stage\Wall\Right\WallRight.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\BackButton\BackButton.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\ClickUI.h" />
@@ -293,6 +294,7 @@
     <ClCompile Include="Src\Application\GameObject\Stage\Wall\Front\WallFront.cpp" />
     <ClCompile Include="Src\Application\GameObject\Stage\Wall\Left\WallLeft.cpp" />
     <ClCompile Include="Src\Application\GameObject\Stage\Wall\Right\WallRight.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\BackButton\BackButton.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\ClickUI.cpp" />

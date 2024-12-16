@@ -25,17 +25,17 @@ void TPSCamera::Update()
 
 	if (GetAsyncKeyState(VK_LSHIFT) & 0x8000)
 	{
-		m_isSight = true;
+		m_isCamRotUpdate = true;
 		ShowCursor(true);
 	}
 	else if (GetAsyncKeyState(VK_RSHIFT) & 0x8000)
 	{
-		m_isSight = false;
+		m_isCamRotUpdate = false;
 		ShowCursor(false);
 	}
 
 	// カメラの回転
-	if (!m_isSight)
+	if (!m_isCamRotUpdate)
 	{
 		UpdateRotateByMouse();
 	}

@@ -17,7 +17,7 @@ public:
 		return m_isClicked;
 	}
 
-private:
+protected:
 
 	bool	m_isClicked = false;		// クリックされたかどうか
 
@@ -25,4 +25,7 @@ private:
 
 	// マウスでUIがクリックされたかどうかの確認
 	void ClickCheck();
+
+	// ボタンがクリックされた際に使用する関数
+	virtual void ButtonClicked() {}
 };

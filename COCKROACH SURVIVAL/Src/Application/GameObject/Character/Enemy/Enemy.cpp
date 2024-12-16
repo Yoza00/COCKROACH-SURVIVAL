@@ -14,6 +14,8 @@ void Enemy::Update()
 {
 	if (!m_spModel)return;
 
+	if (SceneManager::Instance().GetIsMenu())return;
+
 	// エネミー本体から見た視界の根本の座標
 	{
 		Math::Vector3 _sightPos = (m_localSightMat * m_mWorld).Translation();
@@ -56,6 +58,8 @@ void Enemy::Update()
 void Enemy::PostUpdate()
 {
 	if (!m_spModel)return;
+
+	if (SceneManager::Instance().GetIsMenu())return;
 
 	HitCheck();			// オブジェクトとの当たり判定を調べる
 

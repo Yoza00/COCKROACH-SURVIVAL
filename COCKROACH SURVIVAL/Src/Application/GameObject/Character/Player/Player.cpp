@@ -18,6 +18,9 @@ void Player::Update()
 {
 	if (m_isDead)return;
 
+	// SceneManagerを経由して、現在のシーンのメニューフラグの状態を確認する
+	if (SceneManager::Instance().GetIsMenu())return;
+
 	// フラグ制御
 	if (m_isJump)
 	{
@@ -199,6 +202,8 @@ void Player::PostUpdate()
 	if (m_isMenu)return;
 
 	if (!m_spModel)return;
+
+	if (SceneManager::Instance().GetIsMenu())return;
 
 	// 当たり判定
 	HitJudge();

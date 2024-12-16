@@ -8,6 +8,7 @@ class UI;
 
 class Player;
 class Menu_Icon;
+class TPSCamera;
 
 class GameScene : public BaseScene
 {
@@ -16,7 +17,7 @@ public :
 	GameScene() { Init(); }
 	~GameScene() override {}
 
-	const bool GetIsMenu()const
+	const bool GetIsMenu()const override
 	{
 		return m_isMenu;
 	}
@@ -44,6 +45,7 @@ private:
 	std::weak_ptr<Player>	m_wpPlayer;
 	//std::weak_ptr<TimeLimit>m_wpLimit;
 	std::weak_ptr<Menu_Icon>m_wpMIcon;
+	std::weak_ptr<TPSCamera>m_wpCamera;
 
 	std::vector<std::weak_ptr<UI>>	m_uiVec;
 

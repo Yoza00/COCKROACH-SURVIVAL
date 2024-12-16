@@ -7,7 +7,7 @@ class UI;
 
 class SceneManager
 {
-public :
+public:
 
 	// シーン情報
 	enum class SceneType
@@ -48,6 +48,9 @@ public :
 	void AddUI(const std::shared_ptr<UI>& UI);
 
 	void DeleteUI();
+
+	// 現在のシーンからm_isMenuフラグを取得する
+	const bool GetIsMenu()const;
 
 private :
 

@@ -55,7 +55,15 @@ void GameScene::Event()
 				_spUI->SetIsDraw(m_isMenu);
 			}
 		}
+
+		const std::shared_ptr<TPSCamera> _spCamera = m_wpCamera.lock();
+		if (_spCamera)
+		{
+			_spCamera->SetIsCamRotUpdate(m_isMenu);
+		}
 	}
+
+	if (m_isMenu)return;
 
 	// ============================================
 	// デバッグ用
@@ -374,6 +382,8 @@ void GameScene::Init()
 	//std::shared_ptr<FPSCamera>	_spCamera = std::make_shared<FPSCamera>();
 	_spCamera->Init();
 	m_objList.push_back(_spCamera);
+
+	m_wpCamera = _spCamera;
 
 	// 各オブジェクトに必要なデータを渡す
 	_spCamera->SetTarget(_spPlayer);		// カメラの追尾対象のポインタをセット

@@ -19,6 +19,12 @@ void ClickUI::Update()
 	{
 		m_isKey = false;
 	}
+
+	// クリックされていたら、対応する処理を行う
+	if (m_isClicked)
+	{
+		ButtonClicked();
+	}
 }
 
 void ClickUI::ClickCheck()

@@ -6,7 +6,7 @@ class ResultScene :public BaseScene
 {
 public:
 
-	ResultScene()	{ Init(); }
+	ResultScene(int score):m_score(score) { Init(); }
 	~ResultScene()	{}
 
 private:
@@ -16,5 +16,5 @@ private:
 
 	bool	m_isClick = false;		// クリックされたかどうか
 
-	int		m_drawScore = 0;		// 表示するスコア
+	int		m_score = 0;
 };

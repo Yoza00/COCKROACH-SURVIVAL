@@ -18,6 +18,15 @@ void Player::Update()
 {
 	if (m_isDead)return;
 
+	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+	{
+		m_isDead = true;
+	}
+	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+	{
+		m_score += 10;
+	}
+
 	// SceneManagerを経由して、現在のシーンのメニューフラグの状態を確認する
 	if (SceneManager::Instance().GetIsMenu())return;
 

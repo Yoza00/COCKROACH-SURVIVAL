@@ -10,7 +10,7 @@
 
 void ResultScene::Event()
 {
-	/*if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 	{
 		if (!m_isClick)
 		{
@@ -21,14 +21,15 @@ void ResultScene::Event()
 			_spChange->Init();
 			_spChange->SetDrawPos({ 0.0f,0.0f });
 			m_UIList.push_back(_spChange);
+
+			SceneManager::Instance().SetScore(0);
+			return;
 		}
-	}*/
+	}
 }
 
 void ResultScene::Init()
 {
-	SceneManager::Instance();
-
 	// UIのロード
 	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json"))
 	{
@@ -43,32 +44,14 @@ void ResultScene::Init()
 
 			if (ui.m_uiType == "Score_String")
 			{
-				int _score = m_drawScore;
-				int _index = 0;
-
-				// 必要な桁数を求める
-				// 負の値ではない、1桁の数になるまで計算する。
-				// ループが一周するたびに桁数を加算させる
-				while (1)
-				{
-					_score /= 10;
-
-					if (_score >= 0 && _score < 10)
-					{
-						break;
-					}
-
-					_index += 1;
-				}
-
 				// スコアの桁数分、スコアの画像を用意する
-				for (int cnt = 0; cnt < _index; cnt += 1)
+				for (int cnt = 0; cnt < 5; cnt += 1)
 				{
 					const std::shared_ptr<ResultScore>	_spScore = std::make_shared<ResultScore>();
 					_spScore->SetFilePath(ui.m_filePath);
 					_spScore->Init();
 					_spScore->SetDrawPos({ ui.m_pos.x,ui.m_pos.y });
-					_spScore->SetDrawScore(m_drawScore);
+					_spScore->SetDrawScore(m_score);
 					_spScore->SetIndex(cnt);
 					m_UIList.push_back(_spScore);
 				}

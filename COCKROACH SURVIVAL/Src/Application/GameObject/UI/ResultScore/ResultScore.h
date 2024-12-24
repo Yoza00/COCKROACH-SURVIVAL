@@ -27,7 +27,16 @@ public:
 
 private:
 
-	int		m_index				= 0;	// 対応する桁数
-	int		m_drawScore			= 0;	// 表示するスコア
-	float	m_charaWidthSize	= 0;	// 1文字当たりの横幅
+	int			m_index				= 0;	// 対応する桁数
+	const int	MAX_INDEX			= 4;	// 指数の最大値
+	int			m_drawScore			= 0;	// 表示するスコア
+	float		m_charaWidthSize	= 0;	// 1文字当たりの横幅
+
+	bool		m_isUpdateRectangleFinished = false;		// 切り取り範囲の更新が終了したかどうか
+
+	// 切り取り範囲更新
+	void UpdateRectangle();
+
+	// 切り取り開始座標(x座標)を切り替え
+	void ChangeRectanglePosX(int index);
 };

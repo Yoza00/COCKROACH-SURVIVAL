@@ -78,6 +78,11 @@ const bool SceneManager::GetIsMenu() const
 	return m_currentScene->GetIsMenu();
 }
 
+void SceneManager::SetScore(int score)
+{
+	m_score = score;
+}
+
 //========================================
 
 void SceneManager::ChangeScene(SceneType sceneType)
@@ -92,7 +97,7 @@ void SceneManager::ChangeScene(SceneType sceneType)
 		m_currentScene = std::make_shared<GameScene>();
 		break;
 	case SceneType::Result:
-		m_currentScene = std::make_shared<ResultScene>();
+		m_currentScene = std::make_shared<ResultScene>(m_score);
 	}
 
 	// 現在のシーン情報を更新

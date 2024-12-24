@@ -142,6 +142,10 @@ void GameScene::Event()
 				_spChange->Init();
 				_spChange->SetDrawPos({ 0.0f,0.0f });
 				m_UIList.push_back(_spChange);
+
+				int	_score = _spPlayer->GetScore();
+				SceneManager::Instance().SetScore(_score);
+				return;
 			}
 		}
 	}

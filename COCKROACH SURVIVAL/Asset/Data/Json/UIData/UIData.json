@@ -134,7 +134,7 @@
             "filePath": "Asset/Textures/GameObject/UI/Score/Number_cleared.png",
             "name": "Score",
             "position": {
-                "x": 420.0,
+                "x": 380.0,
                 "y": 280.0
             },
             "type": "score",
@@ -175,7 +175,7 @@
             "name": "Rank_A",
             "position": {
                 "x": 130.0,
-                "y": -130.0
+                "y": -150.0
             },
             "type": "Rank_A",
             "use": "result"
@@ -184,7 +184,7 @@
             "filePath": "Asset/Textures/GameObject/UI/Score/Number_cleared.png",
             "name": "Score_String",
             "position": {
-                "x": 300.0,
+                "x": 410.0,
                 "y": 75.0
             },
             "type": "Score_String",

@@ -94,24 +94,6 @@
     <Filter Include="Src\Application\GameObject\Stage\Floor">
       <UniqueIdentifier>{b041cbe7-ffc2-4f17-a39f-01b0df408433}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Stage\Wall">
-      <UniqueIdentifier>{4b730932-ef8c-45ac-b198-ba9a95f39b2f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\Stage\Ceiling">
-      <UniqueIdentifier>{30581010-cc95-4c6f-8d19-954cb93e9f08}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\Stage\Wall\Front">
-      <UniqueIdentifier>{a3967004-9325-4110-9806-9b8274a27a00}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\Stage\Wall\Back">
-      <UniqueIdentifier>{c37b80f8-43b3-459a-b7a8-cfd23881dc26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\Stage\Wall\Right">
-      <UniqueIdentifier>{ce892aaf-8872-4248-b4af-d3ecd5545b2d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\Stage\Wall\Left">
-      <UniqueIdentifier>{3c506bff-640d-474c-ba87-b23174c7ce6d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Stage\Title">
       <UniqueIdentifier>{d4569a52-f4c5-4cfd-a0cf-8a260bc1899e}</UniqueIdentifier>
     </Filter>
@@ -193,8 +175,26 @@
     <Filter Include="Src\Application\GameObject\UI\ClickUI">
       <UniqueIdentifier>{602330d1-33af-4739-ac79-76ef09c22940}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\UI\BackButton">
+    <Filter Include="Src\Application\GameObject\UI\ClickUI\BackButton">
       <UniqueIdentifier>{3ded5512-6513-4851-b67f-7da537f2df84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\ClickUI\TitleButton">
+      <UniqueIdentifier>{228a1756-e60e-4bd9-9a1b-54a1ff80a91b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\ClickUI\GuideButton">
+      <UniqueIdentifier>{cfcaad32-1e65-4965-b643-16655906d33f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\ClickUI\DrawGuide">
+      <UniqueIdentifier>{8b45d436-8631-4b0d-a6fb-985d1f946182}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Cursor">
+      <UniqueIdentifier>{6f5727da-cae2-42e9-9986-9dadd901f1d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Score">
+      <UniqueIdentifier>{61379a4e-ec05-40d2-bbd2-b174498e36ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\ResultScore">
+      <UniqueIdentifier>{1477c1bf-b0c6-4291-945f-307e0f242608}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -381,21 +381,6 @@
     <ClInclude Include="Src\Application\GameObject\Stage\Floor\Floor.h">
       <Filter>Src\Application\GameObject\Stage\Floor</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Stage\Ceiling\Ceiling.h">
-      <Filter>Src\Application\GameObject\Stage\Ceiling</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Stage\Wall\Front\WallFront.h">
-      <Filter>Src\Application\GameObject\Stage\Wall\Front</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Stage\Wall\Back\WallBack.h">
-      <Filter>Src\Application\GameObject\Stage\Wall\Back</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Stage\Wall\Left\WallLeft.h">
-      <Filter>Src\Application\GameObject\Stage\Wall\Left</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Stage\Wall\Right\WallRight.h">
-      <Filter>Src\Application\GameObject\Stage\Wall\Right</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Stage\Title\House\House.h">
       <Filter>Src\Application\GameObject\Stage\Title\House</Filter>
     </ClInclude>
@@ -576,8 +561,26 @@
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\ClickUI.h">
       <Filter>Src\Application\GameObject\UI\ClickUI</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\UI\BackButton\BackButton.h">
-      <Filter>Src\Application\GameObject\UI\BackButton</Filter>
+    <ClInclude Include="Src\Application\GameObject\UI\ClickUI\BackButton\BackButton.h">
+      <Filter>Src\Application\GameObject\UI\ClickUI\BackButton</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\ClickUI\TitleButton\TitleButton.h">
+      <Filter>Src\Application\GameObject\UI\ClickUI\TitleButton</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\ClickUI\GuideButton\GuideButton.h">
+      <Filter>Src\Application\GameObject\UI\ClickUI\GuideButton</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\ClickUI\DrawGuide\DrawGuide.h">
+      <Filter>Src\Application\GameObject\UI\ClickUI\DrawGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\Cursor\Cursor.h">
+      <Filter>Src\Application\GameObject\UI\Cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\Score\Score.h">
+      <Filter>Src\Application\GameObject\UI\Score</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\ResultScore\ResultScore.h">
+      <Filter>Src\Application\GameObject\UI\ResultScore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -737,21 +740,6 @@
     <ClCompile Include="Src\Application\GameObject\Stage\Floor\Floor.cpp">
       <Filter>Src\Application\GameObject\Stage\Floor</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Stage\Ceiling\Ceiling.cpp">
-      <Filter>Src\Application\GameObject\Stage\Ceiling</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Stage\Wall\Front\WallFront.cpp">
-      <Filter>Src\Application\GameObject\Stage\Wall\Front</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Stage\Wall\Back\WallBack.cpp">
-      <Filter>Src\Application\GameObject\Stage\Wall\Back</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Stage\Wall\Left\WallLeft.cpp">
-      <Filter>Src\Application\GameObject\Stage\Wall\Left</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Stage\Wall\Right\WallRight.cpp">
-      <Filter>Src\Application\GameObject\Stage\Wall\Right</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Stage\Title\House\House.cpp">
       <Filter>Src\Application\GameObject\Stage\Title\House</Filter>
     </ClCompile>
@@ -797,8 +785,26 @@
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\ClickUI.cpp">
       <Filter>Src\Application\GameObject\UI\ClickUI</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\UI\BackButton\BackButton.cpp">
-      <Filter>Src\Application\GameObject\UI\BackButton</Filter>
+    <ClCompile Include="Src\Application\GameObject\UI\ClickUI\BackButton\BackButton.cpp">
+      <Filter>Src\Application\GameObject\UI\ClickUI\BackButton</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\ClickUI\TitleButton\TitleButton.cpp">
+      <Filter>Src\Application\GameObject\UI\ClickUI\TitleButton</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\ClickUI\GuideButton\GuideButton.cpp">
+      <Filter>Src\Application\GameObject\UI\ClickUI\GuideButton</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\ClickUI\DrawGuide\DrawGuide.cpp">
+      <Filter>Src\Application\GameObject\UI\ClickUI\DrawGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\Cursor\Cursor.cpp">
+      <Filter>Src\Application\GameObject\UI\Cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\Score\Score.cpp">
+      <Filter>Src\Application\GameObject\UI\Score</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\ResultScore\ResultScore.cpp">
+      <Filter>Src\Application\GameObject\UI\ResultScore</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

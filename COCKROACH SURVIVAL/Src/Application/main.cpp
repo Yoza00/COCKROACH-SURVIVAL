@@ -440,7 +440,9 @@ void Application::ImGuiRelease()
 
 void Application::renderGui()
 {
-	static const char	_useFilePath[128]	= "Asset/Data/ObjectData.json";
+	static const char	_useObjectFilePath[128]	= "Asset/Data/Json/ObjectData/ObjectData.json";
+	static const char	_useUIFilePath[128]		= "Asset/Data/Json/UIData/UIData.json";
+	static char			_uiUseScene[10]		= "";
 	static char			_objectName[128]	= "";
 	static char			_objectpath[128]	= "";
 	static float		_pos[3]				= { 0.0f,0.0f,0.0f };
@@ -449,7 +451,7 @@ void Application::renderGui()
 	static char			_uiType[128] = "";
 
 	std::shared_ptr<ObjectData>	_spObject;
-	//std::shared_ptr<UI>	_spUI;
+	std::shared_ptr<UI>	_spUI;
 
 	//ImGui::Begin("Map Editor");
 	if (ImGui::Begin("Map Editor"))
@@ -523,73 +525,77 @@ void Application::renderGui()
 			_objectData["scale"] = _scale;
 
 			// JSONデータに新たなオブジェクトを追加
-			nlohmann::json	_jsonData = ObjectManager::Instance().LoadJsonData(_useFilePath);
+			nlohmann::json	_jsonData = ObjectManager::Instance().LoadJsonData(_useObjectFilePath);
 			_jsonData["objects"].push_back(_objectData);
 
 			// JSONデータ保存
-			ObjectManager::Instance().SaveJsonData(_jsonData, _useFilePath);
+			ObjectManager::Instance().SaveJsonData(_jsonData, _useObjectFilePath);
 		}
 	}
 	ImGui::End();
 
-	//if (ImGui::Begin("UI Editor"))
-	//{
-	//	// オブジェクト名を決定する
-	//	ImGui::InputText("UI Name", _objectName, IM_ARRAYSIZE(_objectName));
+	if (ImGui::Begin("UI Editor"))
+	{
+		// UIの使用シーンを設定
+		ImGui::InputText("UI UseScene", _uiUseScene, IM_ARRAYSIZE(_uiUseScene));
 
-	//	// オブジェクトのファイルパスを入力
-	//	ImGui::InputText("UI Path", _objectpath, IM_ARRAYSIZE(_objectpath));
+		// オブジェクト名を決定する
+		ImGui::InputText("UI Name", _objectName, IM_ARRAYSIZE(_objectName));
 
-	//	// UIのタイプを入力
-	//	// タイプ：生成するUIのタイプのことで、このタイプで判断して適切なインスタンスを生成する
-	//	ImGui::InputText("UI Type", _uiType, IM_ARRAYSIZE(_uiType));
+		// オブジェクトのファイルパスを入力
+		ImGui::InputText("UI Path", _objectpath, IM_ARRAYSIZE(_objectpath));
 
-	//	// オブジェクトを生成
-	//	if (ImGui::Button("Generate Object"))
-	//	{
-	//		_spUI = std::make_shared<UI>();
-	//		_spUI->SetFilePath(_objectpath);
-	//		_spUI->SetDrawPos();
-	//		_spUI->Init();
-	//		//SceneManager::Instance().AddObject(_spUI);
-	//		SceneManager::Instance().AddUI(_spUI);
+		// UIのタイプを入力
+		// タイプ：生成するUIのタイプのことで、このタイプで判断して適切なインスタンスを生成する
+		ImGui::InputText("UI Type", _uiType, IM_ARRAYSIZE(_uiType));
 
-	//		m_wpUI = std::make_shared<UI>();
-	//		m_wpUI = _spUI;
-	//	}
+		// オブジェクトを生成
+		if (ImGui::Button("Generate Object"))
+		{
+			_spUI = std::make_shared<UI>();
+			_spUI->SetFilePath(_objectpath);
+			_spUI->SetDrawPos();
+			_spUI->Init();
+			//SceneManager::Instance().AddObject(_spUI);
+			SceneManager::Instance().AddUI(_spUI);
 
-	//	// ======================================
-	//	// オブジェクト操作関連
-	//	// ======================================
+			m_wpUI = std::make_shared<UI>();
+			m_wpUI = _spUI;
+		}
 
-	//	// 座標
-	//	ImGui::SliderFloat("pos_x", &_pos[0], -640.0f, 640.0f);
-	//	ImGui::SliderFloat("pos_y", &_pos[1], -360.0f, 360.0f);
+		// ======================================
+		// オブジェクト操作関連
+		// ======================================
 
-	//	if (m_wpUI.expired() == false)
-	//	{
-	//		m_wpUI.lock()->SetDrawPos({ _pos[0],_pos[1] });
-	//	}
+		// 座標
+		ImGui::SliderFloat("pos_x", &_pos[0], -640.0f, 640.0f);
+		ImGui::SliderFloat("pos_y", &_pos[1], -360.0f, 360.0f);
 
-	//	// 保存ボタン
-	//	if (ImGui::Button("Save Object"))
-	//	{
-	//		nlohmann::json	_objectData;
+		if (m_wpUI.expired() == false)
+		{
+			m_wpUI.lock()->SetDrawPos({ _pos[0],_pos[1] });
+		}
 
-	//		_objectData["type"] = _uiType;
-	//		_objectData["name"] = _objectName;
-	//		_objectData["filePath"] = _objectpath;
-	//		_objectData["position"]["x"] = _pos[0];
-	//		_objectData["position"]["y"] = _pos[1];
+		// 保存ボタン
+		if (ImGui::Button("Save Object"))
+		{
+			nlohmann::json	_objectData;
 
-	//		// JSONデータに新たなオブジェクトを追加
-	//		nlohmann::json	_jsonData = ObjectManager::Instance().LoadJsonData(_useFilePath);
+			_objectData["use"] = _uiUseScene;
+			_objectData["type"] = _uiType;
+			_objectData["name"] = _objectName;
+			_objectData["filePath"] = _objectpath;
+			_objectData["position"]["x"] = _pos[0];
+			_objectData["position"]["y"] = _pos[1];
 
-	//		_jsonData["UI"].push_back(_objectData);
+			// JSONデータに新たなオブジェクトを追加
+			nlohmann::json	_jsonData = ObjectManager::Instance().LoadJsonData(_useUIFilePath);
 
-	//		// JSONデータ保存
-	//		ObjectManager::Instance().SaveJsonData(_jsonData, _useFilePath);
-	//	}
-	//}
-	//ImGui::End();
+			_jsonData["UI"].push_back(_objectData);
+
+			// JSONデータ保存
+			ObjectManager::Instance().SaveJsonData(_jsonData, _useUIFilePath);
+		}
+	}
+	ImGui::End();
 }

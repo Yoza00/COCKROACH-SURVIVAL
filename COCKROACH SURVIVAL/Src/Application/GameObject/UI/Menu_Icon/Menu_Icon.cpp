@@ -4,6 +4,8 @@ void Menu_Icon::Update()
 {
 	if (!m_spTex)return;
 
+	if (m_isMenu)return;
+
 	if (GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
 		// フラグが解除されていれば処理を実行する
@@ -16,10 +18,6 @@ void Menu_Icon::Update()
 			if (!m_isMenu)
 			{
 				m_isMenu = true;
-			}
-			else
-			{
-				m_isMenu = false;
 			}
 		}
 	}

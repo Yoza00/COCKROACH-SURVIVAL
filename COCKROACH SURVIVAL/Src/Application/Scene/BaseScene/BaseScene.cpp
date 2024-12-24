@@ -3,6 +3,9 @@
 // UI用
 #include"../../GameObject/UI/UI.h"
 
+// デバッグ用
+#include"../../main.h"
+
 void BaseScene::PreUpdate()
 {
 	// Updateの前の更新処理
@@ -22,12 +25,35 @@ void BaseScene::PreUpdate()
 		}
 	}
 
+	// 不要なUIオブジェクトの削除
+	auto _uiIt = m_UIList.begin();
+
+	while (_uiIt != m_UIList.end())
+	{
+		if ((*_uiIt)->IsExpired())
+		{
+			_uiIt = m_UIList.erase(_uiIt);
+		}
+		else
+		{
+			++_uiIt;
+		}
+	}
+
 	// ↑の後には有効なオブジェクトだけのリストになっている
 
 	for (auto& obj : m_objList)
 	{
 		obj->PreUpdate();
 	}
+
+	for (auto& ui : m_UIList)
+	{
+		ui->PreUpdate();
+	}
+
+	// デバッグ用
+	Application::Instance().m_log.AddLog("%d\n", m_UIList.size());
 }
 
 void BaseScene::Update()
@@ -36,6 +62,11 @@ void BaseScene::Update()
 	for (auto& obj : m_objList)
 	{
 		obj->Update();
+	}
+
+	for (auto& ui : m_UIList)
+	{
+		ui->Update();
 	}
 
 	// シーン毎のイベント処理
@@ -47,6 +78,11 @@ void BaseScene::PostUpdate()
 	for (auto& obj : m_objList)
 	{
 		obj->PostUpdate();
+	}
+
+	for (auto& ui : m_UIList)
+	{
+		ui->PostUpdate();
 	}
 }
 
@@ -60,6 +96,11 @@ void BaseScene::PreDraw()
 	for (auto& obj : m_objList)
 	{
 		obj->PreDraw();
+	}
+
+	for (auto& ui : m_UIList)
+	{
+		ui->PreDraw();
 	}
 }
 

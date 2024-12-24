@@ -16,5 +16,5 @@ public:
 private:
 
 	// キーの入力制御用
-	bool	m_isKeyPush = false;		// キーが入力されているか
+	bool	m_isKeyPush		= false;	// キーが入力されているか
 };

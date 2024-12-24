@@ -67,11 +67,11 @@ void Player::Update()
 			// 何らかのアクション状態
 			m_life -= 0.0025f;
 		}
+	}
 
-		if (m_life <= 0.0f)
-		{
-			m_isDead = true;		// 体力がなくなれば死亡フラグを起動
-		}
+	if (m_life <= 0.0f)
+	{
+		m_isDead = true;		// 体力がなくなれば死亡フラグを起動
 	}
 
 	UINT	_tmpActionType = m_actionType;		// アクションタイプを一時的に保存しておく

@@ -15,4 +15,6 @@ private:
 	void Init()		override;
 
 	bool	m_isClick = false;		// クリックされたかどうか
+
+	int		m_drawScore = 0;		// 表示するスコア
 };

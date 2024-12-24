@@ -86,6 +86,12 @@ public:
 	// 食事が完了した結果をセットする
 	void SetAteFood(float life, float restNum, int score);
 
+	// 現在のスコアを取得
+	const int GetScore()const
+	{
+		return m_score;
+	}
+
 	// 満腹度を取得
 	const float GetRestNum() const
 	{
@@ -98,10 +104,16 @@ public:
 		return m_life;
 	}
 
-	Math::Vector3 GetPos()const override { return m_pos; }
+	Math::Vector3 GetPos()const override
+	{ 
+		return m_pos; 
+	}
 
 	// 生存フラグを返す
-	const bool IsDead()const { return m_isDead; }
+	const bool IsDead()const
+	{
+		return m_isDead; 
+	}
 
 private:
 

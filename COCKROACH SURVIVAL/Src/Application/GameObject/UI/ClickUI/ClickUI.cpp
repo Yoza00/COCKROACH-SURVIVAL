@@ -4,6 +4,7 @@ void ClickUI::Update()
 {
 	if (!m_isDraw)return;
 	if (!m_isMenu)return;
+	if (!m_isButtonActive)return;
 
 	// 左クリックされたら、クリックに対応する処理を行う
 	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
@@ -23,6 +24,9 @@ void ClickUI::Update()
 	// クリックされていたら、対応する処理を行う
 	if (m_isClicked)
 	{
+		m_isClicked = false;
+
+		// クリックされた結果の処理を実行
 		ButtonClicked();
 	}
 }

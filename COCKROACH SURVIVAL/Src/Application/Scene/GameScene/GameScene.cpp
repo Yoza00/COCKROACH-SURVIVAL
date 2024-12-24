@@ -1,18 +1,12 @@
 ﻿#include "GameScene.h"
 #include"../SceneManager.h"
+#include"../../GameObject/Stage/ObjectManager/ObjectManager.h"
 #include"../../main.h"
 
-//#include"../../GameObject/Stage/Stage.h"
-
-#include"../../GameObject/Stage/Ceiling/Ceiling.h"
 #include"../../GameObject/Stage/Floor/Floor.h"
-#include"../../GameObject/Stage/Wall/Front/WallFront.h"
-#include"../../GameObject/Stage/Wall/Back/WallBack.h"
-#include"../../GameObject/Stage/Wall/Right/WallRight.h"
-#include"../../GameObject/Stage/Wall/Left/WallLeft.h"
 #include"../../GameObject/Character/Player/Player.h"
+#include"../../GameObject/Character/Enemy/Enemy.h"
 #include"../../GameObject/Camera/TPSCamera/TPSCamera.h"
-//#include"../../GameObject/Camera/FPSCamera/FPSCamera.h"
 #include"../../GameObject/Stage/ObjectData/ObjectData.h"
 
 #include"../../GameObject/Stage/Food/Food.h"
@@ -20,17 +14,20 @@
 #include"../../GameObject/UI/UI.h"
 #include"../../GameObject/UI/bar/BarHp/BarHp.h"
 #include"../../GameObject/UI/bar/BarHungry/BarHungry.h"
-//#include"../../GameObject/UI/Clock/TimeLimit/TimeLimit.h"
 #include"../../GameObject/UI/SceneChange/SceneChange.h"
 #include"../../GameObject/UI/Menu_Icon/Menu_Icon.h"
 #include"../../GameObject/UI/Menu_Screen/Menu_Screen.h"
-#include"../../GameObject/UI/ClickUI/ClickUI.h"
-
-#include"../../GameObject/Character/Enemy/Enemy.h"
+#include"../../GameObject/UI/ClickUI/BackButton/BackButton.h"
+#include"../../GameObject/UI/ClickUI/GuideButton/GuideButton.h"
+#include"../../GameObject/UI/ClickUI/DrawGuide/DrawGuide.h"
+#include"../../GameObject/UI/ClickUI/TitleButton/TitleButton.h"
+#include"../../GameObject/UI/Cursor/Cursor.h"
+#include"../../GameObject/UI/Score/Score.h"
 
 void GameScene::Event()
 {
-	const std::shared_ptr<Menu_Icon> _spMenu = m_wpMIcon.lock();
+	const std::shared_ptr<Menu_Icon>	_spMenu			= m_wpMIcon.lock();
+	const std::shared_ptr<GuideButton>	_spGuideButton	= m_wpGuideButton.lock();
 
 	bool _isFlgUpdate = false;		// フラグ更新が必要かどうか
 
@@ -60,6 +57,35 @@ void GameScene::Event()
 		if (_spCamera)
 		{
 			_spCamera->SetIsCamRotUpdate(m_isMenu);
+		}
+	}
+
+	if (!_spGuideButton)return;
+
+	// ガイドの表示がされているかを判定
+	// 判定方法はインスタンスがあるかどうか
+	const std::shared_ptr<DrawGuide>	_spDrawGuide = _spGuideButton->GetWPDrawGuide().lock();
+
+	if (_spDrawGuide)
+	{
+		for (auto& ui : m_uiVec)
+		{
+			const std::shared_ptr<UI> _spUI = ui.lock();
+			if (_spUI)
+			{
+				_spUI->SetIsButtonActive(false);
+			}
+		}
+	}
+	else
+	{
+		for (auto& ui : m_uiVec)
+		{
+			const std::shared_ptr<UI> _spUI = ui.lock();
+			if (_spUI)
+			{
+				_spUI->SetIsButtonActive(true);
+			}
 		}
 	}
 
@@ -116,7 +142,6 @@ void GameScene::Event()
 				_spChange->Init();
 				_spChange->SetDrawPos({ 0.0f,0.0f });
 				m_UIList.push_back(_spChange);
-				m_objList.push_back(_spChange);
 			}
 		}
 	}
@@ -220,22 +245,6 @@ void GameScene::Init()
 		return;
 	}
 
-	/*std::shared_ptr<WallFront>	_spFront = std::make_shared<WallFront>();
-	_spFront->Init();
-	m_objList.push_back(_spFront);
-
-	std::shared_ptr<WallBack>	_spback = std::make_shared<WallBack>();
-	_spback->Init();
-	m_objList.push_back(_spback);
-
-	std::shared_ptr<WallRight>	_spRight = std::make_shared<WallRight>();
-	_spRight->Init();
-	m_objList.push_back(_spRight);
-
-	std::shared_ptr<WallLeft>	_spLeft = std::make_shared<WallLeft>();
-	_spLeft->Init();
-	m_objList.push_back(_spLeft);*/
-
 	// ステージ内のオブジェクト
 	if (ObjectManager::Instance().LoadObjectsFromJson("Asset/Data/Json/ObjectData/ObjectData.json"))
 	{
@@ -284,6 +293,10 @@ void GameScene::Init()
 	// UI
 	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json"))
 	{
+		// Menu_Iconクラスのシェアードポインタをコピーしておくためのローカル変数
+		// このif文の中のみ有効
+		std::shared_ptr<Menu_Icon>	_spCopyMenuIcon = nullptr;
+
 		const std::vector<Object>& _uis = ObjectManager::Instance().GetObjects();
 
 		for (const auto& _ui : _uis)
@@ -302,7 +315,6 @@ void GameScene::Init()
 				_spBarHung->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
 				_spBarHung->SetPlayer(_spPlayer);
 				m_UIList.push_back(_spBarHung);
-				m_objList.push_back(_spBarHung);
 			}
 			else if (_ui.m_uiType == "bar_hp")
 			{
@@ -313,7 +325,19 @@ void GameScene::Init()
 				_spBarHp->SetPlayer(_spPlayer);
 				//m_objList.push_back(_spBarHp);
 				m_UIList.push_back(_spBarHp);
-				m_objList.push_back(_spBarHp);
+			}
+			else if (_ui.m_uiType == "score")
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					std::shared_ptr<Score>	_spScore = std::make_shared<Score>();
+					_spScore->SetFilePath(_ui.m_filePath);
+					_spScore->Init();
+					_spScore->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
+					_spScore->SetIndex(i);
+					_spScore->SetPlayer(_spPlayer);
+					m_UIList.push_back(_spScore);
+				}
 			}
 			else if (_ui.m_uiType == "Menu_Icon")
 			{
@@ -322,9 +346,10 @@ void GameScene::Init()
 				_spMIcon->Init();
 				_spMIcon->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
 				m_UIList.push_back(_spMIcon);
-				m_objList.push_back(_spMIcon);
 
 				m_wpMIcon = _spMIcon;
+
+				_spCopyMenuIcon = _spMIcon;
 			}
 			else if (_ui.m_uiType == "Menu_BackScreen")
 			{
@@ -332,7 +357,7 @@ void GameScene::Init()
 				_spMSc->SetFilePath(_ui.m_filePath);
 				_spMSc->Init();
 				_spMSc->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
-				_spMSc->SetMIcon(m_wpMIcon.lock());
+				//_spMSc->SetMIcon(m_wpMIcon.lock());
 				_spMSc->SetAlpha(0.5f);
 				m_uiVec.push_back(_spMSc);
 				m_UIList.push_back(_spMSc);
@@ -343,22 +368,57 @@ void GameScene::Init()
 				_spMBase->SetFilePath(_ui.m_filePath);
 				_spMBase->Init();
 				_spMBase->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
-				_spMBase->SetMIcon(m_wpMIcon.lock());
+				//_spMBase->SetMIcon(m_wpMIcon.lock());
 				_spMBase->SetAlpha(1.0f);
 				m_uiVec.push_back(_spMBase);
 				m_UIList.push_back(_spMBase);
 			}
-			else if (_ui.m_uiType == "BackButton" || "GuideButton" || "TitleButton")
+			else if (_ui.m_uiType == "BackButton")
 			{
-				std::shared_ptr<ClickUI>	_spUI = std::make_shared<ClickUI>();
+				std::shared_ptr<BackButton>	_spUI = std::make_shared<BackButton>();
+				_spUI->SetFilePath(_ui.m_filePath);
+				_spUI->Init();
+				_spUI->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
+				_spUI->SetIsDraw(false);					
+				m_UIList.push_back(_spUI);
+
+				m_uiVec.push_back(_spUI);
+
+				_spUI->SetWPMIcon(_spCopyMenuIcon);
+			}
+			else if (_ui.m_uiType == "GuideButton")
+			{
+				std::shared_ptr<GuideButton> _spUI = std::make_shared<GuideButton>();
 				_spUI->SetFilePath(_ui.m_filePath);
 				_spUI->Init();
 				_spUI->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
 				_spUI->SetIsDraw(false);					// 通常は描画しないuiはフラグを解除して描画を行わないようにしておく
 				m_UIList.push_back(_spUI);
-				m_objList.push_back(_spUI);
+				m_uiVec.push_back(_spUI);
+
+				m_wpGuideButton = _spUI;
+			}
+			else if (_ui.m_uiType == "TitleButton")
+			{
+				std::shared_ptr<TitleButton>	_spUI = std::make_shared<TitleButton>();
+				_spUI->SetFilePath(_ui.m_filePath);
+				_spUI->Init();
+				_spUI->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
+				_spUI->SetIsDraw(false);
+				m_UIList.push_back(_spUI);
 
 				m_uiVec.push_back(_spUI);
+			}
+			else if (_ui.m_uiType == "cursor")
+			{
+				std::shared_ptr<Cursor>	_spCursor = std::make_shared<Cursor>();
+				_spCursor->SetFilePath(_ui.m_filePath);
+				_spCursor->Init();
+				_spCursor->SetDrawPos();
+				_spCursor->SetIsDraw(false);
+
+				m_UIList.push_back(_spCursor);
+				m_uiVec.push_back(_spCursor);
 			}
 			else
 			{

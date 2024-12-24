@@ -9,7 +9,8 @@ void Floor::Init()
 		//m_spModel->Load("Asset/Models/Terrains/GameScene/floor/floor1.gltf");
 		//m_spModel->Load("Asset/Models/Terrains/GameScene/floor/stage_tmp3.gltf");
 		//m_spModel->Load("Asset/Models/Terrains/GameScene/floor/stage_tmp4.gltf");
-		m_spModel->Load("Asset/Models/Terrains/GameScene/floor/stage_model7.gltf");
+		m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrains/GameScene/floor/stage_model7.gltf");
+		//m_spModel->Load("Asset/Models/Terrains/GameScene/floor/stage_model7.gltf");
 		//m_spModel->Load("Asset/Models/Terrains/GameScene/floor/stage_model6.gltf");
 		//m_spModel->Load("Asset/Models/Terrains/GameScene/floor/stage_model5.gltf");
 		//m_spModel->Load("Asset/Models/Terrains/GameScene/floor/floor_tmp.gltf");

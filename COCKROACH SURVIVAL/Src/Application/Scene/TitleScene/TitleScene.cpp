@@ -39,7 +39,6 @@ void TitleScene::Event()
 			_spChange->Init();
 			_spChange->SetDrawPos({ 0.0f,0.0f });
 			m_UIList.push_back(_spChange);
-			m_objList.push_back(_spChange);
 		}
 	}
 
@@ -101,7 +100,6 @@ void TitleScene::Init()
 				_spStart->Init();
 				_spStart->SetDrawPos({ _ui.m_pos.x,_ui.m_pos.y });
 				m_UIList.push_back(_spStart);
-				m_objList.push_back(_spStart);
 			}
 		}
 

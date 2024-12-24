@@ -48,6 +48,15 @@ void SceneChange::Init()
 
 void SceneChange::ChangeScene()
 {
+	if (m_isTitleBack)
+	{
+		SceneManager::Instance().SetNextScene(
+			SceneManager::SceneType::Title
+		);
+
+		return;
+	}
+
 	switch (SceneManager::Instance().GetSceneType())
 	{
 	case SceneManager::SceneType::Title:

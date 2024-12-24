@@ -9,7 +9,7 @@ public:
 	ClickUI()										{}
 	~ClickUI()							override	{}
 
-	void Update()override;
+	void Update()						override;
 
 	// クリックされたかどうかを返す
 	const bool GetIsClicked()const
@@ -20,7 +20,6 @@ public:
 protected:
 
 	bool	m_isClicked = false;		// クリックされたかどうか
-
 	bool	m_isKey		= false;
 
 	// マウスでUIがクリックされたかどうかの確認

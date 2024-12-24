@@ -36,6 +36,11 @@ public:
 		m_isMenu = isMenu;
 	}
 
+	void SetIsButtonActive(bool isButtonActive)
+	{
+		m_isButtonActive = isButtonActive;
+	}
+
 	// ======================================================
 
 	// ========== ゲッター関連 =============
@@ -57,6 +62,6 @@ protected:
 	std::string					m_filePath;
 
 	bool						m_isDraw	= true;					// 描画するかどうか
-
 	bool						m_isMenu	= false;				// メニュー画面かどうか
+	bool						m_isButtonActive = true;			// ボタンは有効かどうか
 };

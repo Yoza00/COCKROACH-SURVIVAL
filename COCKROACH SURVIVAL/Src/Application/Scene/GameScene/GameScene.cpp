@@ -295,7 +295,7 @@ void GameScene::Init()
 	m_objList.push_back(_spEnemy);
 
 	// UI
-	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json"))
+	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json", "game"))
 	{
 		// Menu_Iconクラスのシェアードポインタをコピーしておくためのローカル変数
 		// このif文の中のみ有効

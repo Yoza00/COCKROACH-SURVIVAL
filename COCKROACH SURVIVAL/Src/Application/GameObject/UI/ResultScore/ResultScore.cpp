@@ -1,9 +1,23 @@
 ﻿#include "ResultScore.h"
+#include"../Rank/Rank.h"
+#include"../../Stage/ObjectManager/ObjectManager.h"
+#include"../../../Scene/SceneManager.h"
 
 void ResultScore::Update()
 {
 	if (!m_spTex)return;
-	if (m_isUpdateRectangleFinished)return;
+	if (m_isMadeRankInstance)return;
+
+	// スコアの表示を終えたら、ランク表示を行う
+	if (m_isUpdateRectangleFinished)
+	{
+		m_isMadeRankInstance = true;
+
+		// ランクのインスタンスを作成
+		MakeRankInstance();
+		
+		return;
+	}
 
 	// 切り取り
 	UpdateRectangle();
@@ -77,4 +91,45 @@ void ResultScore::ChangeRectanglePosX(int index)
 	}
 
 	m_isUpdateRectangleFinished = true;
+}
+
+void ResultScore::MakeRankInstance()
+{
+	if (ObjectManager::Instance().LoadUIRankFromJson("Asset/Data/Json/UIData/UIData.json", RankJudge()))
+	{
+		for (const auto& obj : ObjectManager::Instance().GetObjects())
+		{
+			const std::shared_ptr<Rank>	_spRank = std::make_shared<Rank>();
+			_spRank->SetFilePath(obj.m_filePath);
+			_spRank->Init();
+			_spRank->SetDrawPos({ obj.m_pos.x,obj.m_pos.y });
+			SceneManager::Instance().AddUI(_spRank);
+		}
+	}
+
+	ObjectManager::Instance().ListClear();
+}
+
+std::string ResultScore::RankJudge()
+{
+	std::string	_Rank = "A";
+
+	if (0 <= m_drawScore && m_drawScore <= m_border.E)
+	{
+		_Rank = "E";
+	}
+	else if (m_border.E < m_drawScore && m_drawScore <= m_border.D)
+	{
+		_Rank = "D";
+	}
+	else if (m_border.D < m_drawScore && m_drawScore <= m_border.C)
+	{
+		_Rank = "C";
+	}
+	else if (m_border.C < m_drawScore && m_drawScore <= m_border.B)
+	{
+		_Rank = "B";
+	}
+
+	return _Rank;
 }

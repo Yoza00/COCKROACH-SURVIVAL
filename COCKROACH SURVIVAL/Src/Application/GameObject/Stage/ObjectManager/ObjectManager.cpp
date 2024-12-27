@@ -56,7 +56,7 @@ bool ObjectManager::LoadObjectsFromJson(const std::string& _filePath)
 	return true;
 }
 
-bool ObjectManager::LoadUIFromJson(const std::string& _filePath)
+bool ObjectManager::LoadUIFromJson(const std::string& _filePath, const std::string& useScene)
 {
 	nlohmann::json	_jsonData;
 
@@ -70,6 +70,9 @@ bool ObjectManager::LoadUIFromJson(const std::string& _filePath)
 
 	for (const auto& obj : _jsonData["UI"])
 	{
+		// シーンが異なれば読み込まない
+		if (obj["use"] != useScene)continue;
+
 		Object	_object;
 		_object.m_useScene	= obj["use"];
 		_object.m_uiType	= obj["type"];
@@ -79,6 +82,69 @@ bool ObjectManager::LoadUIFromJson(const std::string& _filePath)
 		_object.m_pos.y		= obj["position"]["y"];
 		m_objects.push_back(_object);
 	}
+
+	return true;
+}
+
+bool ObjectManager::LoadUIRankFromJson(const std::string& filePath, const std::string& useUIName)
+{
+	nlohmann::json	_jsonData;
+
+	std::ifstream	_file(filePath);
+
+	// オープンチェック
+	if (!_file.is_open())return false;
+
+	_file >> _jsonData;
+	_file.close();
+
+	// ５段階のランク画像から指定した画像を捜索し、データを読み込む
+	// 読み込んだ名前が引数の文字列に該当しない場合は処理を飛ばし、
+	// 指定のデータが読み込めたらループを抜ける
+	/*for (const auto& obj : _jsonData["UI"]["Rank"])
+	{
+		if (obj["name"] != useUIName)continue;
+
+		Object	_object;
+		_object.m_useScene	= obj["use"];
+		_object.m_uiType	= obj["type"];
+		_object.m_name		= obj["name"];
+		_object.m_filePath	= obj["filePath"];
+		_object.m_pos.x		= obj["position"]["x"];
+		_object.m_pos.y		= obj["position"]["y"];
+
+		m_objects.push_back(_object);
+		break;
+	}*/
+
+	if (_jsonData.contains("UI"))
+	{
+		for (const auto& uiElement : _jsonData["UI"])
+		{
+			if (uiElement.contains("Rank"))
+			{
+				for (const auto& rankElement : uiElement["Rank"])
+				{
+					if (rankElement["name"] != useUIName)continue;
+
+					Object	_object;
+					_object.m_useScene = rankElement["use"];
+					_object.m_uiType = rankElement["type"];
+					_object.m_name = rankElement["name"];
+					_object.m_filePath = rankElement["filePath"];
+					_object.m_pos.x = rankElement["position"]["x"];
+					_object.m_pos.y = rankElement["position"]["y"];
+
+					m_objects.push_back(_object);
+					break;
+				}
+			}
+		}
+	}
+
+	// 念のための制御
+	// ループを抜けた後でも、配列内が空の場合はfalseを返すようにしておく
+	if (m_objects.empty())return false;
 
 	return true;
 }

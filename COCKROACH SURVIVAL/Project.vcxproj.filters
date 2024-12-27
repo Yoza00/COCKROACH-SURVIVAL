@@ -196,6 +196,9 @@
     <Filter Include="Src\Application\GameObject\UI\ResultScore">
       <UniqueIdentifier>{1477c1bf-b0c6-4291-945f-307e0f242608}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Rank">
+      <UniqueIdentifier>{6f81553f-3a66-4217-b15a-1353a76208c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -582,6 +585,9 @@
     <ClInclude Include="Src\Application\GameObject\UI\ResultScore\ResultScore.h">
       <Filter>Src\Application\GameObject\UI\ResultScore</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\Rank\Rank.h">
+      <Filter>Src\Application\GameObject\UI\Rank</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -805,6 +811,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\ResultScore\ResultScore.cpp">
       <Filter>Src\Application\GameObject\UI\ResultScore</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\Rank\Rank.cpp">
+      <Filter>Src\Application\GameObject\UI\Rank</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -71,7 +71,7 @@ void TitleScene::Init()
 	m_objList.push_back(_spPlayer);
 
 	// UI
-	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json"))
+	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json", "title"))
 	{
 		const std::vector<Object>& _uis = ObjectManager::Instance().GetObjects();
 

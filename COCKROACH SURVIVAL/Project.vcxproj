@@ -177,6 +177,7 @@
     <ClInclude Include="Src\Application\GameObject\UI\Cursor\Cursor.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\Rank\Rank.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ResultScore\ResultScore.h" />
     <ClInclude Include="Src\Application\GameObject\UI\SceneChange\SceneChange.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Score\Score.h" />
@@ -300,6 +301,7 @@
     <ClCompile Include="Src\Application\GameObject\UI\Cursor\Cursor.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\Rank\Rank.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ResultScore\ResultScore.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\SceneChange\SceneChange.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Score\Score.cpp" />

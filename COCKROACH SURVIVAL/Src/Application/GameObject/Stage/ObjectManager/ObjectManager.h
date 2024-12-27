@@ -35,7 +35,9 @@ public:
 	nlohmann::json LoadJsonData(const std::string& _filePath);							// JSONファイルを読み込む
 
 	bool LoadObjectsFromJson(const std::string& _filePath);								// オブジェクトデータが読み込めた場合はtrue、そうでない場合はfalseを返す
-	bool LoadUIFromJson(const std::string& _filePath);									// UIのデータが読み込めたらtrue、そうでない場合はfalseが返る
+	bool LoadUIFromJson(const std::string& _filePath, const std::string& useScene);		// UIのデータが読み込めたらtrue、そうでない場合はfalseが返る
+	
+	bool LoadUIRankFromJson(const std::string& filePath, const std::string& useUIName);	// 指定した名前のUIの情報を読み込む
 
 	const std::vector<Object>& GetObjects()const { return m_objects; }					// オブジェクトリストを返す
 	void ListClear() { m_objects.clear(); }

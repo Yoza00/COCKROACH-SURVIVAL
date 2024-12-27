@@ -31,7 +31,7 @@ void ResultScene::Event()
 void ResultScene::Init()
 {
 	// UIのロード
-	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json"))
+	if (ObjectManager::Instance().LoadUIFromJson("Asset/Data/Json/UIData/UIData.json", "result"))
 	{
 		const std::vector<Object>& _uis = ObjectManager::Instance().GetObjects();
 

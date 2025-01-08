@@ -141,6 +141,26 @@
 			"use": "game"
 		},
 		{
+			"filePath": "Asset/Textures/GameObject/UI/GameMenu/Menu_BackScreen.png",
+			"name": "result_screen",
+			"position": {
+				"x": -640.0,
+				"y": 0.0
+			},
+			"type": "result_screen",
+			"use": "result"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/UI/Result/BackScreen/BackScreen.png",
+			"name": "result_backscreen",
+			"position": {
+				"x": -600.0,
+				"y": 0.0
+			},
+			"type": "result_backscreen",
+			"use": "result"
+		},
+		{
 			"filePath": "Asset/Textures/GameObject/ResultScene/Result/Result.png",
 			"name": "ResultString",
 			"position": {
@@ -181,58 +201,66 @@
 			"use": "result"
 		},
 		{
-			"Rank": [
-				{
-					"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_A.png",
-					"name": "A",
-					"position": {
-						"x": 130.0,
-						"y": -150.0
-					},
-					"type": "A",
-					"use": "result"
-				},
-				{
-					"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_B.png",
-					"name": "B",
-					"position": {
-						"x": 130.0,
-						"y": -150.0
-					},
-					"type": "B",
-					"use": "result"
-				},
-				{
-					"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_C.png",
-					"name": "C",
-					"position": {
-						"x": 130.0,
-						"y": -150.0
-					},
-					"type": "C",
-					"use": "result"
-				},
-				{
-					"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_D.png",
-					"name": "D",
-					"position": {
-						"x": 130.0,
-						"y": -150.0
-					},
-					"type": "D",
-					"use": "result"
-				},
-				{
-					"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_E.png",
-					"name": "E",
-					"position": {
-						"x": 130.0,
-						"y": -150.0
-					},
-					"type": "E",
-					"use": "result"
-				}
-			]
+			"filePath": "Asset/Textures/GameObject/UI/Result/ClicktoTitle/ClicktoTitle.png",
+			"name": "ClicktoTitle",
+			"position": {
+				"x": -450.0,
+				"y": -275.0
+			},
+			"type": "ClicktoTitle",
+			"use": "result"
+		}
+	],
+	"Rank": [
+		{
+			"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_A.png",
+			"name": "A",
+			"position": {
+				"x": 130.0,
+				"y": -150.0
+			},
+			"type": "A",
+			"use": "result"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_B.png",
+			"name": "B",
+			"position": {
+				"x": 130.0,
+				"y": -150.0
+			},
+			"type": "B",
+			"use": "result"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_C.png",
+			"name": "C",
+			"position": {
+				"x": 130.0,
+				"y": -150.0
+			},
+			"type": "C",
+			"use": "result"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_D.png",
+			"name": "D",
+			"position": {
+				"x": 130.0,
+				"y": -150.0
+			},
+			"type": "D",
+			"use": "result"
+		},
+		{
+			"filePath": "Asset/Textures/GameObject/ResultScene/Rank/Rank_E.png",
+			"name": "E",
+			"position": {
+				"x": 130.0,
+				"y": -150.0
+			},
+			"type": "E",
+			"use": "result"
 		}
 	]
 }

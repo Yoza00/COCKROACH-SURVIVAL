@@ -34,6 +34,12 @@ public:
 		m_drawScore = drawScore;
 	}
 
+	// ランクのインスタンスを作成する権利の更新
+	void MakeRankInstanceLicenseChangeToTrue()
+	{
+		m_isMakeRankInstanceLicense = true;
+	}
+
 private:
 
 	int			m_index				= 0;	// 対応する桁数
@@ -43,11 +49,12 @@ private:
 
 	bool		m_isUpdateRectangleFinished = false;		// 切り取り範囲の更新が終了したかどうか
 	bool		m_isMadeRankInstance		= false;		// ランクのインスタンスが作成されたことがあるかどうか
+	bool		m_isMakeRankInstanceLicense = false;		// ランクのインスタンスを作成する権利があるかどうか
 
 	BorderLine	m_border;
 
 	// 切り取り範囲更新
-	void UpdateRectangle();
+	void UpdateRectangle(int score);
 
 	// 切り取り開始座標(x座標)を切り替え
 	void ChangeRectanglePosX(int index);
@@ -57,4 +64,6 @@ private:
 
 	// ランクジャッジ
 	std::string RankJudge();
+
+	void CreateClicktoTitle();
 };

@@ -199,6 +199,9 @@
     <Filter Include="Src\Application\GameObject\UI\Rank">
       <UniqueIdentifier>{6f81553f-3a66-4217-b15a-1353a76208c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\UI\ClicktoTitle">
+      <UniqueIdentifier>{f80b3334-3860-4806-9630-69d7687f3c71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -588,6 +591,9 @@
     <ClInclude Include="Src\Application\GameObject\UI\Rank\Rank.h">
       <Filter>Src\Application\GameObject\UI\Rank</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.h">
+      <Filter>Src\Application\GameObject\UI\ClicktoTitle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -814,6 +820,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\Rank\Rank.cpp">
       <Filter>Src\Application\GameObject\UI\Rank</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.cpp">
+      <Filter>Src\Application\GameObject\UI\ClicktoTitle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -169,6 +169,7 @@
     <ClInclude Include="Src\Application\GameObject\Stage\Title\House\House.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\BackButton\BackButton.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\ClickUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\DrawGuide\DrawGuide.h" />
@@ -293,6 +294,7 @@
     <ClCompile Include="Src\Application\GameObject\Stage\Title\House\House.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\BackButton\BackButton.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\ClickUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\DrawGuide\DrawGuide.cpp" />

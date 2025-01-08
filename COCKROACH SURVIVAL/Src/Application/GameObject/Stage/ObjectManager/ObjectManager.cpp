@@ -98,10 +98,7 @@ bool ObjectManager::LoadUIRankFromJson(const std::string& filePath, const std::s
 	_file >> _jsonData;
 	_file.close();
 
-	// ５段階のランク画像から指定した画像を捜索し、データを読み込む
-	// 読み込んだ名前が引数の文字列に該当しない場合は処理を飛ばし、
-	// 指定のデータが読み込めたらループを抜ける
-	/*for (const auto& obj : _jsonData["UI"]["Rank"])
+	for (const auto& obj : _jsonData["Rank"])
 	{
 		if (obj["name"] != useUIName)continue;
 
@@ -115,31 +112,6 @@ bool ObjectManager::LoadUIRankFromJson(const std::string& filePath, const std::s
 
 		m_objects.push_back(_object);
 		break;
-	}*/
-
-	if (_jsonData.contains("UI"))
-	{
-		for (const auto& uiElement : _jsonData["UI"])
-		{
-			if (uiElement.contains("Rank"))
-			{
-				for (const auto& rankElement : uiElement["Rank"])
-				{
-					if (rankElement["name"] != useUIName)continue;
-
-					Object	_object;
-					_object.m_useScene = rankElement["use"];
-					_object.m_uiType = rankElement["type"];
-					_object.m_name = rankElement["name"];
-					_object.m_filePath = rankElement["filePath"];
-					_object.m_pos.x = rankElement["position"]["x"];
-					_object.m_pos.y = rankElement["position"]["y"];
-
-					m_objects.push_back(_object);
-					break;
-				}
-			}
-		}
 	}
 
 	// 念のための制御

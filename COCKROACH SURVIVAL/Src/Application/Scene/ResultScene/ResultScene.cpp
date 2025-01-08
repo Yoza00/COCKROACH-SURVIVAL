@@ -41,6 +41,10 @@ void ResultScene::Init()
 			{
 				continue;
 			}
+			else if (ui.m_uiType == "ClicktoTitle")
+			{
+				continue;
+			}
 
 			if (ui.m_uiType == "Score_String")
 			{
@@ -53,6 +57,12 @@ void ResultScene::Init()
 					_spScore->SetDrawPos({ ui.m_pos.x,ui.m_pos.y });
 					_spScore->SetDrawScore(m_score);
 					_spScore->SetIndex(cnt);
+
+					if (cnt == 4)
+					{
+						_spScore->MakeRankInstanceLicenseChangeToTrue();
+					}
+
 					m_UIList.push_back(_spScore);
 				}
 			}

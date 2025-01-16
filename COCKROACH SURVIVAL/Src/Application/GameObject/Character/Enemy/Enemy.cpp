@@ -22,6 +22,27 @@ void Enemy::Update()
 
 		m_sightPos = _sightPos;
 	}
+	{
+		// 必要なノードの情報を再取得し、そのノードのローカル行列を作成
+		// 作成したローカル行列を使用して、エネミーから見た右手の座標を求める
+		const KdModelWork::Node* _pRightHandNode = m_spModel->FindNode("RightHandNode");
+		if (_pRightHandNode)
+		{
+			m_rightHandMat = _pRightHandNode->m_worldTransform;
+		}
+
+		Math::Vector3 _rightHandPos = (m_rightHandMat * m_mWorld).Translation();
+
+		m_rightHandPos = _rightHandPos;
+	}
+
+	// デバッグ
+	m_pDebugWire->AddDebugSphere(
+		m_rightHandPos,
+		1.0f,
+		kBlackColor
+	);
+	// ==========
 
 	// ========== 重力による座標更新 ==========
 	m_gravity	+= m_gravityPow;
@@ -93,7 +114,9 @@ void Enemy::Init()
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy.gltf");
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people.gltf");
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation2.gltf");
-		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation3.gltf");
+		
+		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation3.gltf");
+		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy-people_AddHandPositionNode_test.gltf");
 
 		// モデルからポイントノードを探して取得
 		const KdModelWork::Node* _pNode = m_spModel->FindNode("sightPoint");
@@ -101,6 +124,12 @@ void Enemy::Init()
 		if (_pNode)
 		{
 			m_localSightMat = _pNode->m_worldTransform;
+		}
+
+		const KdModelWork::Node* _pRightHandNode = m_spModel->FindNode("RightHandNode");
+		if (_pRightHandNode)
+		{
+			m_rightHandMat = _pRightHandNode->m_worldTransform;
 		}
 	}
 

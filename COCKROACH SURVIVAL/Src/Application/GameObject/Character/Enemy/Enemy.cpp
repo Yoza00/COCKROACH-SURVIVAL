@@ -161,12 +161,11 @@ void Enemy::Init()
 // Math::Vector3をNodeに変換し、ゴールノードの情報に応じて使用する経路探索の処理を変更する
 void Enemy::SetGoal(const Math::Vector3& goalPos)
 {
-	m_currentGoal = goalPos;
-
 	// 現在のゴールのグリッド座標
-	Node	_goalNode = WorldToGrid(m_currentGoal);
+	Node	_goalNode = WorldToGrid(goalPos);
 
 	// ゴールのグリッド座標をもとに実行する経路探索の判定
+	// 0=障害物ではない場所、1=障害物の場所
 	if ((*m_grid)[_goalNode.z][_goalNode.x] == 0)
 	{
 		// 通常の経路探索で、スタートからゴールまでの経路が求められる
@@ -185,10 +184,6 @@ void Enemy::FindPath(const Math::Vector3& start, const Math::Vector3& goal)
 	m_path.clear();					// 経路を初期化
 	Node	_start	= WorldToGrid(start);
 	Node	_goal	= WorldToGrid(goal);
-
-	// ========== デバッグ用 ==========
-	Application::Instance().m_log.AddLog("x : %d\nz : %d\n", _goal.x, _goal.z);
-	// ================================
 
 	std::priority_queue < Node, std::vector<Node>, std::function<bool(Node, Node)>>	_openList
 	{
@@ -797,13 +792,6 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 // ========== 追跡 ==========
 void Enemy::Chase::Enter(Enemy& owner)
 {
-	// プレイヤーの座標からゴールまでの経路を算出
-	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-	if (_spPlayer)
-	{
-		owner.SetGoal(_spPlayer->GetPos());
-	}
-
 	// アニメーション変更
 	owner.m_spAnimator->SetAnimation(owner.m_spModel->GetData()->GetAnimation("Run"));
 }
@@ -828,6 +816,8 @@ void Enemy::Chase::Update(Enemy& owner)
 		return;
 	}
 
+	// 経路を辿っている最中の場合は処理を継続し、
+	// それ以外の場合は、プレイヤーの場所までの最短経路を算出する(次のループから算出された経路を辿る)
 	if (owner.m_currentPathIndex < owner.m_path.size())
 	{
 		// 現在のターゲットノード
@@ -860,6 +850,31 @@ void Enemy::Chase::Update(Enemy& owner)
 void Enemy::Chase::Exit(Enemy& owner)
 {
 
+}
+
+bool Enemy::Chase::ChackAttackAble(Enemy& owner)
+{
+	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+
+	if (!_spPlayer)
+	{
+		return false;
+	}
+
+	Math::Vector3	_playerPos	= _spPlayer->GetPos();
+	Math::Vector3	_distance	= owner.m_pos - _playerPos;
+	float			_dist		= _distance.Length();
+
+	if (_dist >= owner.m_attackDistance)
+	{
+		return false;
+	}
+	else
+	{
+		/*
+		* 攻撃可能距離内にプレイヤーがいれば、プレイヤーの高さをもとにして、使用する攻撃ステートのインスタンスを作成する
+		*/
+	}
 }
 
 // ========== 見失った ==========
@@ -915,70 +930,6 @@ void Enemy::LoseSight::Update(Enemy& owner)
 		owner.ChangeState(std::make_shared<SearchAround>());		// ステート切り替え
 		return;
 	}
-
-	//const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-	//if (!_spPlayer)
-	//{
-	//	owner.ChangeState(std::make_shared<Search>());			// 探索状態に切り替え
-	//	return;
-	//}
-
-	//if (owner.m_isSight)
-	//{
-	//	owner.ChangeState(std::make_shared<Chase>());			// 視界内にいる場合は追跡モードに切り替える
-	//	return;
-	//}
-
-	//Math::Vector3	_dist	= owner.m_loseSightPos - owner.m_pos;	// 距離
-	//Math::Vector3	_nowDir = owner.m_mWorld.Backward();			// エネミーの正面方向のベクトル
-	//Math::Vector3	_toDir	= _dist;								// 向きたい方向
-
-	//// それぞれのベクトル正規化
-	//_nowDir.Normalize();
-	//_toDir.Normalize();
-
-	//// ========== 移動処理 ===========
-	//owner.m_pos += _toDir * owner.m_moveSpeed;
-
-	//// 移動完了かチェック
-	//CheckMoveFinish(owner, _dist);
-	//// ===============================
-
-	//// ========== 内積を計算 ==========
-	//float	_dot	= _nowDir.Dot(_toDir);
-	//_dot			= std::clamp(_dot, -1.0f, 1.0f);				// 内積値を補正
-	//// ================================
-
-	//// ========== モデルの回転処理 ==========
-	//float	_angle = DirectX::XMConvertToDegrees(acos(_dot));		// 内積値のacosで角度を求める
-
-	//if (_angle > owner.m_maxAngle)
-	//{
-	//	_angle = owner.m_maxAngle;
-	//}
-
-	//Math::Vector3	_cross = _toDir.Cross(_nowDir);					// 外積の計算
-
-	//if (_cross.y >= 0.0f)
-	//{
-	//	owner.m_angle -= _angle;
-
-	//	// 角度が範囲外に行かないように制御
-	//	if (owner.m_angle < owner.m_minDegAngle)
-	//	{
-	//		owner.m_angle += owner.m_maxDegAngle;
-	//	}
-	//}
-	//else
-	//{
-	//	owner.m_angle += _angle;
-
-	//	if (owner.m_angle >= owner.m_maxDegAngle)
-	//	{
-	//		owner.m_angle -= owner.m_maxDegAngle;
-	//	}
-	//}
-	//// ======================================
 }
 
 void Enemy::LoseSight::Exit(Enemy& owner)
@@ -1145,4 +1096,42 @@ void Enemy::SearchAround::FixNextPos(Enemy& owner)
 	// ループが終了したら、最終的な番号が取れるので
 	// それを使用して、一番近いポイントをセットしておく
 	owner.m_wayNumber = _pointNumber;
+}
+
+// ========== 攻撃関連 =========
+void Enemy::Attack_LowPosition::Enter(Enemy& owner)
+{
+}
+
+void Enemy::Attack_LowPosition::Update(Enemy& owner)
+{
+
+}
+
+void Enemy::Attack_LowPosition::Exit(Enemy& owner)
+{
+}
+
+void Enemy::Attack_MidPosition::Enter(Enemy& owner)
+{
+}
+
+void Enemy::Attack_MidPosition::Update(Enemy& owner)
+{
+}
+
+void Enemy::Attack_MidPosition::Exit(Enemy& owner)
+{
+}
+
+void Enemy::Attack_HighPosition::Enter(Enemy& owner)
+{
+}
+
+void Enemy::Attack_HighPosition::Update(Enemy& owner)
+{
+}
+
+void Enemy::Attack_HighPosition::Exit(Enemy& owner)
+{
 }

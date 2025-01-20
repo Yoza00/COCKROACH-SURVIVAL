@@ -92,6 +92,8 @@ private:
 
 	std::shared_ptr<KdAnimator>		m_spAnimator	= nullptr;					// アニメーター
 
+	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
+
 	Math::Vector3					m_pos			= Math::Vector3::Zero;		// 座標
 	const float						m_moveSpeed		= 0.1f;						// 移動速度
 	float							m_scale			= 1.0f;						// 拡縮サイズ
@@ -103,6 +105,8 @@ private:
 
 	const float						m_minDegAngle	= -360.0f;					// 回転角度の最小値
 	const float						m_maxDegAngle	= 360.0f;					// 回転角度の最大値
+
+	const float						m_attackDistance = 10.0f;					// 攻撃に移る距離
 
 	// ========== 座標補正用変数 ==========
 	float							m_adJustHeight	= 0.0f;						// モデルの高さ補正用変数
@@ -152,11 +156,8 @@ private:
 	Math::Vector3					m_rightHandPos = Math::Vector3::Zero;
 	// ======================================
 
-	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
-
 	// ========== 経路探索用 ==========
 	std::vector<Node>				m_path;											// 計算された経路
-	Math::Vector3					m_currentGoal;									// 現在の目標座標
 	size_t							m_currentPathIndex	= 0;						// 現在の経路インデックス
 	std::vector<std::vector<int>>*	m_grid;											// 参照するグリッド
 	const Math::Vector3				m_mapOrigin			= { -62.0f,0.04f,79.0f };	// グリッドの原点補正用
@@ -199,26 +200,6 @@ private:
 
 	// ステートパターン
 private:
-
-	/*
-	未発見状態の処理
-
-	その場で、一定時間立ち止まって周囲を捜索。
-	ゆっくり振り返って移動開始。
-	場所についたら、立ち止まって周囲を捜索。
-	ゆっくり振り返って移動開始。
-	繰り返す。
-
-
-	発見状態の処理
-
-	発見する。(この際に、！等を出すと良い)
-	オブジェクトがない場合は最短経路を使用して追跡。
-	進行方向に障害物があれば、それを避けて追跡。
-	追跡時に、見失った場合は、最後に発見した位置まで移動して周囲を捜索。
-	それでも見つからなければ移動処理に戻る。
-	見つかれば追跡再開。
-	*/
 
 	// ステートパターンのベースクラス
 	class StateBase
@@ -271,6 +252,9 @@ private:
 		void Enter(Enemy& owner)	override;
 		void Update(Enemy& owner)	override;
 		void Exit(Enemy& owner)		override;
+
+		// 攻撃できるかを確認
+		bool ChackAttackAble(Enemy& owner);
 	};
 
 	// 見失う
@@ -301,6 +285,46 @@ private:
 		void SearchPlayer(Enemy& owner);		// プレイヤーを捜索
 		void FixNextPos(Enemy& owner);			// 次の場所を決定
 	};
+
+	// ========== 攻撃関連 ==========
+	// 攻撃のステートの選択条件は、プレイヤーとの距離が一定未満になったときにプレイヤーがいる場所によって切り替える
+	// 低所への攻撃
+	class Attack_LowPosition :public StateBase
+	{
+	public:
+
+		~Attack_LowPosition() {}
+
+		void Enter(Enemy& owner)	override;
+		void Update(Enemy& owner)	override;
+		void Exit(Enemy& owner)		override;
+	};
+
+	// 肩の高さと同じくらいの位置への攻撃
+	class Attack_MidPosition :public StateBase
+	{
+	public:
+
+		~Attack_MidPosition() {}
+
+		void Enter(Enemy& owner)	override;
+		void Update(Enemy& owner)	override;
+		void Exit(Enemy& owner)		override;
+	};
+
+	// 肩の高さ以上の位置への攻撃(Midの方で収まりきらなかった場合の攻撃)
+	class Attack_HighPosition :public StateBase
+	{
+	public:
+
+		~Attack_HighPosition() {}
+
+		void Enter(Enemy& owner)	override;
+		void Update(Enemy& owner)	override;
+		void Exit(Enemy& owner)		override;
+	};
+
+	// ==============================
 
 	// ステート切り替え関数
 	void ChangeState(const std::shared_ptr<StateBase>& nextSate);

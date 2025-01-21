@@ -267,6 +267,12 @@ void Application::Execute()
 				End();
 			}
 		}
+
+		if (IsIconic(m_window.GetWndHandle()))
+		{
+			continue;
+		}
+
 		//=========================================
 		//
 		// アプリケーション更新処理

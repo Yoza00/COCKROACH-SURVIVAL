@@ -16,25 +16,8 @@ void Enemy::Update()
 
 	if (SceneManager::Instance().GetIsMenu())return;
 
-	// エネミー本体から見た視界の根本の座標
-	{
-		Math::Vector3 _sightPos = (m_localSightMat * m_mWorld).Translation();
-
-		m_sightPos = _sightPos;
-	}
-	{
-		// 必要なノードの情報を再取得し、そのノードのローカル行列を作成
-		// 作成したローカル行列を使用して、エネミーから見た右手の座標を求める
-		const KdModelWork::Node* _pRightHandNode = m_spModel->FindNode("RightHandNode");
-		if (_pRightHandNode)
-		{
-			m_rightHandMat = _pRightHandNode->m_worldTransform;
-		}
-
-		Math::Vector3 _rightHandPos = (m_rightHandMat * m_mWorld).Translation();
-
-		m_rightHandPos = _rightHandPos;
-	}
+	// ノード情報をセット
+	SetValueFromNodeInfo();
 
 	// デバッグ
 	m_pDebugWire->AddDebugSphere(
@@ -116,21 +99,8 @@ void Enemy::Init()
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation2.gltf");
 		
 		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation3.gltf");
-		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy-people_AddHandPositionNode_test.gltf");
-
-		// モデルからポイントノードを探して取得
-		const KdModelWork::Node* _pNode = m_spModel->FindNode("sightPoint");
-
-		if (_pNode)
-		{
-			m_localSightMat = _pNode->m_worldTransform;
-		}
-
-		const KdModelWork::Node* _pRightHandNode = m_spModel->FindNode("RightHandNode");
-		if (_pRightHandNode)
-		{
-			m_rightHandMat = _pRightHandNode->m_worldTransform;
-		}
+		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy-people_AddHandPositionNode_test.gltf");
+		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy-people_Add_Attack.gltf");
 	}
 
 	// ウェイポイントの情報セット
@@ -151,7 +121,8 @@ void Enemy::Init()
 
 	// アニメーション関連
 	m_spAnimator = std::make_shared<KdAnimator>();
-	m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"));	// 初期アニメーション設定
+	//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"));	// 初期アニメーション設定
+	ChangeAnimation("Walk");	// 初期アニメーション設定
 
 	// ========== デバッグ用 ==========
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
@@ -489,6 +460,61 @@ void Enemy::CheckSight()
 	}
 }
 
+void Enemy::SetValueFromNodeInfo()
+{
+	// エネミー本体から見た視界の根本の座標
+	{
+		const KdModelWork::Node* _pSightNode = m_spModel->FindNode("sightPoint");
+		if (_pSightNode)
+		{
+			m_localSightMat = _pSightNode->m_worldTransform;
+		}
+
+		Math::Vector3 _sightPos = (m_localSightMat * m_mWorld).Translation();
+
+		m_sightPos = _sightPos;
+	}
+
+	// 右手の座標
+	{
+		const KdModelWork::Node* _pRightHandNode = m_spModel->FindNode("RightHandNode");
+		if (_pRightHandNode)
+		{
+			m_rightHandMat = _pRightHandNode->m_worldTransform;
+		}
+
+		Math::Vector3 _rightHandPos = (m_rightHandMat * m_mWorld).Translation();
+
+		m_rightHandPos = _rightHandPos;
+	}
+
+	// 高所判定の座標
+	{
+		const KdModelWork::Node* _pAttackPoint_highNode = m_spModel->FindNode("AttackPoint_high");
+		if (_pAttackPoint_highNode)
+		{
+			m_attackPoint_HighMat = _pAttackPoint_highNode->m_worldTransform;
+		}
+
+		Math::Vector3	_attackPoint_highPos = (m_attackPoint_HighMat * m_mWorld).Translation();
+
+		m_attackPoint_highPos = _attackPoint_highPos;
+	}
+
+	// 低所判定の座標
+	{
+		const KdModelWork::Node* _pAttackPoint_lowNode = m_spModel->FindNode("AttackPoint_low");
+		if (_pAttackPoint_lowNode)
+		{
+			m_attackPoint_LowMat = _pAttackPoint_lowNode->m_worldTransform;
+		}
+
+		Math::Vector3	_attackPoint_lowPos = (m_attackPoint_LowMat * m_mWorld).Translation();
+
+		m_attackPoint_LowPos = _attackPoint_lowPos;
+	}
+}
+
 void Enemy::RotateToDirection(const Math::Vector3& toDir)
 {
 	// ゼロベクトルなら処理しない
@@ -635,6 +661,11 @@ bool Enemy::LoadWayPointsFronJson(const std::string& _filePath)
 	}
 
 	return true;				// 無事に開ければtrueが返る
+}
+
+void Enemy::ChangeAnimation(const std::string& animationName, bool isLoop)
+{
+	m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(animationName), isLoop);
 }
 
 // ========== ステートパターン関係 ==========
@@ -792,21 +823,25 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 // ========== 追跡 ==========
 void Enemy::Chase::Enter(Enemy& owner)
 {
-	// アニメーション変更
-	owner.m_spAnimator->SetAnimation(owner.m_spModel->GetData()->GetAnimation("Run"));
+	owner.ChangeAnimation("Run");
 }
 
 void Enemy::Chase::Update(Enemy& owner)
 {
-	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-	if (!_spPlayer)
+	Math::Vector3	_playerPos = Math::Vector3::Zero;
+	
 	{
-		owner.ChangeState(std::make_shared<Search>());			// ステート切り替え
-		return;
-	}
+		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+		if (!_spPlayer)
+		{
+			owner.ChangeState(std::make_shared<Search>());			// ステート切り替え
+			return;
+		}
 
-	// プレイヤーの座標を取得
-	Math::Vector3	_playerPos = _spPlayer->GetPos();
+		// プレイヤーの座標を取得
+		_playerPos = _spPlayer->GetPos();
+	}
+	
 
 	// 視界外に居る場合
 	if (!owner.m_isSight)
@@ -845,6 +880,29 @@ void Enemy::Chase::Update(Enemy& owner)
 	{
 		owner.SetGoal(_playerPos);
 	}
+
+	// 攻撃可能かどうかを確認
+	if (ChackAttackAble(owner) == true)
+	{
+		if (owner.m_pos.y >= owner.m_attackPoint_highPos.y)
+		{
+			// 高所
+			owner.ChangeState(std::make_shared<Attack_HighPosition>());
+			return;
+		}
+		else if (owner.m_pos.y <= owner.m_attackPoint_LowPos.y)
+		{
+			// 低所
+			owner.ChangeState(std::make_shared<Attack_LowPosition>());
+			return;
+		}
+		else
+		{
+			// 中間
+			owner.ChangeState(std::make_shared<Attack_MidPosition>());
+			return;
+		}
+	}
 }
 
 void Enemy::Chase::Exit(Enemy& owner)
@@ -863,18 +921,14 @@ bool Enemy::Chase::ChackAttackAble(Enemy& owner)
 
 	Math::Vector3	_playerPos	= _spPlayer->GetPos();
 	Math::Vector3	_distance	= owner.m_pos - _playerPos;
-	float			_dist		= _distance.Length();
 
-	if (_dist >= owner.m_attackDistance)
+	// プレイヤー情報の取得ができなかった場合とプレイヤーとの距離が一定以上離れている場合はfalseを返す
+	if (_distance.LengthSquared() >= owner.m_attackDistance)
 	{
 		return false;
 	}
-	else
-	{
-		/*
-		* 攻撃可能距離内にプレイヤーがいれば、プレイヤーの高さをもとにして、使用する攻撃ステートのインスタンスを作成する
-		*/
-	}
+	
+	return true;
 }
 
 // ========== 見失った ==========
@@ -942,7 +996,6 @@ void Enemy::LoseSight::CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)
 	if (dist.LengthSquared() <= owner.m_ignoreLength)
 	{
 		owner.ChangeState(std::make_shared<SearchAround>());			// ステート切り替え
-		//owner.m_isMoveFinish = true;									// 移動完了状態
 		return;
 	}
 }
@@ -1101,19 +1154,51 @@ void Enemy::SearchAround::FixNextPos(Enemy& owner)
 // ========== 攻撃関連 =========
 void Enemy::Attack_LowPosition::Enter(Enemy& owner)
 {
+	owner.ChangeAnimation("Attack_Low");
 }
 
 void Enemy::Attack_LowPosition::Update(Enemy& owner)
 {
-
+	if (CheckAttackArea(owner) == false)
+	{
+		owner.ChangeState(std::make_shared<Chase>());
+		return;
+	}
 }
 
 void Enemy::Attack_LowPosition::Exit(Enemy& owner)
 {
 }
 
+bool Enemy::Attack_LowPosition::CheckAttackArea(Enemy& owner)
+{
+	Math::Vector3	_playerPos = Math::Vector3::Zero;
+
+	{
+		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+		
+		if (!_spPlayer)
+		{
+			return false;
+		}
+
+		_playerPos = _spPlayer->GetPos();
+	}
+
+	Math::Vector3	_distance = owner.m_pos - _playerPos;
+
+	// ２転換の距離を比較し、攻撃範囲外に行ってしまっている場合
+	if (_distance.LengthSquared() > owner.m_attackDistance)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void Enemy::Attack_MidPosition::Enter(Enemy& owner)
 {
+	owner.ChangeAnimation("Attack_Mid");
 }
 
 void Enemy::Attack_MidPosition::Update(Enemy& owner)
@@ -1126,6 +1211,7 @@ void Enemy::Attack_MidPosition::Exit(Enemy& owner)
 
 void Enemy::Attack_HighPosition::Enter(Enemy& owner)
 {
+	owner.ChangeAnimation("Attack_High");
 }
 
 void Enemy::Attack_HighPosition::Update(Enemy& owner)

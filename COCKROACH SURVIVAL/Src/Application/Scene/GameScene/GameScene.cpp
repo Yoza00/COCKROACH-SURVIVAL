@@ -94,35 +94,7 @@ void GameScene::Event()
 	// ============================================
 	// デバッグ用
 	// ============================================
-	//Application::Instance().m_log.AddLog("%d\n", m_objList.size());
-
-	/*if (GetAsyncKeyState(VK_TAB))
-	{
-		Application::Instance().SetShowImGui(true);
-	}
-	if (GetAsyncKeyState(VK_SPACE))
-	{
-		Application::Instance().SetShowImGui(false);
-	}*/
 	const std::shared_ptr<Player>		_spPlayer	= m_wpPlayer.lock();
-	//const std::shared_ptr<TimeLimit>	_spLimit	= m_wpLimit.lock();
-
-	//if (GetAsyncKeyState(VK_SPACE) && GetAsyncKeyState(VK_RSHIFT))
-	//{
-	//	/*if (m_wpPlayer.expired() == false)
-	//	{
-	//		m_wpPlayer.lock()->SetPos({0.0f,15.0f,0.0f});
-	//	}*/
-	//	if (_spPlayer)
-	//	{
-	//		_spPlayer->SetPos({ 0.0f,15.0f,0.0f });
-	//	}
-	//}
-
-	//if (_spPlayer->IsDead() == true || _spLimit->GetisFinish() == true)
-	//{
-	//	
-	//}
 
 	if (_spPlayer)
 	{

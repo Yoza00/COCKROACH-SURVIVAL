@@ -108,6 +108,11 @@ private:
 
 	const float						m_attackDistance = 10.0f;					// 攻撃に移る距離
 
+	Math::Matrix					m_attackPoint_HighMat	= Math::Matrix::Identity;	// 高所判定のポイントの行列
+	Math::Matrix					m_attackPoint_LowMat	= Math::Matrix::Identity;	// 低所判定のポイントの行列
+	Math::Vector3					m_attackPoint_highPos	= Math::Vector3::Zero;		// 高所判定のポイントの座標(これ以上の高さが高所判定)
+	Math::Vector3					m_attackPoint_LowPos	= Math::Vector3::Zero;		// 低所判定のポイントの座標(これ以下の高さが低所判定)
+
 	// ========== 座標補正用変数 ==========
 	float							m_adJustHeight	= 0.0f;						// モデルの高さ補正用変数
 	// ====================================
@@ -188,6 +193,9 @@ private:
 	// 視界内にプレイヤーがいるかの確認
 	void CheckSight();
 
+	// ノード情報を取得
+	void SetValueFromNodeInfo();
+
 	// モデルを進行方向に向ける関数
 	void RotateToDirection(const Math::Vector3& toDir);
 
@@ -197,6 +205,10 @@ private:
 	// Jsonファイルを使用するうえで必要となる関数
 	bool LoadWayPointsFronJson(const std::string& _filePath);					// Jsonファイルが開けたかどうかの確認用関数
 	// ================================================
+
+	// アニメーション切り替え用
+	// 第2引数にはアニメーションを繰り返すかどうかを入れる。第２引数なしの場合はループあり
+	void ChangeAnimation(const std::string& animationName, bool isLoop = true);
 
 	// ステートパターン
 private:
@@ -298,6 +310,8 @@ private:
 		void Enter(Enemy& owner)	override;
 		void Update(Enemy& owner)	override;
 		void Exit(Enemy& owner)		override;
+
+		bool CheckAttackArea(Enemy& owner);
 	};
 
 	// 肩の高さと同じくらいの位置への攻撃

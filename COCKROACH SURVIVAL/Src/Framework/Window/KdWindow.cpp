@@ -147,6 +147,19 @@ LRESULT KdWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			m_mouseWheelVal = (short)HIWORD(wParam);
 		}
 		break;
+	case WM_ACTIVATE:
+		{
+			if (LOWORD(wParam) == WA_INACTIVE)
+			{
+				// ウィンドウが非アクティブ
+				m_isWindowActive = false;
+			}
+			else
+			{
+				m_isWindowActive = true;
+			}
+		}
+		break;
 	// Xボタンが押された
 	case WM_CLOSE:
 		// 破棄

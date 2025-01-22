@@ -268,6 +268,13 @@ void Application::Execute()
 			}
 		}
 
+		// ウィンドウが裏画面(メイン画面ではない)の場合は処理を実行しない
+		if (m_window.GetWindowActive() == false)
+		{
+			continue;
+		}
+
+		// ウィンドウが最小化状態である場合は処理を実行しない
 		if (IsIconic(m_window.GetWndHandle()))
 		{
 			continue;

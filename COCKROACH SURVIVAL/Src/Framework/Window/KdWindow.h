@@ -21,6 +21,9 @@ public:
 	// インスタンスハンドル取得
 	HINSTANCE GetInstanceHandle() const { return GetModuleHandle(0); }
 
+	// ウィンドウのアクティブ状態を返す
+	bool GetWindowActive() const { return m_isWindowActive; }
+
 	// クライアントサイズの設定
 	void SetClientSize(int w, int h);
 
@@ -67,6 +70,9 @@ private:
 
 	// マウスホイール値
 	int		m_mouseWheelVal = 0;
+
+	// ウィンドウがアクティブかどうか
+	bool	m_isWindowActive = true;
 
 	// ウィンドウ関数
 	static LRESULT CALLBACK callWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

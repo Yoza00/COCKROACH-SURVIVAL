@@ -15,7 +15,7 @@ struct WayPoint
 	// グリッド情報を定義
 struct Node
 {
-	int		x, z;							// ノードの座標
+	int		x, z;						// ノードの座標
 	float	gCost = 0;					// スタートからこのノードまでのコスト
 	float	hCost = 0;					// このノードからゴールまでの推定コスト
 	Node* parent = nullptr;				// 親ノード
@@ -106,7 +106,7 @@ private:
 	const float						m_minDegAngle	= -360.0f;					// 回転角度の最小値
 	const float						m_maxDegAngle	= 360.0f;					// 回転角度の最大値
 
-	const float						m_attackDistance = 10.0f;					// 攻撃に移る距離
+	const float						m_attackDistance = 10.0f;
 
 	Math::Matrix					m_attackPoint_HighMat	= Math::Matrix::Identity;	// 高所判定のポイントの行列
 	Math::Matrix					m_attackPoint_LowMat	= Math::Matrix::Identity;	// 低所判定のポイントの行列
@@ -324,6 +324,8 @@ private:
 		void Enter(Enemy& owner)	override;
 		void Update(Enemy& owner)	override;
 		void Exit(Enemy& owner)		override;
+
+		bool CheckAttackArea(Enemy& owner);
 	};
 
 	// 肩の高さ以上の位置への攻撃(Midの方で収まりきらなかった場合の攻撃)
@@ -336,6 +338,8 @@ private:
 		void Enter(Enemy& owner)	override;
 		void Update(Enemy& owner)	override;
 		void Exit(Enemy& owner)		override;
+
+		bool CheckAttackArea(Enemy& owner);
 	};
 
 	// ==============================

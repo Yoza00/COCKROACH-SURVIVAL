@@ -381,7 +381,6 @@ void Enemy::CheckSight()
 	Math::Vector3	_nowDir			= m_mWorld.Backward();		// 向いている方向(視界の中心となる方向ベクトル)
 	Math::Vector3	_nowPlayerPos	= _spPlayer->GetPos();		// プレイヤーの今の座標
 	Math::Vector3	_mixVecDir		= _nowPlayerPos - m_sightPos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
-	//Math::Vector3	_mixVecDir		= _nowPlayerPos - m_pos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
 
 	// 一定距離以上離れてしまっている場合は処理しない
 	if (_mixVecDir.LengthSquared() >= m_sightRange)
@@ -912,22 +911,27 @@ void Enemy::Chase::Exit(Enemy& owner)
 
 bool Enemy::Chase::ChackAttackAble(Enemy& owner)
 {
-	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-
-	if (!_spPlayer)
+	Math::Vector3	_playerPos = Math::Vector3::Zero;
+	
 	{
-		return false;
-	}
+		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
 
-	Math::Vector3	_playerPos	= _spPlayer->GetPos();
+		if (!_spPlayer)
+		{
+			return false;
+		}
+
+		_playerPos = _spPlayer->GetPos();
+	}
+	
 	Math::Vector3	_distance	= owner.m_pos - _playerPos;
 
 	// プレイヤー情報の取得ができなかった場合とプレイヤーとの距離が一定以上離れている場合はfalseを返す
-	if (_distance.LengthSquared() >= owner.m_attackDistance)
+	if (_distance.Length() >= owner.m_attackDistance)
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -1188,7 +1192,7 @@ bool Enemy::Attack_LowPosition::CheckAttackArea(Enemy& owner)
 	Math::Vector3	_distance = owner.m_pos - _playerPos;
 
 	// ２転換の距離を比較し、攻撃範囲外に行ってしまっている場合
-	if (_distance.LengthSquared() > owner.m_attackDistance)
+	if (_distance.Length() > 10.0f)		// 即値
 	{
 		return false;
 	}
@@ -1203,10 +1207,41 @@ void Enemy::Attack_MidPosition::Enter(Enemy& owner)
 
 void Enemy::Attack_MidPosition::Update(Enemy& owner)
 {
+	if (CheckAttackArea(owner) == false)
+	{
+		owner.ChangeState(std::make_shared<Chase>());
+		return;
+	}
 }
 
 void Enemy::Attack_MidPosition::Exit(Enemy& owner)
 {
+}
+
+bool Enemy::Attack_MidPosition::CheckAttackArea(Enemy& owner)
+{
+	Math::Vector3	_playerPos = Math::Vector3::Zero;
+
+	{
+		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+
+		if (!_spPlayer)
+		{
+			return false;
+		}
+
+		_playerPos = _spPlayer->GetPos();
+	}
+
+	Math::Vector3	_distance = owner.m_pos - _playerPos;
+
+	// ２転換の距離を比較し、攻撃範囲外に行ってしまっている場合
+	if (_distance.Length() > 20.0f)		// 即値
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void Enemy::Attack_HighPosition::Enter(Enemy& owner)
@@ -1216,8 +1251,40 @@ void Enemy::Attack_HighPosition::Enter(Enemy& owner)
 
 void Enemy::Attack_HighPosition::Update(Enemy& owner)
 {
+	if (CheckAttackArea(owner) == false)
+	{
+		owner.ChangeState(std::make_shared<Chase>());
+		return;
+	}
 }
 
 void Enemy::Attack_HighPosition::Exit(Enemy& owner)
 {
+
+}
+
+bool Enemy::Attack_HighPosition::CheckAttackArea(Enemy& owner)
+{
+	Math::Vector3	_playerPos = Math::Vector3::Zero;
+
+	{
+		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+
+		if (!_spPlayer)
+		{
+			return false;
+		}
+
+		_playerPos = _spPlayer->GetPos();
+	}
+
+	Math::Vector3	_distance = owner.m_pos - _playerPos;
+
+	// ２転換の距離を比較し、攻撃範囲外に行ってしまっている場合
+	if (_distance.Length() > 30.0f)		// 即値
+	{
+		return false;
+	}
+
+	return true;
 }

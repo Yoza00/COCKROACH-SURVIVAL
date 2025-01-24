@@ -31,11 +31,11 @@ void Food::Update()
 	}
 
 	// 生成された瞬間は重力によって3D空間上の下方向に移動するが、一度でも地面とレイが当たり判定を行った場合は移動しなくなる。
-	if (m_isMove)
+	/*if (m_isMove)
 	{
 		m_pos.y -= m_gravity;
 		m_gravity += 0.005f;
-	}
+	}*/
 
 	Math::Matrix	_transMat = Math::Matrix::CreateTranslation(m_pos);
 	m_mWorld = _transMat;
@@ -44,14 +44,14 @@ void Food::Update()
 void Food::PostUpdate()
 {
 	// 描画するモデルが存在しない or 重力による移動が無効状態のときは、以下の処理を実行しない
-	if (!m_spModel || !m_isMove)return;
+	if (!m_spModel/* || !m_isMove*/)return;
 
 	// レイ判定(家具もしくは地面と当たり判定を行う(乗れる状態にあるオブジェクトすべて))
 	KdCollider::RayInfo	_rayInfo;
-	_rayInfo.m_pos = m_pos;
-	_rayInfo.m_dir = Math::Vector3::Down;
-	_rayInfo.m_range = 0.25f;
-	_rayInfo.m_type = KdCollider::TypeGround;
+	_rayInfo.m_pos		= m_pos;
+	_rayInfo.m_dir		= Math::Vector3::Down;
+	_rayInfo.m_range	= 0.00005f;
+	_rayInfo.m_type		= KdCollider::TypeGround;
 
 	// リストを作成
 	std::list<KdCollider::CollisionResult>	_retRayList;
@@ -61,25 +61,25 @@ void Food::PostUpdate()
 		_obj->Intersects(_rayInfo, &_retRayList);
 	}
 
-	bool			_isHit = false;
+	bool			_isHit		= false;
 	float			_maxOverLap = 0.0f;
-	Math::Vector3	_groundPos = {};
+	Math::Vector3	_groundPos	= {};
 
 	for (auto& _ret : _retRayList)
 	{
 		if (_maxOverLap < _ret.m_overlapDistance)
 		{
 			_maxOverLap = _ret.m_overlapDistance;
-			_groundPos = _ret.m_hitPos;
-			_isHit = true;
+			_groundPos	= _ret.m_hitPos;
+			_isHit		= true;
 		}
 	}
 
 	if (_isHit)
 	{
-		m_pos = _groundPos;
-		m_gravity = 0.0f;
-		m_isMove = false;
+		m_pos		= _groundPos;
+		m_gravity	= 0.0f;
+		//m_isMove	= false;
 	}
 }
 
@@ -93,7 +93,7 @@ void Food::Init()
 	m_stageObjeType = StageObjectType::Food;
 }
 
-void Food::SetState(const std::string _filePath, const Math::Vector3 _pos, const float _scale, const int _number)
+void Food::SetState(const std::string _filePath, const Math::Vector3 _pos, float _scale, int _number)
 {
 	if (!m_spModel)
 	{

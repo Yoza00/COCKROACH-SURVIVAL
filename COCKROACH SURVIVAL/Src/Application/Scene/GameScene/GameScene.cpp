@@ -181,7 +181,8 @@ void GameScene::Event()
 				// 生成
 				std::shared_ptr<Food>	_spFood = std::make_shared<Food>();
 				_spFood->Init();
-				_spFood->SetState("Asset/Models/Terrains/GameScene/Food/Food.gltf", m_makePos, 1.0f, m_nowFoodCnt);
+				//_spFood->SetState("Asset/Models/Terrains/GameScene/Food/Food.gltf", m_makePos, 1.0f, m_nowFoodCnt);
+				_spFood->SetState("Asset/Models/Terrains/GameScene/Food/Cookie.gltf", m_makePos, 1.0f, m_nowFoodCnt);
 				_spFood->SetPlayer(_spPlayer);
 				_spFood->SetParm(5.0f, 5.0f, 100.0f);		// 仮置き(HP5回復、空腹度5回復、スコア100加算)
 				m_objList.push_back(_spFood);
@@ -444,21 +445,23 @@ void GameScene::Init()
 
 void GameScene::RandomMakePos()
 {
-	float	_minX = -60.0f;
-	float	_maxX = 56.8f;
-	float	_minZ = -83.2f;
-	float	_maxZ = 77.0f;
+	float				_minX			= -60.0f;		// マップの左端
+	float				_maxX			= 56.8f;		// マップの右端
+	float				_minZ			= -83.2f;		// マップの手前
+	float				_maxZ			= 77.0f;		// マップの奥
+	static const float	_groundHeight	= 0.0f;			// マップの高さ
 
 	float	_posX = m_RandomGen->GetFloat(_minX, _maxX);
 	float	_posZ = m_RandomGen->GetFloat(_minZ, _maxZ);
 
-	m_makePos = { _posX,1.4f,_posZ };
+	m_makePos = { _posX,_groundHeight,_posZ };
 }
 
 bool GameScene::LoadMapData(const std::string& filePath)
 {
 	std::ifstream	_file(filePath);
 
+	// オープンチェック
 	if (!_file.is_open())
 	{
 		return false;
@@ -466,10 +469,13 @@ bool GameScene::LoadMapData(const std::string& filePath)
 
 	nlohmann::json	_jsonData;
 
+	// 開いたファイルのデータをjsonにコピーしてファイルを閉じる
 	_file >> _jsonData;
 
 	_file.close();
 
+	// コピーされたjsonデータの"map"グループの中身をm_gridに格納
+	// m_gridは２次元可変長配列
 	m_grid = _jsonData["map"];
 
 	return true;

@@ -106,7 +106,7 @@ private:
 	const float						m_minDegAngle	= -360.0f;					// 回転角度の最小値
 	const float						m_maxDegAngle	= 360.0f;					// 回転角度の最大値
 
-	const float						m_attackDistance = 10.0f;
+	const float						m_attackDistance = 5.0f;
 
 	Math::Matrix					m_attackPoint_HighMat	= Math::Matrix::Identity;	// 高所判定のポイントの行列
 	Math::Matrix					m_attackPoint_LowMat	= Math::Matrix::Identity;	// 低所判定のポイントの行列
@@ -124,6 +124,7 @@ private:
 	float							m_angle			= 0.0f;						// モデルの回転角度
 	const float						m_maxAngle		= 1.0f;						// 回転角度の最大値
 	const float						m_rotThreshold	= 3.5f;						// 回転する閾値(回転度数がここよりも小さい場合は回転処理をしない)
+	const float						m_rotSpdCorrect = 2.0f;						// << モデルの回転時に使用する >> 回転させる速度を補正するための変数
 	bool							m_isSight		= false;					// 視界内かどうか
 	Math::Vector3					m_sightPos		= Math::Vector3::Zero;		// 視界の開始座標
 	Math::Matrix					m_localSightMat;							// 視界の根本の行列
@@ -162,6 +163,10 @@ private:
 	// ======================================
 
 	// ========== 経路探索用 ==========
+	bool							m_isActFindPath		= false;				// 経路の再計算を行うかどうか
+	int								m_findPathCnt		= 0;					// 経路の再計算までのカウンタ(0でフラグが起動する)
+	const int						Reset_findPathCnt	= 60;					// 経路の再計算を行う際に、カウンタをリセットする際に使用するリセット値
+
 	std::vector<Node>				m_path;											// 計算された経路
 	size_t							m_currentPathIndex	= 0;						// 現在の経路インデックス
 	std::vector<std::vector<int>>*	m_grid;											// 参照するグリッド

@@ -145,7 +145,8 @@ void Enemy::SetGoal(const Math::Vector3& goalPos)
 	else if ((*m_grid)[_goalNode.z][_goalNode.x] == 1)
 	{
 		// ゴールが障害物の場所であり、移動可能な範囲で一番近づくことができる経路を求められる
-		FindNearestWalkableNode(_goalNode);	// 経路探索
+		//FindNearestWalkableNode(_goalNode);	// 経路探索
+		FindPath(m_pos, GridToWorld(FindNearestWalkableNode(_goalNode)));
 	}
 }
 
@@ -380,7 +381,9 @@ void Enemy::CheckSight()
 
 	Math::Vector3	_nowDir			= m_mWorld.Backward();		// 向いている方向(視界の中心となる方向ベクトル)
 	Math::Vector3	_nowPlayerPos	= _spPlayer->GetPos();		// プレイヤーの今の座標
-	Math::Vector3	_mixVecDir		= _nowPlayerPos - m_sightPos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
+	//Math::Vector3	_mixVecDir		= _nowPlayerPos - m_sightPos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
+	Math::Vector3	_mixVecDir		= _nowPlayerPos - m_pos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
+	Math::Vector3	_toDir			= _nowPlayerPos - m_sightPos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
 
 	// 一定距離以上離れてしまっている場合は処理しない
 	if (_mixVecDir.LengthSquared() >= m_sightRange)
@@ -392,6 +395,7 @@ void Enemy::CheckSight()
 	// 方向ベクトルの正規化
 	_nowDir.Normalize();
 	_mixVecDir.Normalize();
+	_toDir.Normalize();
 
 	// 内積を計算
 	float			_dot			= _nowDir.Dot(_mixVecDir);
@@ -407,7 +411,8 @@ void Enemy::CheckSight()
 	if (_dot > _sightAria)
 	{
 		// ========== レイ判定(オブジェクトに視界を邪魔されていないか) ==========
-		_isSight = GetDotResult(_mixVecDir);
+		_isSight = GetDotResult(_toDir);
+		//_isSight = GetDotResult(_mixVecDir);
 		// ======================================================================
 	}
 
@@ -439,7 +444,7 @@ void Enemy::CheckSight()
 	// Y軸回転のみ行うため、Y要素にのみ処理を作成
 	if (_cross.y >= 0.0f)
 	{
-		m_angle -= _angle;
+		m_angle -= (_angle * m_rotSpdCorrect);
 
 		// -360.0f(１回転分)を超えないように制御
 		if (m_angle < m_minDegAngle)
@@ -449,7 +454,7 @@ void Enemy::CheckSight()
 	}
 	else
 	{
-		m_angle += _angle;
+		m_angle += (_angle * m_rotSpdCorrect);
 
 		// 360.0f(１回転分)を超えないように制御
 		if (m_angle >= m_maxDegAngle)
@@ -822,6 +827,15 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 // ========== 追跡 ==========
 void Enemy::Chase::Enter(Enemy& owner)
 {
+	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+	if (_spPlayer)
+	{
+		owner.SetGoal(_spPlayer->GetPos());
+	}
+
+	owner.m_isActFindPath = false;
+	owner.m_findPathCnt = owner.Reset_findPathCnt;
+
 	owner.ChangeAnimation("Run");
 }
 
@@ -850,14 +864,58 @@ void Enemy::Chase::Update(Enemy& owner)
 		return;
 	}
 
-	// 経路を辿っている最中の場合は処理を継続し、
-	// それ以外の場合は、プレイヤーの場所までの最短経路を算出する(次のループから算出された経路を辿る)
+	// カウンタ処理
+	if (owner.m_findPathCnt > 0)
+	{
+		owner.m_findPathCnt -= 1;
+	}
+	else
+	{
+		owner.m_isActFindPath = true;
+	}
+
+	//// 経路を辿っている最中の場合は処理を継続し、
+	//// それ以外の場合は、プレイヤーの場所までの最短経路を算出する(次のループから算出された経路を辿る)
+	//if (owner.m_currentPathIndex < owner.m_path.size())
+	//{
+	//	// 現在のターゲットノード
+	//	Math::Vector3	_target = owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);
+	//	
+	//	// エネミーの現在位置とターゲットの位置の間を補間
+	//	Math::Vector3	_direction = _target - owner.m_pos;
+
+	//	// 移動速度よりもターゲットまでの距離が短い場合(移動してしまうとターゲットを通過してしまう場合)
+	//	if (_direction.LengthSquared() < owner.m_moveSpeed)
+	//	{
+	//		owner.m_pos = _target;				// 座標をターゲットの座標に更新
+	//		owner.m_currentPathIndex++;			// 次のノードへ
+	//	}
+	//	else
+	//	{
+	//		_direction.Normalize();
+
+	//		owner.RotateToDirection(_direction);
+
+	//		owner.m_pos += _direction * owner.m_moveSpeed;		// エネミーをターゲットの方向へ移動
+	//	}
+	//}
+	//else
+	//{
+	//	owner.SetGoal(_playerPos);
+	//}
+
 	if (owner.m_currentPathIndex < owner.m_path.size())
 	{
+		if (owner.m_isActFindPath)
+		{
+			owner.SetGoal(_playerPos);
+			owner.m_findPathCnt		= owner.Reset_findPathCnt;
+			owner.m_isActFindPath	= false;
+			return;
+		}
+
 		// 現在のターゲットノード
 		Math::Vector3	_target = owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);
-		
-		// エネミーの現在位置とターゲットの位置の間を補間
 		Math::Vector3	_direction = _target - owner.m_pos;
 
 		// 移動速度よりもターゲットまでの距離が短い場合(移動してしまうとターゲットを通過してしまう場合)
@@ -874,10 +932,6 @@ void Enemy::Chase::Update(Enemy& owner)
 
 			owner.m_pos += _direction * owner.m_moveSpeed;		// エネミーをターゲットの方向へ移動
 		}
-	}
-	else
-	{
-		owner.SetGoal(_playerPos);
 	}
 
 	// 攻撃可能かどうかを確認
@@ -911,8 +965,9 @@ void Enemy::Chase::Exit(Enemy& owner)
 
 bool Enemy::Chase::ChackAttackAble(Enemy& owner)
 {
-	Math::Vector3	_playerPos = Math::Vector3::Zero;
-	
+	// 高さ情報以外の座標情報を取得
+	Math::Vector2	_playerPos = Math::Vector2::Zero;
+
 	{
 		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
 
@@ -921,14 +976,20 @@ bool Enemy::Chase::ChackAttackAble(Enemy& owner)
 			return false;
 		}
 
-		_playerPos = _spPlayer->GetPos();
-	}
-	
-	Math::Vector3	_distance	= owner.m_pos - _playerPos;
+		Math::Vector3	_playerPos_V3 = _spPlayer->GetPos();
 
-	// プレイヤー情報の取得ができなかった場合とプレイヤーとの距離が一定以上離れている場合はfalseを返す
+		_playerPos = { _playerPos_V3.x,_playerPos_V3.z };
+	}
+
+	// 現在座標
+	Math::Vector2	_nowPos = { owner.m_pos.x,owner.m_pos.z };
+
+	// 距離計算
+	Math::Vector2	_distance = _nowPos - _playerPos;
+
 	if (_distance.Length() >= owner.m_attackDistance)
 	{
+		// 計算の結果、距離が一定以上空いている場合は、falseを返す
 		return false;
 	}
 
@@ -938,18 +999,11 @@ bool Enemy::Chase::ChackAttackAble(Enemy& owner)
 // ========== 見失った ==========
 void Enemy::LoseSight::Enter(Enemy& owner)
 {
-	// 見失った座標をグリッド座標に変換
-	Node	_loseSightNode = owner.WorldToGrid(owner.m_loseSightPos);
-
-	// 見失ったグリッド座標が進行不能オブジェクトであるかを確認
-	if ((*owner.m_grid)[_loseSightNode.z][_loseSightNode.x] == 1)
-	{
-		// 移動可能な範囲内で最も近づくことのできる経路を計算
-		_loseSightNode = owner.FindNearestWalkableNode(_loseSightNode);
-	}
-
 	// 経路計算
-	owner.FindPath(owner.m_pos, owner.GridToWorld(_loseSightNode));
+	owner.SetGoal(owner.m_loseSightPos);
+
+	// アニメーション切り替え
+	owner.ChangeAnimation("Walk");
 }
 
 void Enemy::LoseSight::Update(Enemy& owner)
@@ -1163,8 +1217,25 @@ void Enemy::Attack_LowPosition::Enter(Enemy& owner)
 
 void Enemy::Attack_LowPosition::Update(Enemy& owner)
 {
+	// 視界外に居る場合
+	if (!owner.m_isSight)
+	{
+		{
+			const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+			if (_spPlayer)
+			{
+				owner.m_loseSightPos = _spPlayer->GetPos();
+			}
+		}
+
+		owner.ChangeState(std::make_shared<LoseSight>());
+		return;
+	}
+
+	// 攻撃範囲エリアにいるかどうか
 	if (CheckAttackArea(owner) == false)
 	{
+		// 攻撃できない場合であれば追跡処理に戻る
 		owner.ChangeState(std::make_shared<Chase>());
 		return;
 	}
@@ -1192,7 +1263,7 @@ bool Enemy::Attack_LowPosition::CheckAttackArea(Enemy& owner)
 	Math::Vector3	_distance = owner.m_pos - _playerPos;
 
 	// ２転換の距離を比較し、攻撃範囲外に行ってしまっている場合
-	if (_distance.Length() > 10.0f)		// 即値
+	if (_distance.Length() > owner.m_attackDistance)
 	{
 		return false;
 	}

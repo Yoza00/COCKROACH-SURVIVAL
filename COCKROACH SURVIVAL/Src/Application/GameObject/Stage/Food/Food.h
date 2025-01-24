@@ -23,7 +23,7 @@ public:
 	void Update()override;
 	void PostUpdate()override;
 	void Init()override;
-	void SetState(const std::string	_filePath, const Math::Vector3	_pos, const float	_scale, const int _number)override;
+	void SetState(const std::string	_filePath, const Math::Vector3	_pos, float	_scale, int _number)override;
 
 	Math::Vector3 GetPos() const { return m_pos; }
 
@@ -43,7 +43,7 @@ private:
 
 	Math::Vector3	m_pos = Math::Vector3::Zero;
 	float			m_gravity = 0.0f;
-	bool			m_isMove = true;					// 着地後は落下処理はしない
+	//bool			m_isMove = true;					// 着地後は落下処理はしない
 
 	// 存在に関係するもの
 	// 生成されてから一定時間経過後にステージに残っている。もしくは、プレイヤーが食事することでライフがなくなることで消える

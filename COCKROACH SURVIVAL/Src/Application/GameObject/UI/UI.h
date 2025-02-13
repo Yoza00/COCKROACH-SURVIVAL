@@ -7,7 +7,6 @@ public:
 	UI()									{}
 	~UI()						override	{}
 
-	virtual void Update()		override	{}
 	virtual void DrawSprite()	override;
 	virtual void Init()			override;
 
@@ -23,12 +22,6 @@ public:
 	void SetDrawPos(Math::Vector2 _pos = Math::Vector2::Zero)
 	{
 		m_drawPos = _pos;
-	}
-
-	// 描画フラグをセットするためのセッター
-	void SetIsDraw(bool isDraw)
-	{
-		m_isDraw = isDraw;
 	}
 
 	void SetIsMenu(bool isMenu)
@@ -52,16 +45,21 @@ public:
 
 protected:
 
-	std::shared_ptr<KdTexture>	m_spTex;							// 画像ポインタ
+	std::shared_ptr<KdTexture>	m_spTex;									// 画像ポインタ
 
-	Math::Vector2				m_drawPos	= Math::Vector2::Zero;	// 表示座標
-	 Math::Vector2				m_startPos	= Math::Vector2::Zero;	// 切り取り開始座標
-	float						m_width		= 0.0f;					// 画像幅
-	float						m_height	= 0.0f;					// 画像高さ
+	Math::Vector2				m_drawPos			= Math::Vector2::Zero;	// 表示座標
+	 Math::Vector2				m_startPos			= Math::Vector2::Zero;	// 切り取り開始座標
+	float						m_width				= 0.0f;					// 画像幅
+	float						m_height			= 0.0f;					// 画像高さ
+	Math::Rectangle				m_rec;										// 切り取り範囲
+	/*
+	切り取り範囲は
+	描画するだけのUI：初期化時に設定するだけ
+	描画＋更新するUI：初期化時＋更新時に範囲を更新
+	*/
 
-	std::string					m_filePath;
+	std::string					m_filePath;									// 使用する画像のファイルパス
 
-	bool						m_isDraw	= true;					// 描画するかどうか
-	bool						m_isMenu	= false;				// メニュー画面かどうか
-	bool						m_isButtonActive = true;			// ボタンは有効かどうか
+	bool						m_isMenu			= false;				// メニュー画面かどうか
+	bool						m_isButtonActive	= true;					// ボタンは有効かどうか
 };

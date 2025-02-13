@@ -9,7 +9,7 @@ void House::Init()
 	}
 }
 
-void House::SetModel(std::string _filePath)
+void House::SetModel(const std::string& _filePath)
 {
 	if (!m_spModel)
 	{

@@ -50,9 +50,14 @@ public :
 		m_UIList.pop_back();
 	}
 
-	virtual const bool GetIsMenu()const 
+	const bool GetIsPause()const
 	{
-		return false;
+		return m_isPause;
+	}
+
+	void SetPauseFlg(const bool isPause)
+	{
+		m_isPause	= isPause;
 	}
 
 protected :
@@ -65,8 +70,12 @@ protected :
 	std::unique_ptr<KdCamera>					m_uniCamera = nullptr;
 
 	// 全オブジェクトのアドレスをリストで管理
+	// ここにはポーズ中に処理しない物のみ格納
 	std::list<std::shared_ptr<KdGameObject>>	m_objList;
 
-	// UI用
-	std::list<std::shared_ptr<UI>>			m_UIList;
+	// ポーズ時に更新されるUI用
+	std::list<std::shared_ptr<UI>>	m_UIList;
+
+	// ポーズ状態かどうか
+	bool	m_isPause		= false;
 };

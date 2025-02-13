@@ -2,6 +2,8 @@
 
 #include"../../Menu_Icon/Menu_Icon.h"
 
+#include"../../../../Scene/SceneManager.h"
+
 void BackButton::ButtonClicked()
 {
 	const std::shared_ptr<Menu_Icon>	_spMIcon = m_wpMIcon.lock();
@@ -11,4 +13,7 @@ void BackButton::ButtonClicked()
 
 	// メニューフラグを解除する必要があるので、Menu_Iconクラスのm_isMenuフラグを解除する
 	_spMIcon->SetIsMenu(false);
+		
+	// ポーズ状態を解除
+	SceneManager::Instance().SetCurrentIsPause(false);
 }

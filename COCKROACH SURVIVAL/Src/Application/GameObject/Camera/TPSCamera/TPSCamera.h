@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "../CameraBase.h"
 
+class Player;
+
 class TPSCamera : public CameraBase
 {
 public:
@@ -16,7 +18,19 @@ public:
 		m_isCamRotUpdate = isCamRotUpdate;
 	}
 
+	// プレイヤーのポインタセット
+	void SetPlayer(const std::weak_ptr<Player>& spPlayer)
+	{
+		m_wpPlyer = spPlayer;
+	}
+
 private:
 
 	bool	m_isCamRotUpdate = false;
+
+	// プレイヤーのウィークポインタ
+	std::weak_ptr<Player>	m_wpPlyer;
+
+	// プレイヤーの死亡フラグをチェック
+	bool CheckPlayer();
 };

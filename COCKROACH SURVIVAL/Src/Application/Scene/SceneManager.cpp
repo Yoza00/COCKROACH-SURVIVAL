@@ -22,6 +22,8 @@ void SceneManager::PreUpdate()
 void SceneManager::Update()
 {
 	m_currentScene->Update();
+
+	KdEffekseerManager::GetInstance().Update();
 }
 
 void SceneManager::PostUpdate()
@@ -37,6 +39,8 @@ void SceneManager::PreDraw()
 void SceneManager::Draw()
 {
 	m_currentScene->Draw();
+
+	KdEffekseerManager::GetInstance().Draw();
 }
 
 void SceneManager::DrawSprite()
@@ -47,6 +51,11 @@ void SceneManager::DrawSprite()
 void SceneManager::DrawDebug()
 {
 	m_currentScene->DrawDebug();
+}
+
+void SceneManager::SetCurrentIsPause(const bool isPause)
+{
+	m_currentScene->SetPauseFlg(isPause);
 }
 
 const std::list<std::shared_ptr<KdGameObject>>& SceneManager::GetObjList()
@@ -73,9 +82,10 @@ void SceneManager::DeleteUI()
 {
 	m_currentScene->DeleteUI();
 }
-const bool SceneManager::GetIsMenu() const
+
+const bool SceneManager::GetIsPauseThisScene() const
 {
-	return m_currentScene->GetIsMenu();
+	return m_currentScene->GetIsPause();
 }
 
 void SceneManager::SetScore(int score)
@@ -87,6 +97,10 @@ void SceneManager::SetScore(int score)
 
 void SceneManager::ChangeScene(SceneType sceneType)
 {
+	// 音楽、エフェクトを全て停止
+	KdAudioManager::Instance().StopAllSound();
+	KdEffekseerManager::GetInstance().StopAllEffect();
+
 	// 次のシーンを作成し、現在のシーンにする
 	switch (sceneType)
 	{
@@ -102,4 +116,7 @@ void SceneManager::ChangeScene(SceneType sceneType)
 
 	// 現在のシーン情報を更新
 	m_currentSceneType = sceneType;
+
+	// ポーズ状態を解除しておく
+	m_currentScene->SetPauseFlg(false);
 }

@@ -65,3 +65,21 @@ void KdGameObject::SetRotationY(float rotationY)
 {
 	m_rotationY = rotationY;
 }
+
+const float KdGameObject::CalcDotValue(const Math::Vector3& currentVec, const Math::Vector3& toVec) const
+{
+	float	_dotValue = currentVec.Dot(toVec);
+
+	// 値が範囲外に行かないように制御しておく
+	static const float	m_clampMinValue = -1.0f;		// 範囲の最小値
+	static const float	m_clampMaxValue = 1.0f;			// 範囲の最大値
+
+	_dotValue = std::clamp(_dotValue, m_clampMinValue, m_clampMaxValue);
+
+	return _dotValue;
+}
+
+Math::Vector3 KdGameObject::CalcCrossValue(const Math::Vector3& currentvec, const Math::Vector3& toVec) const
+{
+	return	Math::Vector3(toVec.Cross(currentvec));
+}

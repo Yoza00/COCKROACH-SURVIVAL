@@ -12,8 +12,3 @@ void StartButton::Update()
 
 	m_drawPos.y += sin(m_angle) * m_moveSpd;
 }
-
-void StartButton::Init()
-{
-	UI::Init();
-}

@@ -32,18 +32,10 @@ void SceneChange::DrawSprite()
 {
 	if (!m_spTex)return;
 
-	// 切り取り範囲を更新
-	Math::Rectangle	_rec = { long(m_startPos.x),long(m_startPos.y),long(m_width),long(m_height) };
-
-	// 切り取り範囲をもとに描画
-	// 更新された切り取り範囲を利用して描画する
 	Math::Color	_color = { 0.0f,0.0f,0.0f,m_alpha };
-	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spTex, m_drawPos.x, m_drawPos.y, _rec.width, _rec.height, &_rec, &_color, { 0.5f,0.5f });
-}
-
-void SceneChange::Init()
-{
-	UI::Init();
+	
+	KdShaderManager::Instance().m_spriteShader.
+		DrawTex(m_spTex, static_cast<int>(m_drawPos.x), static_cast<int>(m_drawPos.y), m_rec.width, m_rec.height, &m_rec, &_color);
 }
 
 void SceneChange::ChangeScene()

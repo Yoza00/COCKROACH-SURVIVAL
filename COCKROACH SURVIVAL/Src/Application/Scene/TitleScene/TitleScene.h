@@ -11,8 +11,8 @@ public :
 
 private :
 
-	void Event() override;
-	void Init() override;
+	void Event()	override;
+	void Init()		override;
 
 	bool	m_isStart = false;				// 開始されたかどうか
 };

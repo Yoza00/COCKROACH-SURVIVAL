@@ -31,6 +31,10 @@ public:
 	{
 		m_nextSceneType = nextScene;
 	}
+	
+	// 現在のシーンのポーズフラグをセット
+	// 記載方法次第で引数無しで宣言することは可能だが、分かりやすいように明記させるようにしておく
+	void SetCurrentIsPause(const bool isPause);
 
 	const SceneType GetSceneType()const { return m_currentSceneType; }
 
@@ -49,8 +53,8 @@ public:
 
 	void DeleteUI();
 
-	// 現在のシーンからm_isMenuフラグを取得する
-	const bool GetIsMenu()const;
+	// 現在のシーンのポーズフラグを取得
+	const bool GetIsPauseThisScene()const;
 
 	void SetScore(int score);
 
@@ -63,7 +67,10 @@ private :
 		// 開始シーンに切り替え
 		ChangeScene(m_currentSceneType);
 
+		// スコア初期化
 		m_score = 0;
+
+		KdEffekseerManager::GetInstance().Create(0, 0);
 	}
 
 	// シーン切り替え関数
@@ -74,7 +81,6 @@ private :
 
 	// 現在のシーンの種類を保持している変数
 	SceneType m_currentSceneType = SceneType::Title;
-	//SceneType m_currentSceneType = SceneType::Result;
 	
 	// 次のシーンの種類を保持している変数
 	SceneType m_nextSceneType = m_currentSceneType;

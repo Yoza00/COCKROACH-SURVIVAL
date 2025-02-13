@@ -36,8 +36,10 @@ public:
 
 	bool LoadObjectsFromJson(const std::string& _filePath);								// オブジェクトデータが読み込めた場合はtrue、そうでない場合はfalseを返す
 	bool LoadUIFromJson(const std::string& _filePath, const std::string& useScene);		// UIのデータが読み込めたらtrue、そうでない場合はfalseが返る
+	// ↑　第2引数で使用するシーンを小文字で記載することで、そのシーンのオブジェクトのみデータを取得する
 	
 	bool LoadUIRankFromJson(const std::string& filePath, const std::string& useUIName);	// 指定した名前のUIの情報を読み込む
+	bool LoadUIDataFromJson(const std::string& filePath, const std::string& useScene, const std::string& useUIName);
 
 	const std::vector<Object>& GetObjects()const { return m_objects; }					// オブジェクトリストを返す
 	void ListClear() { m_objects.clear(); }

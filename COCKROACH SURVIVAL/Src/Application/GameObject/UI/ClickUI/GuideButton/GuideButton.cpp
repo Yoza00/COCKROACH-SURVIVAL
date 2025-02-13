@@ -14,7 +14,4 @@ void GuideButton::ButtonClicked()
 	SceneManager::Instance().AddUI(_spUI);
 
 	m_wpDrawGuide = _spUI;
-
-	// 要修正：処理速度を上げるために、インスタンスを破棄するのはメニューが解除されてから
-	// フラグなどを使用して表示をコントロールし、インスタンスは保持し続けるようにする
 }

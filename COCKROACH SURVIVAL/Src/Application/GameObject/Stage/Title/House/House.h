@@ -10,7 +10,7 @@ public:
 
 	void Init()override;
 
-	void SetModel(std::string	_filePath)override;
+	void SetModel(const std::string& _filePath)override;
 
 private:
 

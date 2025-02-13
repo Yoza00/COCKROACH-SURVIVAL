@@ -3,12 +3,13 @@
 #include"Json/nlohmann/json.hpp"
 
 class Player;
+class Weapon;
 
 // ウェイポイント用構造体
 struct WayPoint
 {
-	int				m_number;		// ポイントの番号
-	Math::Vector3	m_pos;			// ポイントの座標
+	int				m_number	= 0;					// ポイントの番号
+	Math::Vector3	m_pos		= Math::Vector3::Zero;	// ポイントの座標
 };
 
 // ========== 経路探索用 ==========
@@ -75,6 +76,11 @@ public:
 		m_wpPlayer = spPlayer;
 	}
 
+	void SetWeapon(const std::shared_ptr<Weapon>& spWeapon)
+	{
+		m_wpWeapon = spWeapon;
+	}
+
 	void SetScale(float scale)
 	{
 		m_scale = scale;
@@ -86,13 +92,24 @@ public:
 	void SetGoal(const Math::Vector3& goalPos);
 	// ================================
 
+	const Math::Vector3& GetRightHandPos()const { return m_rightHandPos; }
+
 private:
+
+	const int						m_int_resetValue		= 0;						// int型の初期化の値
+	const Math::Vector3				m_correctionPosValue	= { 0.0f, 0.05f, 0.0f };	// 座標補正値
+
+	// =========== エフェクト関連 ==========
+	const int						m_sprayAnimationFinishCnt	= 10;
+	int								m_currentSprayAnimationCnt	= m_int_resetValue;
+	// =====================================
 
 	std::shared_ptr<KdModelWork>	m_spModel		= nullptr;					// モデル
 
 	std::shared_ptr<KdAnimator>		m_spAnimator	= nullptr;					// アニメーター
 
 	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
+	std::weak_ptr<Weapon>			m_wpWeapon;
 
 	Math::Vector3					m_pos			= Math::Vector3::Zero;		// 座標
 	const float						m_moveSpeed		= 0.1f;						// 移動速度
@@ -114,7 +131,7 @@ private:
 	Math::Vector3					m_attackPoint_LowPos	= Math::Vector3::Zero;		// 低所判定のポイントの座標(これ以下の高さが低所判定)
 
 	// ========== 座標補正用変数 ==========
-	float							m_adJustHeight	= 0.0f;						// モデルの高さ補正用変数
+	float							m_adJustHeight	= -0.1f;						// モデルの高さ補正用変数
 	// ====================================
 	
 	// ========== 視界関係で必要となる変数 ==========
@@ -175,7 +192,8 @@ private:
 	// ヒューリスティック関数
 	float Heuristic(const Node& a, const Node& b)
 	{
-		return std::abs(a.x - b.x) + std::abs(a.z - b.z);
+		return	std::abs(static_cast<float>(a.x) - static_cast<float>(b.x)) +
+				std::abs(static_cast<float>(a.z) - static_cast<float>(b.z));
 	}
 
 	// 経路探索(A*)
@@ -225,11 +243,11 @@ private:
 
 		virtual ~StateBase()				{}
 
-		virtual void Enter(Enemy& owner)	{}	// その状態に入るときに１度だけ実行する処理
-		virtual void Update(Enemy& owner)	{}	// その状態の間、行う処理
-		virtual void Exit(Enemy& owner)		{}	// その状態から別の状態に変更するときに１度だけ実行する処理
+		virtual void Enter(Enemy&)	{}	// その状態に入るときに１度だけ実行する処理
+		virtual void Update(Enemy&)	{}	// その状態の間、行う処理
+		virtual void Exit(Enemy&)	{}	// その状態から別の状態に変更するときに１度だけ実行する処理
 
-		virtual void CheckMoveFinish(Enemy& owner, const Math::Vector3& dist) {}
+		virtual void CheckMoveFinish(Enemy& , const Math::Vector3& ) {}
 	};
 
 	// 周囲を捜索する
@@ -311,34 +329,6 @@ private:
 	public:
 
 		~Attack_LowPosition() {}
-
-		void Enter(Enemy& owner)	override;
-		void Update(Enemy& owner)	override;
-		void Exit(Enemy& owner)		override;
-
-		bool CheckAttackArea(Enemy& owner);
-	};
-
-	// 肩の高さと同じくらいの位置への攻撃
-	class Attack_MidPosition :public StateBase
-	{
-	public:
-
-		~Attack_MidPosition() {}
-
-		void Enter(Enemy& owner)	override;
-		void Update(Enemy& owner)	override;
-		void Exit(Enemy& owner)		override;
-
-		bool CheckAttackArea(Enemy& owner);
-	};
-
-	// 肩の高さ以上の位置への攻撃(Midの方で収まりきらなかった場合の攻撃)
-	class Attack_HighPosition :public StateBase
-	{
-	public:
-
-		~Attack_HighPosition() {}
 
 		void Enter(Enemy& owner)	override;
 		void Update(Enemy& owner)	override;

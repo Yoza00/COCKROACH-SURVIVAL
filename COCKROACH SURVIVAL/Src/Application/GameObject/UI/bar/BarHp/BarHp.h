@@ -23,8 +23,8 @@ public:
 
 private:
 
-	float	m_life;
-	float	m_singleW;
+	float	m_life		= 0.0f;
+	float	m_singleW	= 0.0f;
 
 	std::weak_ptr<Player>	m_wpPlayer;
 };

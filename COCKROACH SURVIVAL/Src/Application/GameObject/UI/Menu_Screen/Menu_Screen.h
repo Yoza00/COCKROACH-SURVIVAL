@@ -2,8 +2,6 @@
 
 #include"../UI.h"
 
-//class Menu_Icon;
-
 class Menu_Screen :public UI
 {
 public:
@@ -18,13 +16,7 @@ public:
 		m_alpha = alpha;
 	}
 
-	/*void SetMIcon(const std::shared_ptr<Menu_Icon>& spMIcon)
-	{
-		m_wpMIcon = spMIcon;
-	}*/
-
 private:
 
-	//std::weak_ptr<Menu_Icon>	m_wpMIcon;
 	float						m_alpha = 0.0f;
 };

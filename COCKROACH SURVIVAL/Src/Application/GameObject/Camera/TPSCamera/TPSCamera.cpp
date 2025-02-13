@@ -1,13 +1,13 @@
 ﻿#include "TPSCamera.h"
 
+#include"../../Character/Player/Player.h"
+
 void TPSCamera::Init()
 {
 	// 親クラスの初期化呼び出し
 	CameraBase::Init();
 
 	// 注視点
-	//m_mLocalPos = Math::Matrix::CreateTranslation(0, 1.5f, -10.0f);
-	//m_mLocalPos = Math::Matrix::CreateTranslation(0, 1.5f, -3.0f);
 	m_mLocalPos = Math::Matrix::CreateTranslation(0, 0.25f, -0.5f);
 
 	SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
@@ -37,24 +37,28 @@ void TPSCamera::Update()
 	// カメラの回転
 	if (!m_isCamRotUpdate)
 	{
-		UpdateRotateByMouse();
+		// メニューなどに入っていないか、プレイヤーが生存している場合にのみ実行
+		if (CheckPlayer() == false)
+		{
+			UpdateRotateByMouse();
+		}
 	}
 	m_mRotation = GetRotationMatrix();
 	m_mWorld	= m_mLocalPos * m_mRotation * _targetMat;
 
 	KdCollider::RayInfo		_rayInfo;
-	_rayInfo.m_pos = GetPos();
-	_rayInfo.m_dir = Math::Vector3::Down;
-	_rayInfo.m_range = 1000.0f;
-	_rayInfo.m_type = KdCollider::TypeGround;
+	_rayInfo.m_pos		= GetPos();
+	_rayInfo.m_dir		= Math::Vector3::Down;
+	_rayInfo.m_range	= 1000.0f;
+	_rayInfo.m_type		= KdCollider::TypeGround;
 
 	// カメラに収めるターゲットが存在している場合だけ実行される処理
 	if (_spTarget)
 	{
-		Math::Vector3	_targetPos = _spTarget->GetPos();		// ターゲット(今回はキャラクター)の座標
-		_targetPos.y += 0.1f;
-		_rayInfo.m_dir = _targetPos - GetPos();
-		_rayInfo.m_range = _rayInfo.m_dir.Length();
+		Math::Vector3	_targetPos	= _spTarget->GetPos();		// ターゲット(今回はキャラクター)の座標
+		_targetPos.y				+= 0.1f;
+		_rayInfo.m_dir				= _targetPos - GetPos();
+		_rayInfo.m_range			= _rayInfo.m_dir.Length();
 		_rayInfo.m_dir.Normalize();
 	}
 
@@ -96,4 +100,17 @@ void TPSCamera::Update()
 	}
 
 	CameraBase::Update();
+}
+
+bool TPSCamera::CheckPlayer()
+{
+	std::shared_ptr<Player>	_spPlayer = m_wpPlyer.lock();
+
+	// そもそも情報を取得できない場合はfalse
+	if (!_spPlayer)
+	{
+		return false;
+	}
+
+	return _spPlayer->IsDead();
 }

@@ -10,7 +10,6 @@ public:
 	~StartButton()override {}
 
 	void Update()override;
-	void Init()override;
 
 private:
 

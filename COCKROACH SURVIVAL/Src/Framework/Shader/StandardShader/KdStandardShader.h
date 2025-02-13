@@ -211,7 +211,7 @@ private:
 	// スキンメッシュ有効かどうか(スキンメッシュ対応)
 	void SetIsSkinMeshObj(bool isSkinMeshObj)
 	{
-		if (m_cb0_Obj.Work().IsSkinMeshObj != isSkinMeshObj)
+		if (m_cb0_Obj.Work().IsSkinMeshObj != static_cast<int>(isSkinMeshObj))
 		{
 			m_cb0_Obj.Work().IsSkinMeshObj = isSkinMeshObj;
 			m_dirtyCBObj = true;

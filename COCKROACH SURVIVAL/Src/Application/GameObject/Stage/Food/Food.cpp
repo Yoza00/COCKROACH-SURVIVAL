@@ -3,7 +3,7 @@
 #include"../../../Scene/SceneManager.h"
 
 #include"../Floor/Floor.h"
-#include"../../../GameObject/UI/bar/BarHungry/BarHungry.h"
+#include"../../../GameObject/UI/Bar/BarHungry/BarHungry.h"
 #include"../../../GameObject/Character/Player/Player.h"
 
 void Food::Update()
@@ -29,13 +29,6 @@ void Food::Update()
 
 		m_isExpired = true;
 	}
-
-	// 生成された瞬間は重力によって3D空間上の下方向に移動するが、一度でも地面とレイが当たり判定を行った場合は移動しなくなる。
-	/*if (m_isMove)
-	{
-		m_pos.y -= m_gravity;
-		m_gravity += 0.005f;
-	}*/
 
 	Math::Matrix	_transMat = Math::Matrix::CreateTranslation(m_pos);
 	m_mWorld = _transMat;
@@ -79,26 +72,22 @@ void Food::PostUpdate()
 	{
 		m_pos		= _groundPos;
 		m_gravity	= 0.0f;
-		//m_isMove	= false;
 	}
 }
 
 void Food::Init()
 {
-	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
+	m_lifeSpan		= m_maxLifeSpan;	// 生存(起動)時間 およそ50秒
+	m_life			= m_lifeValue;		// 残り体力(この値が0になる = 食べきった)
 
-	m_lifeSpan	= 3000;				// 生存(起動)時間 およそ50秒
-	m_life		= 300;				// 残り体力(この値が0になる = 食べきった)
-
-	m_stageObjeType = StageObjectType::Food;
+	m_stageObjeType = StageObjectType::Feed;
 }
 
-void Food::SetState(const std::string _filePath, const Math::Vector3 _pos, float _scale, int _number)
+void Food::SetState(const std::string& _filePath, const Math::Vector3& _pos, const float _scale, const int _number)
 {
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
-		//m_spModel->Load(_filePath);
 		m_spModel = KdAssets::Instance().m_modeldatas.GetData(_filePath);
 
 		m_pos = _pos;
@@ -109,7 +98,6 @@ void Food::SetState(const std::string _filePath, const Math::Vector3 _pos, float
 
 		m_pCollider = std::make_unique<KdCollider>();
 		m_pCollider->RegisterCollisionShape("FoodCollision" + std::to_string(_number), m_spModel, KdCollider::TypeGround);
-		m_stageObjeType = StageObjectType::Food;
 	}
 }
 
@@ -123,5 +111,5 @@ void Food::SetParm(float life, float rest, float score)
 {
 	m_parm.m_addLife	= life;
 	m_parm.m_addRest	= rest;
-	m_parm.m_score		= score;
+	m_parm.m_score		= static_cast<int>(score);
 }

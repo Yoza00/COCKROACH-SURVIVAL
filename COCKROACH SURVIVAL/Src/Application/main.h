@@ -136,8 +136,6 @@ public:
 	// ImGui
 	ImGuiAppLog m_log;
 
-	//void SetShowImGui(const bool _isFlg) { m_showImGui = _isFlg; }
-
 private:
 
 	void KdBeginUpdate();

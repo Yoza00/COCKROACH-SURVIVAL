@@ -1,6 +1,7 @@
 ﻿#include "Enemy.h"
 #include"../../../Scene/SceneManager.h"
 #include"../Player/Player.h"
+#include"../../Weapon/Weapon.h"
 
 #include"../../../main.h"
 
@@ -14,18 +15,8 @@ void Enemy::Update()
 {
 	if (!m_spModel)return;
 
-	if (SceneManager::Instance().GetIsMenu())return;
-
 	// ノード情報をセット
 	SetValueFromNodeInfo();
-
-	// デバッグ
-	m_pDebugWire->AddDebugSphere(
-		m_rightHandPos,
-		1.0f,
-		kBlackColor
-	);
-	// ==========
 
 	// ========== 重力による座標更新 ==========
 	m_gravity	+= m_gravityPow;
@@ -41,18 +32,15 @@ void Enemy::Update()
 		m_nowState->Update(*this);
 	}
 
-	/*
-	ステートパターンを採用する理由
-	・状態によって変化する変数等はステートパターン内で処理を行う為、更新処理関数内がきれいになる。
-	・状態によって区切られているため、変更・改修が容易。
-	*/
-
 	// 行列関連
 	{
+		Math::Vector3	_pos = m_pos;
+		_pos.y -= 0.35f;
+
 		// 各要素の行列を作成
-		Math::Matrix	_scaleMat = Math::Matrix::CreateScale(m_scale);									// 拡縮行列
+		Math::Matrix	_scaleMat = Math::Matrix::CreateScale(m_scale);											// 拡縮行列
 		Math::Matrix	_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));	// Y軸における回転行列
-		Math::Matrix	_transMat = Math::Matrix::CreateTranslation(m_pos);								// 座標行列
+		Math::Matrix	_transMat = Math::Matrix::CreateTranslation(_pos);								// 座標行列
 
 		// ワールド行列を作成(各要素の行列を合成したもの)
 		m_mWorld = _scaleMat * _rotMat * _transMat;
@@ -62,8 +50,6 @@ void Enemy::Update()
 void Enemy::PostUpdate()
 {
 	if (!m_spModel)return;
-
-	if (SceneManager::Instance().GetIsMenu())return;
 
 	HitCheck();			// オブジェクトとの当たり判定を調べる
 
@@ -94,12 +80,7 @@ void Enemy::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy.gltf");
-		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people.gltf");
-		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation2.gltf");
 		
-		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy_people_animation3.gltf");
-		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy-people_AddHandPositionNode_test.gltf");
 		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Enemy/Enemy-people_Add_Attack.gltf");
 	}
 
@@ -121,12 +102,7 @@ void Enemy::Init()
 
 	// アニメーション関連
 	m_spAnimator = std::make_shared<KdAnimator>();
-	//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"));	// 初期アニメーション設定
 	ChangeAnimation("Walk");	// 初期アニメーション設定
-
-	// ========== デバッグ用 ==========
-	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
-	// ================================
 }
 
 // Math::Vector3をNodeに変換し、ゴールノードの情報に応じて使用する経路探索の処理を変更する
@@ -323,18 +299,10 @@ void Enemy::HitCheck()
 	// 地面との当たり判定
 	KdCollider::RayInfo	_rayInfo;
 	_rayInfo.m_pos		= m_pos;						// レイの発射座標(必要に応じて補正をかける)
+	_rayInfo.m_pos		+= m_correctionPosValue;
 	_rayInfo.m_dir		= Math::Vector3::Down;			// レイの発射角度(地面と判定するので、下方向へのベクトルにする必要がある)
 	_rayInfo.m_range	= 3.0f;							// レイの長さ(必要に応じて、長さを調節すべし)
 	_rayInfo.m_type		= KdCollider::TypeGround;		// 当たり判定を行うタイプ
-
-	// ========== レイ情報のデバッグ表示 ==========
-	m_pDebugWire->AddDebugLine(
-		_rayInfo.m_pos,
-		_rayInfo.m_dir,
-		_rayInfo.m_range,
-		kBlackColor
-	);
-	// ============================================
 
 	std::list<KdCollider::CollisionResult>	_retRayList;		// 当たったオブジェクトを格納するリスト
 
@@ -364,7 +332,6 @@ void Enemy::HitCheck()
 	if (_isHit)
 	{
 		m_pos		= _groundPos;								// 座標をヒット座標に更新
-		m_pos		+= {0.0f, 0.05f, 0.0f};
 		m_gravity	= 0.0f;										// 重力の強さはリセット
 	}
 }
@@ -379,11 +346,10 @@ void Enemy::CheckSight()
 		return;
 	}
 
-	Math::Vector3	_nowDir			= m_mWorld.Backward();		// 向いている方向(視界の中心となる方向ベクトル)
-	Math::Vector3	_nowPlayerPos	= _spPlayer->GetPos();		// プレイヤーの今の座標
-	//Math::Vector3	_mixVecDir		= _nowPlayerPos - m_sightPos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
-	Math::Vector3	_mixVecDir		= _nowPlayerPos - m_pos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
-	Math::Vector3	_toDir			= _nowPlayerPos - m_sightPos;	// 2つの座標から１つの方向ベクトルを作成(自分(エネミー)から見たプレイヤーへのベクトル)
+	Math::Vector3	_nowDir			= m_mWorld.Backward();			// 向いている方向(視界の中心となる方向ベクトル)
+	Math::Vector3	_nowPlayerPos	= _spPlayer->GetPos();			// プレイヤーの今の座標
+	Math::Vector3	_mixVecDir		= _nowPlayerPos - m_pos;		// エネミーの地面に触れている場所から見たプレイヤーへのベクトル
+	Math::Vector3	_toDir			= _nowPlayerPos - m_sightPos;	// エネミーの目の場所から見た視線のベクトル
 
 	// 一定距離以上離れてしまっている場合は処理しない
 	if (_mixVecDir.LengthSquared() >= m_sightRange)
@@ -398,31 +364,41 @@ void Enemy::CheckSight()
 	_toDir.Normalize();
 
 	// 内積を計算
-	float			_dot			= _nowDir.Dot(_mixVecDir);
+	float	_dot = CalcDotValue(_nowDir, _mixVecDir);
+
+	// 視界内且つプレイヤーを視認できているかを確認
+	{
+		float			_sightAria = cos(DirectX::XMConvertToRadians(m_sightSize));		// 視野の端っこ
+
+		// 視界内にプレイヤーがいる場合
+		if (_dot > _sightAria)
+		{
+			//bool			_isSight = false;		// 視界内かどうか
+
+			// ========== レイ判定(オブジェクトに視界を邪魔されていないか) ==========
+			if (GetDotResult(_toDir) == false)
+			{
+				m_isSight = false;
+				return;
+			}
+			else
+			{
+				m_isSight = true;
+			}
+			//_isSight = GetDotResult(_toDir);
+			// true：ちゃんと見えてる　false：(オブジェクトに阻まれて)見えてません
+			// ======================================================================
+		}
+	}
 	
-	// 内積値の補正
-	// 念のため-1.0f<=_dot<=1.0fの範囲内になるようにしておく
-	_dot = std::clamp(_dot, -1.0f, 1.0f);
 
-	bool			_isSight		= false;												// 視界内かどうか
-	float			_sightAria		= cos(DirectX::XMConvertToRadians(m_sightSize));		// 視野の端っこ
+	//m_isSight = _isSight;			// 実行した結果をもとに、フラグを更新
+	///* 実行結果から、視界内に居ればメンバー変数のフラグがtrueに、視界外に居ればfalseになる */
 
-	// 視界内にプレイヤーがいる場合
-	if (_dot > _sightAria)
-	{
-		// ========== レイ判定(オブジェクトに視界を邪魔されていないか) ==========
-		_isSight = GetDotResult(_toDir);
-		//_isSight = GetDotResult(_mixVecDir);
-		// ======================================================================
-	}
-
-	m_isSight = _isSight;			// 実行した結果をもとに、フラグを更新
-	/* 実行結果から、視界内に居ればメンバー変数のフラグがtrueに、視界外に居ればfalseになる */
-
-	if (!m_isSight)
-	{
-		return;						// 視界外に居る場合はリターン
-	}
+	//if (!m_isSight)
+	//{
+	//	return;						// 視界外に居る場合はリターン
+	//}
 
 	// モデルの回転処理
 	float	_angle = DirectX::XMConvertToDegrees(acos(_dot));		// 内積値のacosで角度を求める
@@ -438,8 +414,7 @@ void Enemy::CheckSight()
 		_angle = m_maxAngle;
 	}
 
-	Math::Vector3	_cross;				// 外積格納用変数
-	_cross = _mixVecDir.Cross(_nowDir);	// 外積計算
+	Math::Vector3	_cross = CalcCrossValue(_nowDir, _mixVecDir);
 
 	// Y軸回転のみ行うため、Y要素にのみ処理を作成
 	if (_cross.y >= 0.0f)
@@ -474,9 +449,7 @@ void Enemy::SetValueFromNodeInfo()
 			m_localSightMat = _pSightNode->m_worldTransform;
 		}
 
-		Math::Vector3 _sightPos = (m_localSightMat * m_mWorld).Translation();
-
-		m_sightPos = _sightPos;
+		m_sightPos = (m_localSightMat * m_mWorld).Translation();
 	}
 
 	// 右手の座標
@@ -487,9 +460,7 @@ void Enemy::SetValueFromNodeInfo()
 			m_rightHandMat = _pRightHandNode->m_worldTransform;
 		}
 
-		Math::Vector3 _rightHandPos = (m_rightHandMat * m_mWorld).Translation();
-
-		m_rightHandPos = _rightHandPos;
+		m_rightHandPos = (m_rightHandMat * m_mWorld).Translation();
 	}
 
 	// 高所判定の座標
@@ -500,9 +471,7 @@ void Enemy::SetValueFromNodeInfo()
 			m_attackPoint_HighMat = _pAttackPoint_highNode->m_worldTransform;
 		}
 
-		Math::Vector3	_attackPoint_highPos = (m_attackPoint_HighMat * m_mWorld).Translation();
-
-		m_attackPoint_highPos = _attackPoint_highPos;
+		m_attackPoint_highPos = (m_attackPoint_HighMat * m_mWorld).Translation();
 	}
 
 	// 低所判定の座標
@@ -513,9 +482,7 @@ void Enemy::SetValueFromNodeInfo()
 			m_attackPoint_LowMat = _pAttackPoint_lowNode->m_worldTransform;
 		}
 
-		Math::Vector3	_attackPoint_lowPos = (m_attackPoint_LowMat * m_mWorld).Translation();
-
-		m_attackPoint_LowPos = _attackPoint_lowPos;
+		m_attackPoint_LowPos = (m_attackPoint_LowMat * m_mWorld).Translation();
 	}
 }
 
@@ -528,14 +495,16 @@ void Enemy::RotateToDirection(const Math::Vector3& toDir)
 	}
 
 	// 正規化された進行方向
-	Math::Vector3	_normalizedDirection = toDir;		// 向きたい方向ベクトルをコピー
-	_normalizedDirection.Normalize();					// 先ほど作成したものを正規化
-	Math::Vector3	_nowDir = m_mWorld.Backward();
+	Math::Vector3	_normalizedDirection	= toDir;				// 向きたい方向ベクトルをコピー
+	Math::Vector3	_nowDir					= m_mWorld.Backward();	// 現在向いている方向
+
+	// ベクトルの正規化
+	// _normalizedDirectionは既に正規化されているので、ここでは正規化しない
 	_nowDir.Normalize();
 
-	// 内積を用いて回転角度を計算
-	float	_dot	= _nowDir.Dot(_normalizedDirection);	// モデルの前方方向へのベクトルと向きたい方向ベクトルとの内積を算出
-	_dot = std::clamp(_dot, -1.0f, 1.0f);								// 内積の値を-1～1の範囲に制限
+	// 内積計算
+	float	_dot = CalcDotValue(_nowDir, toDir);
+
 	float	_angle	= DirectX::XMConvertToDegrees(acos(_dot));			// 逆余弦関数で求められたラジアン角の値をディグリー角に変換
 
 	// 閾値よりも値が小さければ処理しない
@@ -551,7 +520,7 @@ void Enemy::RotateToDirection(const Math::Vector3& toDir)
 	}
 
 	// 外積を用いて回転軸を計算
-	Math::Vector3	_cross = _normalizedDirection.Cross(_nowDir);
+	Math::Vector3	_cross = CalcCrossValue(_nowDir, toDir);
 
 	// 徐々に回転させる
 	if (_cross.y >= 0.0f)
@@ -584,16 +553,6 @@ bool Enemy::GetDotResult(const Math::Vector3& toDir)
 	_rayInfo.m_dir		= toDir;
 	_rayInfo.m_range	= m_sightRange;
 	_rayInfo.m_type		= KdCollider::TypeGround | KdCollider::TypeSight;
-
-	// ========== デバッグ表示 ==========
-	m_pDebugWire->AddDebugLine
-	(
-		_rayInfo.m_pos,
-		_rayInfo.m_dir,
-		_rayInfo.m_range,
-		kBlueColor
-	);
-	// ==================================
 
 	std::list<KdCollider::CollisionResult>	_retRayList;		// ヒットオブジェクト格納用リスト
 	std::vector<UINT>						_charaNumber;		// ヒットオブジェクトのキャラナンバー格納用配列
@@ -759,16 +718,14 @@ void Enemy::MoveOtherPos::Turn(Enemy& owner,const Math::Vector3& dir)
 	Math::Vector3	_nowDir = owner.m_mWorld.Backward();		// 現在の向き
 	Math::Vector3	_toDir	= dir;								// 次の場所へのベクトル
 
-	// ベクトルの正規化
+	// ベクトルを正規化
+	// 既にdirは正規化された物を使用しているため、_toDirの正規化は行わない
 	_nowDir.Normalize();
-	
-	// 内積計算
-	float			_dot = _nowDir.Dot(_toDir);
 
-	// 内積値の補正
-	_dot = std::clamp(_dot, -1.0f, 1.0f);
+	// 内積値の計算
+	float	_dot = owner.CalcDotValue(_nowDir, dir);
 
-	float			_angle = DirectX::XMConvertToDegrees(acos(_dot));
+	float	_angle = DirectX::XMConvertToDegrees(acos(_dot));
 
 	if (_angle < owner.m_rotThreshold)
 	{
@@ -784,7 +741,7 @@ void Enemy::MoveOtherPos::Turn(Enemy& owner,const Math::Vector3& dir)
 	}
 
 	// 外積計算
-	Math::Vector3	_cross = _toDir.Cross(_nowDir);
+	Math::Vector3	_cross = owner.CalcCrossValue(_nowDir, dir);
 
 	if (_cross.y >= 0.0f)
 	{
@@ -827,10 +784,13 @@ void Enemy::MoveOtherPos::CheckMoveFinish(Enemy& owner,const Math::Vector3& dist
 // ========== 追跡 ==========
 void Enemy::Chase::Enter(Enemy& owner)
 {
-	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-	if (_spPlayer)
+	// プレイヤー情報を取得し、経路を計算する
 	{
-		owner.SetGoal(_spPlayer->GetPos());
+		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
+		if (_spPlayer)
+		{
+			owner.SetGoal(_spPlayer->GetPos());
+		}
 	}
 
 	owner.m_isActFindPath = false;
@@ -874,36 +834,6 @@ void Enemy::Chase::Update(Enemy& owner)
 		owner.m_isActFindPath = true;
 	}
 
-	//// 経路を辿っている最中の場合は処理を継続し、
-	//// それ以外の場合は、プレイヤーの場所までの最短経路を算出する(次のループから算出された経路を辿る)
-	//if (owner.m_currentPathIndex < owner.m_path.size())
-	//{
-	//	// 現在のターゲットノード
-	//	Math::Vector3	_target = owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);
-	//	
-	//	// エネミーの現在位置とターゲットの位置の間を補間
-	//	Math::Vector3	_direction = _target - owner.m_pos;
-
-	//	// 移動速度よりもターゲットまでの距離が短い場合(移動してしまうとターゲットを通過してしまう場合)
-	//	if (_direction.LengthSquared() < owner.m_moveSpeed)
-	//	{
-	//		owner.m_pos = _target;				// 座標をターゲットの座標に更新
-	//		owner.m_currentPathIndex++;			// 次のノードへ
-	//	}
-	//	else
-	//	{
-	//		_direction.Normalize();
-
-	//		owner.RotateToDirection(_direction);
-
-	//		owner.m_pos += _direction * owner.m_moveSpeed;		// エネミーをターゲットの方向へ移動
-	//	}
-	//}
-	//else
-	//{
-	//	owner.SetGoal(_playerPos);
-	//}
-
 	if (owner.m_currentPathIndex < owner.m_path.size())
 	{
 		if (owner.m_isActFindPath)
@@ -933,34 +863,24 @@ void Enemy::Chase::Update(Enemy& owner)
 			owner.m_pos += _direction * owner.m_moveSpeed;		// エネミーをターゲットの方向へ移動
 		}
 	}
+	else
+	{
+		// 経路がない場合は、探索して経路を求める
+		owner.SetGoal(_playerPos);
+	}
 
 	// 攻撃可能かどうかを確認
 	if (ChackAttackAble(owner) == true)
 	{
-		if (owner.m_pos.y >= owner.m_attackPoint_highPos.y)
-		{
-			// 高所
-			owner.ChangeState(std::make_shared<Attack_HighPosition>());
-			return;
-		}
-		else if (owner.m_pos.y <= owner.m_attackPoint_LowPos.y)
-		{
-			// 低所
-			owner.ChangeState(std::make_shared<Attack_LowPosition>());
-			return;
-		}
-		else
-		{
-			// 中間
-			owner.ChangeState(std::make_shared<Attack_MidPosition>());
-			return;
-		}
+		// 低所
+		owner.ChangeState(std::make_shared<Attack_LowPosition>());
+		return;
 	}
 }
 
 void Enemy::Chase::Exit(Enemy& owner)
 {
-
+	
 }
 
 bool Enemy::Chase::ChackAttackAble(Enemy& owner)
@@ -1109,6 +1029,8 @@ void Enemy::SearchAround::Exit(Enemy& owner)
 
 void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 {
+	static const int m_Max_PouseCnt = 20;
+
 	// 現在の状態から判断
 	switch (owner.m_searchPhase)
 	{
@@ -1143,7 +1065,7 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 		owner.m_frameCnt++;		// カウンタ更新
 
 		// 一定フレーム経過後
-		if (owner.m_frameCnt >= 20)
+		if (owner.m_frameCnt >= m_Max_PouseCnt)
 		{
 			owner.m_searchPhase = SearchPhase::RotLeft;
 		}
@@ -1169,8 +1091,8 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 		{
 			owner.m_isNowRotFin = true;
 
-			owner.m_angle = owner.m_baseAngle - owner.m_maxDegAng;
-			owner.m_frameCnt = 0;
+			owner.m_angle		= owner.m_baseAngle - owner.m_maxDegAng;
+			owner.m_frameCnt	= owner.m_int_resetValue;
 			owner.m_searchPhase = SearchPhase::PauseLeft;
 		}
 		break;
@@ -1179,7 +1101,7 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 
 		owner.m_frameCnt++;
 
-		if (owner.m_frameCnt >= 20)
+		if (owner.m_frameCnt >= m_Max_PouseCnt)
 		{
 			owner.m_searchPhase = SearchPhase::RotRight;
 		}
@@ -1213,6 +1135,18 @@ void Enemy::SearchAround::FixNextPos(Enemy& owner)
 void Enemy::Attack_LowPosition::Enter(Enemy& owner)
 {
 	owner.ChangeAnimation("Attack_Low");
+
+	// ウェポン情報にアクセスし、表示するように設定
+	{
+		const std::shared_ptr<Weapon>	_spWeapon = owner.m_wpWeapon.lock();
+
+		if (_spWeapon)
+		{
+			_spWeapon->SetIsModelDraw(true);
+		}
+	}
+
+	owner.m_currentSprayAnimationCnt = owner.m_sprayAnimationFinishCnt;
 }
 
 void Enemy::Attack_LowPosition::Update(Enemy& owner)
@@ -1232,6 +1166,48 @@ void Enemy::Attack_LowPosition::Update(Enemy& owner)
 		return;
 	}
 
+	// カウンタを更新して必要に応じてエフェクト生成
+	owner.m_currentSprayAnimationCnt++;
+	if (owner.m_currentSprayAnimationCnt >= owner.m_sprayAnimationFinishCnt)
+	{
+		owner.m_currentSprayAnimationCnt = owner.m_int_resetValue;
+
+		Math::Matrix	_nozzleMat = Math::Matrix::Identity;
+
+		{
+			const std::shared_ptr<Weapon>	_spWeapon = owner.m_wpWeapon.lock();
+
+			if (_spWeapon)
+			{
+				_nozzleMat = _spWeapon->GetNozzleMat();
+			}
+		}
+
+		Math::Vector3	_posFromNozzleToMe = _nozzleMat.Translation();
+
+		if (_posFromNozzleToMe.y < 0.4f)
+		{
+			KdEffekseerManager::GetInstance().Play("Spray/spray_moveDownward.efk", _posFromNozzleToMe, 1.0f, 1.0f, false);
+		}
+	}
+
+	Math::Matrix	_nozzleMat = Math::Matrix::Identity;
+
+	{
+		const std::shared_ptr<Weapon>	_spWeapon = owner.m_wpWeapon.lock();
+
+		if (_spWeapon)
+		{
+			_spWeapon->Update();						// ダメな処理例(これはこの後修正します)
+														// 行列更新のために仕方なく
+			_nozzleMat = _spWeapon->GetNozzleMat();
+		}
+	}
+
+	Math::Vector3	_posFromNozzleToMe = _nozzleMat.Translation();
+
+	KdEffekseerManager::GetInstance().Play("Spray/spray_moveDownward.efk", _posFromNozzleToMe, 1.0f, 1.0f, false);
+
 	// 攻撃範囲エリアにいるかどうか
 	if (CheckAttackArea(owner) == false)
 	{
@@ -1243,22 +1219,29 @@ void Enemy::Attack_LowPosition::Update(Enemy& owner)
 
 void Enemy::Attack_LowPosition::Exit(Enemy& owner)
 {
+	// ウェポン情報にアクセスし、表示を解除するように設定
+	{
+		const std::shared_ptr<Weapon>	_spWeapon = owner.m_wpWeapon.lock();
+
+		if (_spWeapon)
+		{
+			_spWeapon->SetIsModelDraw(false);
+		}
+	}
 }
 
 bool Enemy::Attack_LowPosition::CheckAttackArea(Enemy& owner)
 {
 	Math::Vector3	_playerPos = Math::Vector3::Zero;
 
-	{
-		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-		
-		if (!_spPlayer)
-		{
-			return false;
-		}
+	const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
 
-		_playerPos = _spPlayer->GetPos();
+	if (!_spPlayer)
+	{
+		return false;
 	}
+
+	_playerPos = _spPlayer->GetPos();
 
 	Math::Vector3	_distance = owner.m_pos - _playerPos;
 
@@ -1268,93 +1251,13 @@ bool Enemy::Attack_LowPosition::CheckAttackArea(Enemy& owner)
 		return false;
 	}
 
-	return true;
-}
+	// プレイヤーライフ更新
+	static int _cnt = 30;
 
-void Enemy::Attack_MidPosition::Enter(Enemy& owner)
-{
-	owner.ChangeAnimation("Attack_Mid");
-}
-
-void Enemy::Attack_MidPosition::Update(Enemy& owner)
-{
-	if (CheckAttackArea(owner) == false)
+	_cnt--;
+	if (_cnt < 0)
 	{
-		owner.ChangeState(std::make_shared<Chase>());
-		return;
-	}
-}
-
-void Enemy::Attack_MidPosition::Exit(Enemy& owner)
-{
-}
-
-bool Enemy::Attack_MidPosition::CheckAttackArea(Enemy& owner)
-{
-	Math::Vector3	_playerPos = Math::Vector3::Zero;
-
-	{
-		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-
-		if (!_spPlayer)
-		{
-			return false;
-		}
-
-		_playerPos = _spPlayer->GetPos();
-	}
-
-	Math::Vector3	_distance = owner.m_pos - _playerPos;
-
-	// ２転換の距離を比較し、攻撃範囲外に行ってしまっている場合
-	if (_distance.Length() > 20.0f)		// 即値
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void Enemy::Attack_HighPosition::Enter(Enemy& owner)
-{
-	owner.ChangeAnimation("Attack_High");
-}
-
-void Enemy::Attack_HighPosition::Update(Enemy& owner)
-{
-	if (CheckAttackArea(owner) == false)
-	{
-		owner.ChangeState(std::make_shared<Chase>());
-		return;
-	}
-}
-
-void Enemy::Attack_HighPosition::Exit(Enemy& owner)
-{
-
-}
-
-bool Enemy::Attack_HighPosition::CheckAttackArea(Enemy& owner)
-{
-	Math::Vector3	_playerPos = Math::Vector3::Zero;
-
-	{
-		const std::shared_ptr<Player>	_spPlayer = owner.m_wpPlayer.lock();
-
-		if (!_spPlayer)
-		{
-			return false;
-		}
-
-		_playerPos = _spPlayer->GetPos();
-	}
-
-	Math::Vector3	_distance = owner.m_pos - _playerPos;
-
-	// ２転換の距離を比較し、攻撃範囲外に行ってしまっている場合
-	if (_distance.Length() > 30.0f)		// 即値
-	{
-		return false;
+		_spPlayer->SetAteFood(-1, 0, 0);
 	}
 
 	return true;

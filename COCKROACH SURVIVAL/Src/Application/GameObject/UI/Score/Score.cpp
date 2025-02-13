@@ -5,7 +5,6 @@
 void Score::Update()
 {
 	if (!m_spTex)return;
-	if (!m_isDraw)return;
 
 	// 表示限界がきている場合処理しない
 	if (m_isMaxValue)return;
@@ -27,22 +26,30 @@ void Score::Update()
 void Score::DrawSprite()
 {
 	if (!m_spTex)return;
-	if (!m_isDraw)return;
-
-	// 切り取り範囲の設定
-	Math::Rectangle _rec = { (long)m_startPos.x,(long)m_startPos.y,long(m_charaWidthSize),long(m_height) };
 
 	// 描画
-	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spTex, m_drawPos.x + (m_index * m_charaWidthSize), m_drawPos.y, _rec.width, _rec.height, &_rec, nullptr, { 0.5f,0.5f });
+	KdShaderManager::Instance().m_spriteShader.
+		DrawTex(m_spTex, static_cast<int>(m_drawPos.x + (m_index * m_charaWidthSize)), static_cast<int>(m_drawPos.y), m_rec.width, m_rec.height, &m_rec);
 }
 
 void Score::Init()
 {
-	UI::Init();
+	if (!m_spTex)
+	{
+		m_spTex = std::make_shared<KdTexture>();
+		m_spTex = KdAssets::Instance().m_textures.GetData(m_filePath);
+
+		// テクスチャの幅・高さ情報取得
+		m_width = static_cast<float>(m_spTex->GetWidth());
+		m_height = static_cast<float>(m_spTex->GetHeight());
+	}
 
 	m_startPos.x = 675.0f;
 
 	m_charaWidthSize = m_width / 10.0f;
+
+	// 切り取り範囲の設定
+	m_rec = { (long)m_startPos.x,(long)m_startPos.y,long(m_charaWidthSize),long(m_height) };
 }
 
 void Score::SetIndex(int index)
@@ -118,4 +125,7 @@ void Score::UpdateStartPosX(int index)
 		// 表示なし
 		m_startPos.x = m_width;
 	}
+
+	// 切り取り範囲の設定
+	m_rec = { (long)m_startPos.x,(long)m_startPos.y,long(m_charaWidthSize),long(m_height) };
 }

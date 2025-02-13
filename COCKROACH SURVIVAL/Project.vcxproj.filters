@@ -76,9 +76,6 @@
     <Filter Include="Src\Application\GameObject\Camera">
       <UniqueIdentifier>{781882e7-a4ba-44ae-b14e-75844a3802df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Camera\FPSCamera">
-      <UniqueIdentifier>{cab66d5f-b9d3-40bd-ae9d-57120eb6c79c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Camera\TPSCamera">
       <UniqueIdentifier>{c8cf7720-4d00-4c0b-a1cf-bc64280b295f}</UniqueIdentifier>
     </Filter>
@@ -145,15 +142,6 @@
     <Filter Include="Src\Application\GameObject\Stage\Food">
       <UniqueIdentifier>{14c942e6-14b6-4d09-94d7-95ad3821b193}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\UI\bar">
-      <UniqueIdentifier>{32a7732a-8e3e-41bf-b493-4908d7a494c8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\UI\bar\BarHp">
-      <UniqueIdentifier>{e73207b3-e678-4f72-9cf1-e9434b94f9ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\UI\bar\BarHungry">
-      <UniqueIdentifier>{2a004216-9852-4bd1-a8d1-00cbd4c490e3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\Scene\ResultScene">
       <UniqueIdentifier>{46287164-2946-4aff-8fe7-b1828bd0d9ee}</UniqueIdentifier>
     </Filter>
@@ -168,9 +156,6 @@
     </Filter>
     <Filter Include="Src\Application\GameObject\Character\Enemy">
       <UniqueIdentifier>{36ee473b-661b-402f-8666-9c18d849c3af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Screen">
-      <UniqueIdentifier>{0498a5c4-a02f-449a-a51c-75f753576a60}</UniqueIdentifier>
     </Filter>
     <Filter Include="Src\Application\GameObject\UI\ClickUI">
       <UniqueIdentifier>{602330d1-33af-4739-ac79-76ef09c22940}</UniqueIdentifier>
@@ -196,11 +181,32 @@
     <Filter Include="Src\Application\GameObject\UI\ResultScore">
       <UniqueIdentifier>{1477c1bf-b0c6-4291-945f-307e0f242608}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\UI\Rank">
-      <UniqueIdentifier>{6f81553f-3a66-4217-b15a-1353a76208c6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\UI\ClicktoTitle">
       <UniqueIdentifier>{f80b3334-3860-4806-9630-69d7687f3c71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Weapon">
+      <UniqueIdentifier>{28202d8f-3ae7-4bcb-81c6-7db272f1248d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Notice">
+      <UniqueIdentifier>{9e9740b7-3ad5-446c-a2fb-4c047de82641}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Bar">
+      <UniqueIdentifier>{32a7732a-8e3e-41bf-b493-4908d7a494c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Bar\BarHp">
+      <UniqueIdentifier>{e73207b3-e678-4f72-9cf1-e9434b94f9ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Bar\BarHungry">
+      <UniqueIdentifier>{2a004216-9852-4bd1-a8d1-00cbd4c490e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\EatTips">
+      <UniqueIdentifier>{011a320a-ddff-4c1d-86fc-098aeda49604}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Menu_Screen">
+      <UniqueIdentifier>{0498a5c4-a02f-449a-a51c-75f753576a60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\Bar\FoodBarHP">
+      <UniqueIdentifier>{f4d162ee-535c-4348-b75b-208708ec4f92}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -375,9 +381,6 @@
     <ClInclude Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.h">
       <Filter>Src\Application\GameObject\Camera\TPSCamera</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Camera\FPSCamera\FPSCamera.h">
-      <Filter>Src\Application\GameObject\Camera\FPSCamera</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Character\Player\Player.h">
       <Filter>Src\Application\GameObject\Character\Player</Filter>
     </ClInclude>
@@ -541,10 +544,10 @@
       <Filter>Src\Application\GameObject\UI</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.h">
-      <Filter>Src\Application\GameObject\UI\bar\BarHp</Filter>
+      <Filter>Src\Application\GameObject\UI\Bar\BarHp</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.h">
-      <Filter>Src\Application\GameObject\UI\bar\BarHungry</Filter>
+      <Filter>Src\Application\GameObject\UI\Bar\BarHungry</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\Scene\ResultScene\ResultScene.h">
       <Filter>Src\Application\Scene\ResultScene</Filter>
@@ -556,7 +559,7 @@
       <Filter>Src\Application\GameObject\UI\SceneChange</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.h">
-      <Filter>Src\Application\GameObject\UI\Menu_Icon\Menu_Screen</Filter>
+      <Filter>Src\Application\GameObject\UI\Menu_Screen</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.h">
       <Filter>Src\Application\GameObject\UI\Menu_Icon</Filter>
@@ -588,11 +591,20 @@
     <ClInclude Include="Src\Application\GameObject\UI\ResultScore\ResultScore.h">
       <Filter>Src\Application\GameObject\UI\ResultScore</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\UI\Rank\Rank.h">
-      <Filter>Src\Application\GameObject\UI\Rank</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.h">
       <Filter>Src\Application\GameObject\UI\ClicktoTitle</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Weapon\Weapon.h">
+      <Filter>Src\Application\GameObject\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\Notice\Notice.h">
+      <Filter>Src\Application\GameObject\UI\Notice</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\EatTips\EatTips.h">
+      <Filter>Src\Application\GameObject\UI\EatTips</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\Bar\FoodBarHP\FoodBarHP.h">
+      <Filter>Src\Application\GameObject\UI\Bar\FoodBarHP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -740,9 +752,6 @@
     <ClCompile Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.cpp">
       <Filter>Src\Application\GameObject\Camera\TPSCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Camera\FPSCamera\FPSCamera.cpp">
-      <Filter>Src\Application\GameObject\Camera\FPSCamera</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Character\Player\Player.cpp">
       <Filter>Src\Application\GameObject\Character\Player</Filter>
     </ClCompile>
@@ -771,10 +780,10 @@
       <Filter>Src\Application\GameObject\UI</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.cpp">
-      <Filter>Src\Application\GameObject\UI\bar\BarHp</Filter>
+      <Filter>Src\Application\GameObject\UI\Bar\BarHp</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.cpp">
-      <Filter>Src\Application\GameObject\UI\bar\BarHungry</Filter>
+      <Filter>Src\Application\GameObject\UI\Bar\BarHungry</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\Scene\ResultScene\ResultScene.cpp">
       <Filter>Src\Application\Scene\ResultScene</Filter>
@@ -786,7 +795,7 @@
       <Filter>Src\Application\GameObject\UI\SceneChange</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.cpp">
-      <Filter>Src\Application\GameObject\UI\Menu_Icon\Menu_Screen</Filter>
+      <Filter>Src\Application\GameObject\UI\Menu_Screen</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.cpp">
       <Filter>Src\Application\GameObject\UI\Menu_Icon</Filter>
@@ -818,11 +827,20 @@
     <ClCompile Include="Src\Application\GameObject\UI\ResultScore\ResultScore.cpp">
       <Filter>Src\Application\GameObject\UI\ResultScore</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\UI\Rank\Rank.cpp">
-      <Filter>Src\Application\GameObject\UI\Rank</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.cpp">
       <Filter>Src\Application\GameObject\UI\ClicktoTitle</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Weapon\Weapon.cpp">
+      <Filter>Src\Application\GameObject\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\Notice\Notice.cpp">
+      <Filter>Src\Application\GameObject\UI\Notice</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\EatTips\EatTips.cpp">
+      <Filter>Src\Application\GameObject\UI\EatTips</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\Bar\FoodBarHP\FoodBarHP.cpp">
+      <Filter>Src\Application\GameObject\UI\Bar\FoodBarHP</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

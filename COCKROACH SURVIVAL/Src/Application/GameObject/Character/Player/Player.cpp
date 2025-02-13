@@ -3,12 +3,13 @@
 #include"../../../main.h"
 
 #include"../../../GameObject/Camera/TPSCamera/TPSCamera.h"
-//#include"../../../GameObject/Camera/FPSCamera/FPSCamera.h"
 
 #include"../../../GameObject/Stage/ObjectData/ObjectData.h"
-//#include"../../../GameObject/UI/Clock/TimeLimit/TimeLimit.h"
+#include"../../../GameObject/UI/Notice/Notice.h"
+#include"../../../GameObject/UI/EatTips/EatTips.h"
 
 Player::Player() :
+	m_pos(m_startPlayerPos),
 	m_actionType(ActionType::Idle),
 	m_nowMovingPos(Position::Ground)
 {
@@ -18,17 +19,12 @@ void Player::Update()
 {
 	if (m_isDead)return;
 
-	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+	// ========== デバッグ(プレイヤーキル) ==========
+	if (GetAsyncKeyState('P') & 0x8000)
 	{
 		m_isDead = true;
 	}
-	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-	{
-		m_score += 10;
-	}
-
-	// SceneManagerを経由して、現在のシーンのメニューフラグの状態を確認する
-	if (SceneManager::Instance().GetIsMenu())return;
+	// ==============================================
 
 	// フラグ制御
 	if (m_isJump)
@@ -40,26 +36,39 @@ void Player::Update()
 		}
 	}
 
-	// 満腹度の制御
-	if (m_restNum <= 0.0f)		// 空腹状態
+	const std::shared_ptr<Notice>	_spNotice = m_wpNotice.lock();
+	if (!_spNotice)
 	{
-		m_restNum = 0.0f;		// 負の値にならないように制御
-
-		m_isHungry = true;		// 空腹フラグを起動
+		m_isRestDecreaseStart = true;
 	}
 	else
 	{
-		if (m_actionType == ActionType::Idle)
+		m_isRestDecreaseStart = false;
+	}
+
+	if (m_isRestDecreaseStart)
+	{
+		// 満腹度の制御
+		if (m_restNum <= 0.0f)		// 空腹状態
 		{
-			m_restNum -= 0.00135f;		// 満腹度減少
+			m_restNum = 0.0f;		// 負の値にならないように制御
+
+			m_isHungry = true;		// 空腹フラグを起動
 		}
 		else
 		{
-			m_restNum -= 0.00027f;
-		}
+			if (m_actionType == ActionType::Idle)
+			{
+				m_restNum -= m_notActionDecreaseRestValue;		// 満腹度減少
+			}
+			else
+			{
+				m_restNum -= m_actionDecreaseRestValue;
+			}
 
-		// 空腹フラグが起動している状態で、空腹度が少しでもある状態なら空腹フラグを戻す
-		m_isHungry = false;
+			// 空腹フラグが起動している状態で、空腹度が少しでもある状態なら空腹フラグを戻す
+			m_isHungry = false;
+		}
 	}
 
 	// 空腹状態の処理
@@ -69,12 +78,12 @@ void Player::Update()
 		if (m_actionType == ActionType::Idle)
 		{
 			// 待機状態なら
-			m_life -= 0.001f;
+			m_life -= m_notActionDecreaseLifeValue;
 		}
 		else
 		{
 			// 何らかのアクション状態
-			m_life -= 0.0025f;
+			m_life -= m_actionDecreaseLifeValue;
 		}
 	}
 
@@ -91,49 +100,43 @@ void Player::Update()
 	// カメラのY軸回転行列を取得
 	Math::Matrix	_cameraMat;		// 進行方向決定用回転行列
 	const std::shared_ptr<CameraBase>	_spCamera = m_wpCamera.lock();
-	//if (!m_wpCamera.expired())
-	//{
-	//	// カメラが有効の時、Y軸方向の回転行列を取得する
-	//	//_cameraMat = m_wpCamera.lock()->GetRotationYMatrix();
 
-	//	
-	//}
-
-	Math::Matrix	_charaRotationMatrix;			// キャラモデル回転用回転行列
 	if (_spCamera)
 	{
 		// 必要なカメラの回転角度を取得する
+		// カメラの向きで進行方向が決定する
 		_cameraMat = _spCamera->GetRotationCameraMatrix(m_nowMovingPos);
-
-		_charaRotationMatrix = _spCamera->GetRotationYMatrix();
 	}
 
 
 	// 移動処理
 	Math::Vector3	_moveVec;
 
-	// 移動処理
+	if (m_isRestDecreaseStart)
 	{
+		// 移動処理
+		{
 
-		if (GetAsyncKeyState('W') & 0x8000)
-		{
-			_moveVec += Math::Vector3::TransformNormal({ 0.0f,0.0f,1.0f }, _cameraMat);
-			m_actionType = ActionType::Run;
-		}
-		if (GetAsyncKeyState('A') & 0x8000)
-		{
-			_moveVec += Math::Vector3::TransformNormal({ -0.5f,0.0f,0.0f }, _cameraMat);
-			m_actionType = ActionType::Run;
-		}
-		if (GetAsyncKeyState('D') & 0x8000)
-		{
-			_moveVec += Math::Vector3::TransformNormal({ 0.5f,0.0f,0.0f }, _cameraMat);
-			m_actionType = ActionType::Run;
-		}
-		if (GetAsyncKeyState('S') & 0x8000)
-		{
-			_moveVec += Math::Vector3::TransformNormal({ 0.0f,0.0f,-0.3f }, _cameraMat);
-			m_actionType = ActionType::Run;
+			if (GetAsyncKeyState('W') & 0x8000)
+			{
+				_moveVec += Math::Vector3::TransformNormal({ 0.0f,0.0f,1.0f }, _cameraMat);
+				m_actionType = ActionType::Run;
+			}
+			if (GetAsyncKeyState('A') & 0x8000)
+			{
+				_moveVec += Math::Vector3::TransformNormal({ -0.5f,0.0f,0.0f }, _cameraMat);
+				m_actionType = ActionType::Run;
+			}
+			if (GetAsyncKeyState('D') & 0x8000)
+			{
+				_moveVec += Math::Vector3::TransformNormal({ 0.5f,0.0f,0.0f }, _cameraMat);
+				m_actionType = ActionType::Run;
+			}
+			if (GetAsyncKeyState('S') & 0x8000)
+			{
+				_moveVec += Math::Vector3::TransformNormal({ 0.0f,0.0f,-0.3f }, _cameraMat);
+				m_actionType = ActionType::Run;
+			}
 		}
 	}
 
@@ -171,10 +174,10 @@ void Player::Update()
 
 	// 重力関係
 	m_gravityDir.Normalize();			// 念のため重力の方向ベクトルを正規化
-	//m_gravityDir *= m_gravity;			// 重力方向の重力の強さを更新
 
 	m_pos += (m_gravityDir * m_gravity);
 	m_gravity += m_gravityPow;			// 重力の強さを更新
+
 	// 当たり判定の処理が実行できない場所に行ってしまうのを防止
 	// スフィアの半径サイズ以上の強さにならないように補正
 	if (m_gravity > m_adJustHeight)
@@ -183,36 +186,29 @@ void Player::Update()
 		m_gravity = m_adJustHeight - 0.05f;
 	}
 
-	Math::Matrix	_scaleMat = Math::Matrix::CreateScale(m_scale);
-	//m_modelRotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_modelRot));
+	Math::Matrix	_scaleMat	= Math::Matrix::CreateScale(m_scale);
+
+	Math::Matrix	_rotMat		= Math::Matrix::Identity;
+
+	// タイトルかどうか
+	if (m_isTitle)
 	{
-		// 回転行列作成
-		Math::Matrix	_rotXMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_modelRotate.x));
-		Math::Matrix	_rotYMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_modelRotate.y));
-		Math::Matrix	_rotZMat = Math::Matrix::CreateRotationZ(DirectX::XMConvertToRadians(m_modelRotate.z));
-
-		m_modelRotMat = _rotXMat * _rotYMat * _rotZMat;
-
-		//Application::Instance().m_log.AddLog("%0.2f\n", m_modelRotate.y);
+		_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(180.0f)) * _cameraMat;
 	}
-	//Math::Matrix	_rotMat = _cameraMat;
+	else
+	{
+		_rotMat = _cameraMat;
+	}
 
-	Math::Matrix	_rotMat = m_modelRotMat * _charaRotationMatrix;
-	//m_rotMat = _cameraMat;
-	Math::Matrix	_transMat = Math::Matrix::CreateTranslation(m_pos);
-	m_mWorld = _scaleMat * _rotMat * _transMat;
-	//m_mWorld = _scaleMat * _rotMat * _transMat;
-	//m_mWorld = _scaleMat * (/*m_modelRotMat * */m_rotMat) * _transMat;
+	// 合成行列作成
+	Math::Matrix	_transMat	= Math::Matrix::CreateTranslation(m_pos);
+	m_mWorld					= _scaleMat * _rotMat * _transMat;
 
 }
 
 void Player::PostUpdate()
 {
-	if (m_isMenu)return;
-
 	if (!m_spModel)return;
-
-	if (SceneManager::Instance().GetIsMenu())return;
 
 	// 当たり判定
 	HitJudge();
@@ -224,8 +220,6 @@ void Player::PostUpdate()
 
 void Player::GenerateDepthMapFromLight()
 {
-	if (m_isMenu)return;
-
 	if (!m_spModel) return;
 
 	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
@@ -233,8 +227,6 @@ void Player::GenerateDepthMapFromLight()
 
 void Player::DrawLit()
 {
-	if (m_isMenu)return;
-
 	if (!m_spModel) return;
 
 	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
@@ -246,8 +238,6 @@ void Player::Init()
 	{
 		// モデルデータのロード
 		m_spModel = std::make_shared<KdModelWork>();
-		//*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Player/Player_1.gltf");
-		//m_spModel->SetModelData("Asset/Models/Character/Player/Player_1.gltf");
 		*m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Character/Player/Player_mini-animation.gltf");
 
 		// コライダー設定
@@ -264,12 +254,16 @@ void Player::Init()
 	m_pos.y += m_adJustHeight;
 
 	m_direction = m_mWorld.Forward();
+}
 
-	// ========================================
-	// デバッグ用
-	// ========================================
-	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
-	//=========================================
+void Player::SetNotice(const std::shared_ptr<Notice>& spNotice)
+{
+	m_wpNotice			= spNotice;
+}
+
+void Player::SetTips(const std::shared_ptr<EatTips>& spTips)
+{
+	m_wpTips = spTips;
 }
 
 void Player::SetAteFood(float life, float restNum, int score)
@@ -281,13 +275,13 @@ void Player::SetAteFood(float life, float restNum, int score)
 	// 各種変数の値を制御
 	// ここはプレイヤーのパラメータをセットする関数を作成した際に、
 	// 引数に変数の最大値をセットして、初期化の段階で各種変数に最大数をセットするように書き換える
-	if (m_life > 100.0f)
+	if (m_life > m_MaxHP_RestNumValue)
 	{
-		m_life = 100.0f;
+		m_life = m_MaxHP_RestNumValue;
 	}
-	if (m_restNum > 100.0f)
+	if (m_restNum > m_MaxHP_RestNumValue)
 	{
-		m_restNum = 100.0f;
+		m_restNum = m_MaxHP_RestNumValue;
 	}
 }
 
@@ -306,8 +300,6 @@ void Player::AnimationUpdate()
 		break;
 	case ActionType::Jump:
 		break;
-	case ActionType::Fly:
-		break;
 	default:
 		break;
 	}
@@ -324,23 +316,14 @@ const Math::Vector3 Player::AdJustDirection(const Math::Vector3& dir, float angl
 
 	// 下向きベクトル
 	Math::Vector3 downVec = Math::Vector3::Down;
-	//Math::Vector3	downVec = m_gravityDir;
-
-	//// 判定用となる基準ベクトル(重力方向)
-	//Math::Vector3	_nowGravityDir = m_gravityDir;
-	//_nowGravityDir.Normalize();
 
 	Math::Vector3 adjustedDirection = _normalizedDirection * cos(angleInRadians) + downVec * sin(angleInRadians);
-	//Math::Vector3 adjustedDirection = _normalizedDirection * cos(angleInRadians) + _nowGravityDir * sin(angleInRadians);
 	adjustedDirection.Normalize();
 
-	// 進行方向と下向きのベクトルを補間して、調整した方向ベクトルを取得	
-	//Math::Matrix rotationMat = Math::Matrix::CreateFromAxisAngle(downVec, angleInRadians);	// 任意のベクトルを中心とした回転を表す行列を作成
-	//Math::Vector3 adjustedDirection = Math::Vector3::TransformNormal(dir, rotationMat);		// 特定の行列を使用してベクトルを変換する
 	return adjustedDirection;
 }
 
-void Player::ChangeMovePosition(int num)
+void Player::ChangeMovePosition(UINT num)
 {
 	// 呼び出された際に引数と現在の移動状態フラグが同じ場合は
 	// 同じ処理を行う必要がないのでリターン
@@ -350,18 +333,6 @@ void Player::ChangeMovePosition(int num)
 	m_isJump	= false;		// ジャンプしていない
 	m_isCeiling = false;
 
-	/*
-	張り付きフラグは、壁とレイが当たった時にtrueになる。
-	あたっていない場合はfalseのまま。
-
-	ジャンプフラグは空中にいる間のみfalseでそれ以外はtrueになる。
-	*/
-
-	// モデル回転用変数(実際は内積を使用して回転角度を算出し、外積を使用して回転させる方がコードもきれいだし、わかりやすい)
-	Math::Vector3	_modelRotate = { 0.0f,0.0f,0.0f };		// 通常の状態
-	// この関数が実行されると最初にこの値が入る。
-	// この後の条件分岐で必要に応じて値を操作する。
-
 	// 移動状態フラグ切替
 	switch (num)
 	{
@@ -369,10 +340,7 @@ void Player::ChangeMovePosition(int num)
 		// オブジェクトの上移動状態
 		// 下から上方向への方向ベクトル
 		m_nowMovingPos = Position::Ground;
-		//m_modelRot = 180.0f;
-		//m_modelRot = 0.0f;
 		m_gravityDir = Math::Vector3::Down;
-		//m_touchWall = false;
 
 		break;
 
@@ -383,15 +351,12 @@ void Player::ChangeMovePosition(int num)
 		m_gravityDir = Math::Vector3::Up;
 		m_touchWall = true;
 		m_isCeiling = true;
-
-		_modelRotate = { 0.0f,180.0f,0.0f };
 		break;
 
 	case 2:
 		// 側面右
 		m_nowMovingPos = Position::Wall_Left;
 		m_gravityDir = Math::Vector3::Left;		// 右から左のベクトル
-		//m_gravityDir = Math::Vector3::Right;		// 右から左のベクトル
 		m_touchWall = true;
 
 		break;
@@ -400,7 +365,6 @@ void Player::ChangeMovePosition(int num)
 		// 側面左
 		m_nowMovingPos = Position::Wall_Right;
 		m_gravityDir = Math::Vector3::Right;	// 左から右のベクトル
-		//m_gravityDir = Math::Vector3::Left;	// 左から右のベクトル
 		m_touchWall = true;
 
 		break;
@@ -409,7 +373,6 @@ void Player::ChangeMovePosition(int num)
 		// 側面手前
 		m_nowMovingPos = Position::Wall_Backward;
 		m_gravityDir = Math::Vector3::Backward;
-		//m_gravityDir = Math::Vector3::Forward;
 		m_touchWall = true;
 
 		break;
@@ -418,7 +381,6 @@ void Player::ChangeMovePosition(int num)
 		// 側面奥
 		m_nowMovingPos = Position::Wall_Forward;
 		m_gravityDir = Math::Vector3::Forward;
-		//m_gravityDir = Math::Vector3::Backward;
 		m_touchWall = true;
 
 		break;
@@ -427,9 +389,7 @@ void Player::ChangeMovePosition(int num)
 		// 飛行状態
 		// 上記のどれにも該当しない
 		m_nowMovingPos = Position::Flying;
-		//m_modelRot = 180.0f;
 		m_gravityDir = Math::Vector3::Down;
-		//m_touchWall = false;
 		m_isJump = true;
 
 		break;
@@ -441,14 +401,6 @@ void Player::ChangeMovePosition(int num)
 	{
 		_spCamera->SetMovingPos(m_nowMovingPos);
 	}
-
-	if (m_isTitle)
-	{
-		return;
-	}
-
-	// 最終的な回転角度をセットする
-	SetModelRotate(_modelRotate);
 }
 
 // 引数で持ってきた法線は回転を考慮していない、モデルデータからとってきた法線情報なので、
@@ -460,8 +412,6 @@ void Player::CheckMovePosition(const Math::Vector3& normal, float rotY)
 	{
 		rotY -= 180.0f;
 	}
-
-	int num = 0;		// 判定の結果を格納するための変数
 
 	// オブジェクトのY軸の回転角度
 	float	_objectRotationY = DirectX::XMConvertToRadians(rotY);
@@ -483,7 +433,8 @@ void Player::CheckMovePosition(const Math::Vector3& normal, float rotY)
 	// 法線ベクトルに一番近い基準ベクトルがどれかを求める
 	for (auto& dir : m_vectorDir)
 	{
-		_dotProduct = _tmpNormal.Dot(dir);	// 内積値を算出
+		// 内積値を算出
+		_dotProduct = CalcDotValue(_tmpNormal, dir);
 
 		// さっき求めた内積値が、それまでに算出された内積値の最高値よりも大きい場合
 		if (_dotProduct > _resultDot)
@@ -533,32 +484,9 @@ void Player::NormalCheck()
 	// =============================
 	KdCollider::RayInfo _normalCheckRay;
 	_normalCheckRay.m_pos = m_pos;
-	//_normalCheckRay.m_dir = AdJustDirection(m_direction, 0.0f);
-	//_normalCheckRay.m_dir = AdJustDirection(m_direction, 15.0f);
-	//_normalCheckRay.m_dir = AdJustDirection(m_direction, 45.0f);
-	//_normalCheckRay.m_dir = GetAdJustedRayDirection(m_direction, m_gravityDir, 2.5f);		// いい感じ
-	//_normalCheckRay.m_dir = GetAdJustedRayDirection(m_direction, m_gravityDir, 1.0f);
 	_normalCheckRay.m_dir = GetAdJustedRayDirection(m_direction, m_gravityDir, 1.0f);
-	//_normalCheckRay.m_dir = CalculateDownwardRayDirection(m_gravityDir, m_direction, 45.0f);
-	//_normalCheckRay.m_range = 0.2825f;
-
 	_normalCheckRay.m_range = 1.0f;
-	//_normalCheckRay.m_range = 0.35f;			// 敢えて長めのレイを飛ばす
-
-	//_normalCheckRay.m_range = 0.285f;			// おおよそ0.2807f位が地面に接する長さだが、念のため少しだけ長く宣言しておく
-	//_normalCheckRay.m_range=0.3f;
 	_normalCheckRay.m_type = KdCollider::Type::TypeGround;
-
-	// =============================
-	// デバッグ用
-	// =============================
-	/*m_pDebugWire->AddDebugLine(
-		_normalCheckRay.m_pos,
-		_normalCheckRay.m_dir,
-		_normalCheckRay.m_range,
-		kRedColor
-	);*/
-	// =============================
 
 	m_wpObject.reset();
 
@@ -624,25 +552,10 @@ void Player::GroundCheck()
 	_gravityDir.Normalize();
 
 	// レイ判定に使用するレイの情報を設定
-	 //Math::Vector3::Down方向にレイを飛ばす場合(3D空間上で真下にだけレイを飛ばす場合のレイ)
-	_rayInfo.m_pos = m_pos;							// レイの発射座標 = プレイヤー座標
-
-	_rayInfo.m_dir = _gravityDir;									// レイを飛ばす方向は重力方向
-	_rayInfo.m_range = m_adJustHeight + 0.05f;		// レイの長さはキャラクターのスフィアの半径よりもやや長いレイを飛ばす
-	//_rayInfo.m_range = m_gravity + (m_enableStepHeight * 4.0f);		// 重力の強さと自然に飛び越えられる高さ
-	_rayInfo.m_type = KdCollider::TypeGround;						// 当たり判定を行うタイプ
-
-	// ==================================
-	// デバッグ用
-	// ==================================
-	/*m_pDebugWire->AddDebugLine
-	(
-		_rayInfo.m_pos,
-		_rayInfo.m_dir,
-		_rayInfo.m_range,
-		kGreenColor
-	);*/
-	// ==================================
+	_rayInfo.m_pos		= m_pos;						// レイの発射座標 = プレイヤー座標
+	_rayInfo.m_dir		= _gravityDir;					// レイを飛ばす方向は重力方向
+	_rayInfo.m_range	= m_adJustHeight + 0.05f;		// レイの長さはキャラクターのスフィアの半径よりもやや長いレイを飛ばす
+	_rayInfo.m_type		= KdCollider::TypeGround;		// 当たり判定を行うタイプ
 
 	std::list<KdCollider::CollisionResult>	_retRayList;		// レイ判定時に当たったオブジェクトを格納するためのリスト
 
@@ -652,8 +565,6 @@ void Player::GroundCheck()
 		_obj->Intersects(_rayInfo, &_retRayList);
 	}
 
-	//bool			_isHit = false;					// レイに当たったかどうか
-	//float			_maxOverLap = 0.0f;						// レイに当たった場所からレイの端っこまでの余分な長さ(この値が大きいほど近くで当たっていることになる)
 	bool			_isHit		= false;
 	float			_maxOverLap = 0.0f;
 	Math::Vector3	_groundPos	= {};						// 地面の場所(押し返す座標)を格納するための変数
@@ -692,14 +603,6 @@ void Player::GroundCheck()
 	else // レイにあたっていない
 	{
 		ChangeMovePosition(6);
-		// この設計だと、レイが当たっていなければ問答無用で重力方向を変更されてしまう
-
-		// 未来座標を使用して未来でも当たり判定が実行されないのか検証
-		// 進行方向のベクトルがある場合に限り実行されるものとする
-		//if (!FutureGroundCheck())
-		//{
-		//	ChangeMovePosition(6);			// 未来座標で判定してもオブジェクトにヒットしていなければ、状態を切り替える
-		//}
 	}
 }
 
@@ -798,7 +701,6 @@ void Player::HitSphereCheck()
 	// スフィア判定
 	// =============================
 	KdCollider::SphereInfo	_sphere;						// スフィア情報
-	//_sphere.m_sphere.Center = m_pos;						// スフィアの中心座標
 	
 	if (!m_isCeiling)
 	{
@@ -809,20 +711,8 @@ void Player::HitSphereCheck()
 		_sphere.m_sphere.Center = m_pos - Math::Vector3(0.0f, 0.1f, 0.0f);
 	}
 
-	//_sphere.m_sphere.Center = m_pos + Math::Vector3{ 0.0f,0.005f,0.0f };						// スフィアの中心座標
 	_sphere.m_sphere.Radius = m_adJustHeight;				// スフィアの半径
 	_sphere.m_type = KdCollider::Type::TypeGround;
-
-	// ==================================
-	// デバッグ用
-	// ==================================
-	m_pDebugWire->AddDebugSphere
-	(
-		_sphere.m_sphere.Center,
-		_sphere.m_sphere.Radius,
-		kBlackColor
-	);
-	// ==================================
 
 	std::list<KdCollider::CollisionResult>	_retSphereList;	// 当たり判定の結果を保存していくリスト
 
@@ -860,11 +750,13 @@ void Player::HitSphereCheck()
 
 void Player::EatFoodSphereCheck()
 {
+	std::shared_ptr<EatTips>	_spTips = m_wpTips.lock();
+
 	// 食べる処理用の球判定
 	KdCollider::SphereInfo	_eatSphere;
-	_eatSphere.m_sphere.Center = m_pos;
-	_eatSphere.m_sphere.Radius = 0.3f;
-	_eatSphere.m_type = KdCollider::TypeGround;
+	_eatSphere.m_sphere.Center	= m_pos;
+	_eatSphere.m_sphere.Radius	= m_canEatDistance;
+	_eatSphere.m_type			= KdCollider::TypeGround;
 
 	std::list<KdCollider::CollisionResult>	_retEatSphereList;
 
@@ -872,12 +764,23 @@ void Player::EatFoodSphereCheck()
 	{
 		if (_obj->Intersects(_eatSphere, nullptr))
 		{
-			if (_obj->GetStageObjeType() == StageObjectType::Food)
+			if (_obj->GetStageObjeType() == StageObjectType::Feed)
 			{
-				// ここいつか変更したい
+				if (_spTips)
+				{
+					_spTips->SetIsDraw(true);
+				}
+
 				if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 				{
-					_obj->SetLife(50);
+					_obj->SetLife(m_decreaceFoodLife);
+				}
+			}
+			else
+			{
+				if (_spTips)
+				{
+					_spTips->SetIsDraw(false);
 				}
 			}
 		}

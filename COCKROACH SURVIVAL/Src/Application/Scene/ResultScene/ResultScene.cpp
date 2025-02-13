@@ -20,7 +20,7 @@ void ResultScene::Event()
 			_spChange->SetFilePath("Asset/Textures/GameObject/SceneChange/BlackScreen.png");
 			_spChange->Init();
 			_spChange->SetDrawPos({ 0.0f,0.0f });
-			m_UIList.push_back(_spChange);
+			m_objList.push_back(_spChange);
 
 			SceneManager::Instance().SetScore(0);
 			return;
@@ -37,16 +37,11 @@ void ResultScene::Init()
 
 		for (const auto& ui : _uis)
 		{
-			if (ui.m_useScene != "result")
+			if (ui.m_uiType == "ClicktoTitle")
 			{
 				continue;
 			}
-			else if (ui.m_uiType == "ClicktoTitle")
-			{
-				continue;
-			}
-
-			if (ui.m_uiType == "Score_String")
+			else if (ui.m_uiType == "Score_String")
 			{
 				// スコアの桁数分、スコアの画像を用意する
 				for (int cnt = 0; cnt < 5; cnt += 1)
@@ -63,7 +58,7 @@ void ResultScene::Init()
 						_spScore->MakeRankInstanceLicenseChangeToTrue();
 					}
 
-					m_UIList.push_back(_spScore);
+					m_objList.push_back(_spScore);
 				}
 			}
 			else
@@ -72,7 +67,7 @@ void ResultScene::Init()
 				_spUI->SetFilePath(ui.m_filePath);
 				_spUI->Init();
 				_spUI->SetDrawPos({ ui.m_pos.x,ui.m_pos.y });
-				m_UIList.push_back(_spUI);
+				m_objList.push_back(_spUI);
 			}
 		}
 

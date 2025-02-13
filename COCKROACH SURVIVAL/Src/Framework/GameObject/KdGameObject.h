@@ -21,7 +21,7 @@ public:
 		None,
 		Map,		// ステージマップ
 		Furniture,	// 家具
-		Food,		// 餌
+		Feed,		// 餌
 		Max
 	};
 
@@ -88,11 +88,21 @@ public:
 
 	const UINT GetCharaType()const		{ return m_charaType; }
 
-	virtual void SetLife(const int _life) {}
+	virtual void SetLife(const int) {}
 
-	virtual void SetRotationY(float rotationY);
+	virtual void SetRotationY(float);
 
 	const float GetRotationY()const { return m_rotationY; }
+
+	// 内積を計算して結果を返す
+	// 計算に使用する２つのベクトルを引数としてセットする
+	// 使用するベクトルは必ず正規化したベクトルを使用すること
+	const float CalcDotValue(const Math::Vector3& currentVec, const Math::Vector3& toVec)const;
+
+	// 外積計算
+	// 計算に使用する２つのベクトルを引数としてセットする
+	// 使用するベクトルは必ず正規化したベクトルを使用すること
+	Math::Vector3 CalcCrossValue(const Math::Vector3& currentvec, const Math::Vector3& toVec)const;
 
 protected:
 

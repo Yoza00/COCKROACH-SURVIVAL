@@ -120,3 +120,38 @@ bool ObjectManager::LoadUIRankFromJson(const std::string& filePath, const std::s
 
 	return true;
 }
+
+bool ObjectManager::LoadUIDataFromJson(const std::string& filePath, const std::string& useScene, const std::string& useUIName)
+{
+	nlohmann::json	_jsonData;
+
+	std::ifstream	_file(filePath);
+
+	// オープンチェック
+	if (!_file.is_open())return false;		// 開けなかったらfalseを返す
+
+	_file >> _jsonData;
+	_file.close();
+
+	for (const auto& obj : _jsonData["UI"])
+	{
+		// シーンが異なれば読み込まない
+		if (obj["use"]	!= useScene)continue;
+		if (obj["name"] != useUIName)continue;
+
+		Object	_object;
+		_object.m_useScene	= obj["use"];
+		_object.m_uiType	= obj["type"];
+		_object.m_name		= obj["name"];
+		_object.m_filePath	= obj["filePath"];
+		_object.m_pos.x		= obj["position"]["x"];
+		_object.m_pos.y		= obj["position"]["y"];
+		m_objects.push_back(_object);
+	}
+
+	// 念のための制御
+	// ループを抜けた後でも、配列内が空の場合はfalseを返すようにしておく
+	if (m_objects.empty())return false;
+
+	return true;
+}

@@ -1,5 +1,4 @@
 ﻿#include "ResultScore.h"
-#include"../Rank/Rank.h"
 #include"../../Stage/ObjectManager/ObjectManager.h"
 #include"../../../Scene/SceneManager.h"
 
@@ -34,11 +33,9 @@ void ResultScore::DrawSprite()
 {
 	if (!m_spTex)return;
 
-	// 切り取り範囲の設定
-	Math::Rectangle _rec = { (long)m_startPos.x,(long)m_startPos.y,long(m_charaWidthSize),long(m_height) };
-
 	// 描画
-	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spTex, m_drawPos.x - (m_index * m_charaWidthSize), m_drawPos.y, _rec.width, _rec.height, &_rec, nullptr, { 0.5f,0.5f });
+	KdShaderManager::Instance().m_spriteShader.
+		DrawTex(m_spTex, static_cast<int>(m_drawPos.x - (m_index * m_charaWidthSize)), static_cast<int>(m_drawPos.y), m_rec.width, m_rec.height, &m_rec);
 }
 
 void ResultScore::Init()
@@ -98,6 +95,9 @@ void ResultScore::ChangeRectanglePosX(int index)
 	}
 
 	m_isUpdateRectangleFinished = true;
+
+	// 切り取り範囲の設定
+	m_rec = { (long)m_startPos.x,(long)m_startPos.y,long(m_charaWidthSize),long(m_height) };
 }
 
 void ResultScore::MakeRankInstance()
@@ -106,11 +106,11 @@ void ResultScore::MakeRankInstance()
 	{
 		for (const auto& obj : ObjectManager::Instance().GetObjects())
 		{
-			const std::shared_ptr<Rank>	_spRank = std::make_shared<Rank>();
+			const std::shared_ptr<UI>	_spRank = std::make_shared<UI>();
 			_spRank->SetFilePath(obj.m_filePath);
 			_spRank->Init();
 			_spRank->SetDrawPos({ obj.m_pos.x,obj.m_pos.y });
-			SceneManager::Instance().AddUI(_spRank);
+			SceneManager::Instance().AddObject(_spRank);
 		}
 	}
 
@@ -155,7 +155,7 @@ void ResultScore::CreateClicktoTitle()
 				_spClick->SetFilePath(ui.m_filePath);
 				_spClick->Init();
 				_spClick->SetDrawPos({ ui.m_pos.x,ui.m_pos.y });
-				SceneManager::Instance().AddUI(_spClick);
+				SceneManager::Instance().AddObject(_spClick);
 				break;
 			}
 			else

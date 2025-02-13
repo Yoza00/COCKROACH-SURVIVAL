@@ -157,7 +157,6 @@
     <ClInclude Include="..\Library\tinygltf\stb_image_write.h" />
     <ClInclude Include="..\Library\tinygltf\tiny_gltf.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\CameraBase.h" />
-    <ClInclude Include="Src\Application\GameObject\Camera\FPSCamera\FPSCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\Enemy.h" />
     <ClInclude Include="Src\Application\GameObject\Character\Player\Player.h" />
@@ -169,6 +168,7 @@
     <ClInclude Include="Src\Application\GameObject\Stage\Title\House\House.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.h" />
     <ClInclude Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\Bar\FoodBarHP\FoodBarHP.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\BackButton\BackButton.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\ClickUI.h" />
@@ -176,14 +176,16 @@
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\GuideButton\GuideButton.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ClickUI\TitleButton\TitleButton.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Cursor\Cursor.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\EatTips\EatTips.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.h" />
-    <ClInclude Include="Src\Application\GameObject\UI\Rank\Rank.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\Notice\Notice.h" />
     <ClInclude Include="Src\Application\GameObject\UI\ResultScore\ResultScore.h" />
     <ClInclude Include="Src\Application\GameObject\UI\SceneChange\SceneChange.h" />
     <ClInclude Include="Src\Application\GameObject\UI\Score\Score.h" />
     <ClInclude Include="Src\Application\GameObject\UI\StartButton\StartButton.h" />
     <ClInclude Include="Src\Application\GameObject\UI\UI.h" />
+    <ClInclude Include="Src\Application\GameObject\Weapon\Weapon.h" />
     <ClInclude Include="Src\Application\main.h" />
     <ClInclude Include="Src\Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Src\Application\Scene\GameScene\GameScene.h" />
@@ -282,7 +284,6 @@
     <ClCompile Include="..\Library\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Library\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\CameraBase.cpp" />
-    <ClCompile Include="Src\Application\GameObject\Camera\FPSCamera\FPSCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\Player\Player.cpp" />
@@ -294,6 +295,7 @@
     <ClCompile Include="Src\Application\GameObject\Stage\Title\House\House.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHp\BarHp.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\bar\BarHungry\BarHungry.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\Bar\FoodBarHP\FoodBarHP.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClicktoTitle\ClicktoTitle.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\BackButton\BackButton.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\ClickUI.cpp" />
@@ -301,14 +303,16 @@
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\GuideButton\GuideButton.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ClickUI\TitleButton\TitleButton.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Cursor\Cursor.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\EatTips\EatTips.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Icon\Menu_Icon.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Menu_Screen\Menu_Screen.cpp" />
-    <ClCompile Include="Src\Application\GameObject\UI\Rank\Rank.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\Notice\Notice.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\ResultScore\ResultScore.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\SceneChange\SceneChange.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\Score\Score.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\StartButton\StartButton.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\UI.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Weapon\Weapon.cpp" />
     <ClCompile Include="Src\Application\main.cpp" />
     <ClCompile Include="Src\Application\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Src\Application\Scene\GameScene\GameScene.cpp" />

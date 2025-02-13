@@ -11,7 +11,6 @@ public:
 
 	void Update()		override;
 	void DrawSprite()	override;
-	void Init()			override;
 
 	// タイトルバックフラグを起動するための関数
 	// 引数なしで呼び出し可能で、強制的に変更される

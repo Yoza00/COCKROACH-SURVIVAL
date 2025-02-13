@@ -9,6 +9,5 @@ void TitleButton::ButtonClicked()
 	_spScChange->SetFilePath("Asset/Textures/GameObject/SceneChange/BlackScreen.png");
 	_spScChange->Init();
 	_spScChange->ActiveTitleBack();
-	SceneManager::Instance().AddObject(_spScChange);
 	SceneManager::Instance().AddUI(_spScChange);
 }

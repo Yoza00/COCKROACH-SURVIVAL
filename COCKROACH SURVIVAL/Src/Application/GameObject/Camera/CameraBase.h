@@ -18,9 +18,6 @@ public:
 		m_wpHitObjectList.push_back(_object);
 	}
 
-	// プレイヤーの移動状態をこっちでも保持しておくためのセッター
-	// この関数内で回転行列も取得して返しても良いと考えたが、ゲッターなのにセッターの機能も付与するのは
-	// 編だと感じたため、敢えて分けている
 	void SetMovingPos(int num);
 
 	// 「絶対変更しません！見るだけ！」な書き方
@@ -81,6 +78,7 @@ public:
 private:
 	// カメラ回転用角度
 	Math::Vector3				m_DegAng		= Math::Vector3::Zero;
+	const float					m_mouseCorrectValue = 0.15f;		// マウスの補正値(移動量の補正値)
 
 protected:
 	void UpdateRotateByMouse();
@@ -99,4 +97,6 @@ protected:
 	int							m_playerNowMovingPos = 0;						// プレイヤーの移動状態
 
 	bool						m_isRotateY = false;							// Y軸方向に回転させるかどうか(天井移動時のフラグ)
+
+	bool						m_isSetValue = false;		// 値をセットしたかどうか(固定値をセットしたかどうか判別用のフラグ)
 };

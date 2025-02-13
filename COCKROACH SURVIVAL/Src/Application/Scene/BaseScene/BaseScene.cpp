@@ -3,9 +3,6 @@
 // UI用
 #include"../../GameObject/UI/UI.h"
 
-// デバッグ用
-#include"../../main.h"
-
 void BaseScene::PreUpdate()
 {
 	// Updateの前の更新処理
@@ -26,17 +23,17 @@ void BaseScene::PreUpdate()
 	}
 
 	// 不要なUIオブジェクトの削除
-	auto _uiIt = m_UIList.begin();
+	auto _uis = m_UIList.begin();
 
-	while (_uiIt != m_UIList.end())
+	while (_uis != m_UIList.end())
 	{
-		if ((*_uiIt)->IsExpired())
+		if ((*_uis)->IsExpired())
 		{
-			_uiIt = m_UIList.erase(_uiIt);
+			_uis = m_UIList.erase(_uis);
 		}
 		else
 		{
-			++_uiIt;
+			++_uis;
 		}
 	}
 
@@ -51,22 +48,34 @@ void BaseScene::PreUpdate()
 	{
 		ui->PreUpdate();
 	}
-
-	// デバッグ用
-	Application::Instance().m_log.AddLog("%d\n", m_UIList.size());
 }
 
 void BaseScene::Update()
 {
+	// ポーズ時の処理を行う場合は、このif文中で処理を記載し、処理終了時にリターンを行って、関数内の処理全てが実行されないようにしておく
+	if (m_isPause)
+	{
+		// ここでポーズ中の処理を行う
+		for (auto& ui : m_UIList)
+		{
+			// メニュー画面かどうかを確認
+			// メニュー状態になっていない
+			if (ui->GetIsMenu() == false)
+			{
+				ui->SetIsMenu(true);					// メニュー状態に変更
+			}
+
+			// 画面更新
+			ui->Update();
+		}
+
+		return;
+	}
+
 	// KdGameObjectを継承した全てのオブジェクトの更新 (ポリモーフィズム)
 	for (auto& obj : m_objList)
 	{
 		obj->Update();
-	}
-
-	for (auto& ui : m_UIList)
-	{
-		ui->Update();
 	}
 
 	// シーン毎のイベント処理
@@ -75,6 +84,8 @@ void BaseScene::Update()
 
 void BaseScene::PostUpdate()
 {
+	if (m_isPause)return;
+
 	for (auto& obj : m_objList)
 	{
 		obj->PostUpdate();
@@ -157,17 +168,23 @@ void BaseScene::DrawSprite()
 	// 2Dの描画はこの間で行う
 	KdShaderManager::Instance().m_spriteShader.Begin();
 	{
-		// 普通のやつ
-		/*for (auto& obj : m_objList)
-		{
-			obj->DrawSprite();
-		}*/
-
-		// UI用
-		for (auto& obj : m_UIList)
+		// 通常の描画オブジェクトを描画
+		for (auto& obj : m_objList)
 		{
 			obj->DrawSprite();
 		}
+
+		// ポーズメニューは通常のオブジェクト描画が完了したら実行する
+		// 描画順を意識する
+		// ポーズ中のみ実行
+		if (m_isPause)
+		{
+			for (auto& obj : m_UIList)
+			{
+				obj->DrawSprite();
+			}
+		}
+		
 	}
 	KdShaderManager::Instance().m_spriteShader.End();
 }

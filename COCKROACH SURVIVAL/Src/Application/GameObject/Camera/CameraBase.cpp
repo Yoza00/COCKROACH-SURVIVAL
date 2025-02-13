@@ -10,6 +10,8 @@ void CameraBase::Init()
 	// ↓画面中央座標
 	m_FixMousePos.x = 640;
 	m_FixMousePos.y = 360;
+
+	m_DegAng.y = 90.0f;
 }
 
 void CameraBase::Update()
@@ -44,6 +46,11 @@ void CameraBase::SetMovingPos(int num)
 	{
 		m_isRotateY = true;
 	}
+
+	if (m_isSetValue)
+	{
+		m_isSetValue = false;
+	}
 }
 
 const Math::Matrix CameraBase::GetRotationCameraMatrix(int num) const
@@ -55,14 +62,13 @@ const Math::Matrix CameraBase::GetRotationCameraMatrix(int num) const
 		return GetRotationYMatrix();
 		break;
 	case 1:			// 天井
-		//return GetRotationXZMatrix();
 		return GetRotationMatrix();
 		break;
 	case 2:			// 壁
 	case 3:
 	case 4:
 	case 5:
-		return GetRotationXYMatrix();
+		return GetRotationMatrix();
 		break;
 	default:
 		return Math::Matrix::Identity;
@@ -99,14 +105,6 @@ void CameraBase::UpdateRotateByMouse()
 
 	SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
 
-	//// 実際にカメラを回転させる処理(0.15はただの補正値)
-	//m_DegAng.x += _mouseMove.y * 0.15f;
-	//m_DegAng.y += _mouseMove.x * 0.15f;
-
-	// 回転制御
-	//m_DegAng.x = std::clamp(m_DegAng.x, -45.f, 45.f);
-	//m_DegAng.x = std::clamp(m_DegAng.x, -90.f, 90.f);
-
 	// カメラの回転角度制御
 	// プレイヤーの現在の移動状況をもとにカメラの回転角度(移動方向等)を決定する
 	switch (m_playerNowMovingPos)
@@ -114,34 +112,92 @@ void CameraBase::UpdateRotateByMouse()
 	case 0:
 	case 6:	// 地面か空中にいる場合
 
-		// 実際にカメラを回転させる処理(0.15はただの補正値)
-		m_DegAng.x += _mouseMove.y * 0.15f;
-		m_DegAng.y += _mouseMove.x * 0.15f;
+		m_DegAng.x += _mouseMove.y * m_mouseCorrectValue;
+		m_DegAng.y += _mouseMove.x * m_mouseCorrectValue;
 
-		// 横回転に対する制限はないが、縦回転に対して、-90<=x<=90の範囲で回転するように補正
-		m_DegAng.x = std::clamp(m_DegAng.x, -90.0f, 0.0f);	
-		//m_DegAng.x = std::clamp(m_DegAng.x, -45.0f, 30.0f);
+		m_DegAng.x = std::clamp(m_DegAng.x, -90.0f, 0.0f);
 		m_DegAng.z = 0.0f;
 		break;
 	case 1:	// 天井にいる場合
-		// 実際にカメラを回転させる処理(0.15はただの補正値)
-		m_DegAng.x -= _mouseMove.y * 0.15f;
-		m_DegAng.y -= _mouseMove.x * 0.15f;
+		m_DegAng.x -= _mouseMove.y * m_mouseCorrectValue;
+		m_DegAng.y -= _mouseMove.x * m_mouseCorrectValue;
 
 		m_DegAng.x = std::clamp(m_DegAng.x, -30.0f, 60.0f);
 		m_DegAng.z = 180.0f;
 		break;
 	case 2:
-	case 3:
-	case 4:
-	case 5:	// 壁(オブジェクトの側面)にいる場合
-		// 実際にカメラを回転させる処理(0.15はただの補正値)
-		m_DegAng.x += _mouseMove.y * 0.15f;
-		m_DegAng.y += _mouseMove.x * 0.15f;
+		// 一度だけ実行する処理
+		if (!m_isSetValue)
+		{
+			m_isSetValue = true;
+			m_DegAng = { -90.0f,90.0f,0.0f };
+		}
 
-		m_DegAng.x = std::clamp(m_DegAng.x, -60.0f, 60.0f);
-		//m_DegAng.x = std::clamp(m_DegAng.x, -60.0f, 60.0f);
-		m_DegAng.z = 0.0f;
+		// 回転量更新
+		{
+			m_DegAng.x += _mouseMove.y * m_mouseCorrectValue;
+			m_DegAng.y += _mouseMove.x * m_mouseCorrectValue;
+		}
+
+		// 回転量の値制御
+		{
+			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
+			m_DegAng.y = std::clamp(m_DegAng.y, 80.0f, 100.0f);
+		}
+		break;
+	case 3:
+		// 一度だけ実行する処理
+		if (!m_isSetValue)
+		{
+			m_isSetValue = true;
+			m_DegAng = { -90.0f,-90.0f,0.0f };
+		}
+
+		{
+			m_DegAng.x += _mouseMove.y * m_mouseCorrectValue;
+			m_DegAng.y += _mouseMove.x * m_mouseCorrectValue;
+		}
+
+		{
+			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
+			m_DegAng.y = std::clamp(m_DegAng.y, -100.0f, -80.0f);
+		}
+		break;
+	case 4:
+		// 一度だけ実行する処理
+		if (!m_isSetValue)
+		{
+			m_isSetValue = true;
+			m_DegAng = { -90.0f,180.0f,0.0f };
+		}
+
+		{
+			m_DegAng.x += _mouseMove.y * m_mouseCorrectValue;
+			m_DegAng.y += _mouseMove.x * m_mouseCorrectValue;
+		}
+
+		{
+			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
+			m_DegAng.y = std::clamp(m_DegAng.y, 170.0f, 190.0f);
+		}
+		break;
+	case 5:	// 壁(オブジェクトの側面)にいる場合
+		// 一度だけ実行する処理
+		if (!m_isSetValue)
+		{
+			m_isSetValue = true;
+			m_DegAng = { -90.0f,0.0f,0.0f };
+		}
+
+		{
+			m_DegAng.x += _mouseMove.y * m_mouseCorrectValue;
+			m_DegAng.y += _mouseMove.x * m_mouseCorrectValue;
+		}
+
+		{
+			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
+			m_DegAng.y = std::clamp(m_DegAng.y, -10.0f, 10.0f);
+		}
 		break;
 	}
 
@@ -163,6 +219,4 @@ void CameraBase::UpdateRotateByMouse()
 	{
 		m_DegAng.y += 360.0f;
 	}
-
-	//Application::Instance().m_log.AddLog("%0.2f\n", m_DegAng.y);
 }

@@ -22,14 +22,11 @@ void ClicktoTitle::Update()
 void ClicktoTitle::DrawSprite()
 {
 	if (!m_spTex)return;
-	if (!m_isDraw)return;
 	if (!m_isActive)return;
 
 	Math::Color		_col = { 1.0f,1.0f,1.0f,m_alpha };
 
-	Math::Rectangle _rec = { (long)m_startPos.x,(long)m_startPos.y,long(m_width),(long)m_height };
-
-	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spTex, m_drawPos.x, m_drawPos.y, _rec.width, _rec.height, &_rec, &_col, { 0.0f,0.5f });
+	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spTex, static_cast<int>(m_drawPos.x), static_cast<int>(m_drawPos.y), m_rec.width, m_rec.height, &m_rec, &_col, { 0.0f,0.5f });
 }
 
 void ClicktoTitle::AlphaUpdate()

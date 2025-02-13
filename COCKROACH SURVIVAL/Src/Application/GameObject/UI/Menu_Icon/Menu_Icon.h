@@ -11,7 +11,6 @@ public:
 
 	void Update()		override;
 	void DrawSprite()	override;
-	void Init()			override;
 
 private:
 

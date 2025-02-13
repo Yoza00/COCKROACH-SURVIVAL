@@ -2,7 +2,6 @@
 
 void ClickUI::Update()
 {
-	if (!m_isDraw)return;
 	if (!m_isMenu)return;
 	if (!m_isButtonActive)return;
 

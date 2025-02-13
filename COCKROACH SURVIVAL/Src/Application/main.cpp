@@ -374,7 +374,7 @@ void Application::ImGuiInit()
 
 void Application::ImGuiProcess()
 {
-	//return;
+	return;
 	//if (!m_showImGui)return;
 
 	//===========================================================
@@ -397,29 +397,6 @@ void Application::ImGuiProcess()
 	ImGui::End();
 
 	renderGui();
-
-	//char	_ObjectName[100] = "";
-	//Math::Vector3	_makePos = {};
-
-	//if (ImGui::Begin("Make Object"))
-	//{
-	//	// ここで読み込むモデルを決定する
-	//	ImGui::InputText("objName", _ObjectName, sizeof(_ObjectName));
-	//	if (ImGui::Button("make"))
-	//	{
-	//		// ボタンクリックで生成
-	//	}
-
-	//	// 生成座標を設定
-	//	ImGui::SliderFloat("posX", &_makePos.x, -60.0f, 60.0f);
-	//	ImGui::SliderFloat("posY", &_makePos.y, 0.0f, 60.0f);
-	//	ImGui::SliderFloat("posZ", &_makePos.z, -120.0f, 120.0f);
-	//	if (ImGui::Button("save"))
-	//	{
-	//		// ここでデータを保存
-	//	}
-	//}
-	//ImGui::End();
 
 	// ログウィンドウ
 	m_log.Draw("Log Window");

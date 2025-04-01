@@ -340,9 +340,10 @@ void Enemy::HitCheck()
 void Enemy::CheckSight()
 {
 	const std::shared_ptr<Player>	_spPlayer = m_wpPlayer.lock();
+	
+	// アクセスチェック
 	if (!_spPlayer)
 	{
-		// プレイヤーのポインタがない場合は処理しない
 		return;
 	}
 
@@ -351,10 +352,13 @@ void Enemy::CheckSight()
 	Math::Vector3	_mixVecDir		= _nowPlayerPos - m_pos;		// エネミーの地面に触れている場所から見たプレイヤーへのベクトル
 	Math::Vector3	_toDir			= _nowPlayerPos - m_sightPos;	// エネミーの目の場所から見た視線のベクトル
 
+	// フラグを一度解除しておく。
+	// 必要に応じてフラグを起動させる
+	m_isSight = false;
+
 	// 一定距離以上離れてしまっている場合は処理しない
 	if (_mixVecDir.LengthSquared() >= m_sightRange)
 	{
-		m_isSight = false;				// 視界内にいないことにする
 		return;
 	}
 
@@ -368,37 +372,32 @@ void Enemy::CheckSight()
 
 	// 視界内且つプレイヤーを視認できているかを確認
 	{
-		float			_sightAria = cos(DirectX::XMConvertToRadians(m_sightSize));		// 視野の端っこ
+		float	_sightAria = cos(DirectX::XMConvertToRadians(m_sightSize));		// 視野の端っこ
 
 		// 視界内にプレイヤーがいる場合
 		if (_dot > _sightAria)
 		{
-			//bool			_isSight = false;		// 視界内かどうか
-
 			// ========== レイ判定(オブジェクトに視界を邪魔されていないか) ==========
 			if (GetDotResult(_toDir) == false)
 			{
-				m_isSight = false;
+				// 視界内にいるが、オブジェクトに妨げられている場合は処理しない
 				return;
 			}
 			else
 			{
+				// 視界内にいてオブジェクトなどに妨げられていない
 				m_isSight = true;
 			}
-			//_isSight = GetDotResult(_toDir);
+
 			// true：ちゃんと見えてる　false：(オブジェクトに阻まれて)見えてません
 			// ======================================================================
 		}
+		else
+		{
+			// 視界外にいる場合は処理を行わない
+			return;
+		}
 	}
-	
-
-	//m_isSight = _isSight;			// 実行した結果をもとに、フラグを更新
-	///* 実行結果から、視界内に居ればメンバー変数のフラグがtrueに、視界外に居ればfalseになる */
-
-	//if (!m_isSight)
-	//{
-	//	return;						// 視界外に居る場合はリターン
-	//}
 
 	// モデルの回転処理
 	float	_angle = DirectX::XMConvertToDegrees(acos(_dot));		// 内積値のacosで角度を求める
@@ -409,7 +408,8 @@ void Enemy::CheckSight()
 		return;
 	}
 
-	if (_angle > m_maxAngle)					// 角度制御
+	// 角度制御
+	if (_angle > m_maxAngle)
 	{
 		_angle = m_maxAngle;
 	}
@@ -562,6 +562,12 @@ bool Enemy::GetDotResult(const Math::Vector3& toDir)
 		if (_objects->Intersects(_rayInfo, &_retRayList))			// レイ情報をもとに、ヒットオブジェクトをリストに格納
 		{
 			_charaNumber.push_back(_objects->GetCharaType());		// 可変長配列にヒットオブジェクトのキャラナンバーを格納
+
+			// プレイヤーと当たり判定を行った場合はループを抜ける
+			if (_objects->GetCharaType() == CharaType::P_Chara)
+			{
+				break;
+			}
 		}
 	}
 
@@ -570,13 +576,14 @@ bool Enemy::GetDotResult(const Math::Vector3& toDir)
 	float	_maxOverLap = 0.0f;			// 重なり量
 	bool	_isHit		= false;		// ヒットフラグ
 
+	// ヒットオブジェクトリストの中から一番近くで当たっているオブジェクトを計算する
 	for (auto& _ret : _retRayList)
 	{
 		if (_maxOverLap < _ret.m_overlapDistance)
 		{
 			_number = _charaNumber[_cnt];			// 可変長配列からほしい番号を取得
 
-			_maxOverLap = _ret.m_overlapDistance;		// 重なり量を更新
+			_maxOverLap = _ret.m_overlapDistance;	// 重なり量を更新
 			_isHit = true;							// フラグ起動
 		}
 
@@ -683,13 +690,11 @@ void Enemy::MoveOtherPos::Enter(Enemy& owner)
 
 void Enemy::MoveOtherPos::Update(Enemy& owner)
 {
+	// プレイヤーを発見したらステートを追跡状態に変更
 	if (owner.m_isSight)
 	{
-		if (owner.m_isTurnFinish)
-		{
-			owner.ChangeState(std::make_shared<Chase>());			// 見つけたらステート切り替え
-			return;
-		}
+		owner.ChangeState(std::make_shared<Chase>());			// 見つけたらステート切り替え
+		return;
 	}
 
 	Math::Vector3	_dist	= owner.m_nextPos - owner.m_pos;	// 距離
@@ -793,9 +798,11 @@ void Enemy::Chase::Enter(Enemy& owner)
 		}
 	}
 
-	owner.m_isActFindPath = false;
-	owner.m_findPathCnt = owner.Reset_findPathCnt;
+	// 変数などを初期化
+	owner.m_isActFindPath	= false;						// 経路探索フラグを解除しておく
+	owner.m_findPathCnt		= owner.Reset_findPathCnt;		// 経路探索フラグを切り替えるまでのカウンターを初期化
 
+	// アニメーション切替
 	owner.ChangeAnimation("Run");
 }
 
@@ -834,8 +841,10 @@ void Enemy::Chase::Update(Enemy& owner)
 		owner.m_isActFindPath = true;
 	}
 
+	// 経路の探索ができており、移動途中である場合
 	if (owner.m_currentPathIndex < owner.m_path.size())
 	{
+		// 60フレーム毎にフラグが起動し、経路の再計算を行う
 		if (owner.m_isActFindPath)
 		{
 			owner.SetGoal(_playerPos);
@@ -845,8 +854,8 @@ void Enemy::Chase::Update(Enemy& owner)
 		}
 
 		// 現在のターゲットノード
-		Math::Vector3	_target = owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);
-		Math::Vector3	_direction = _target - owner.m_pos;
+		Math::Vector3	_target		= owner.GridToWorld(owner.m_path[owner.m_currentPathIndex]);		// 移動するノードの座標を3D座標に変換
+		Math::Vector3	_direction	= _target - owner.m_pos;											// 現在の位置と移動先の位置から、移動先までの距離を検出
 
 		// 移動速度よりもターゲットまでの距離が短い場合(移動してしまうとターゲットを通過してしまう場合)
 		if (_direction.LengthSquared() < owner.m_moveSpeed)
@@ -856,9 +865,11 @@ void Enemy::Chase::Update(Enemy& owner)
 		}
 		else
 		{
+			// ターゲットノードの方向に移動させる。
+			// こちらの処理が実行される場合は、まだ距離が一定以上の長さがあるため、ノードの更新はしない
 			_direction.Normalize();
 
-			owner.RotateToDirection(_direction);
+			//owner.RotateToDirection(_direction);
 
 			owner.m_pos += _direction * owner.m_moveSpeed;		// エネミーをターゲットの方向へ移動
 		}
@@ -919,8 +930,11 @@ bool Enemy::Chase::ChackAttackAble(Enemy& owner)
 // ========== 見失った ==========
 void Enemy::LoseSight::Enter(Enemy& owner)
 {
+	// 経路をクリア
+	owner.m_path.clear();
+
 	// 経路計算
-	owner.SetGoal(owner.m_loseSightPos);
+	owner.SetGoal(owner.m_loseSightPos);	// 見失った座標までの経路を算出する
 
 	// アニメーション切り替え
 	owner.ChangeAnimation("Walk");
@@ -935,6 +949,7 @@ void Enemy::LoseSight::Update(Enemy& owner)
 		return;
 	}
 
+	// 経路をたどっている間は移動する
 	if (owner.m_currentPathIndex < owner.m_path.size())
 	{
 		// 現在のターゲットノード
@@ -967,15 +982,6 @@ void Enemy::LoseSight::Update(Enemy& owner)
 void Enemy::LoseSight::Exit(Enemy& owner)
 {
 	owner.m_isFixNextPos = true;
-}
-
-void Enemy::LoseSight::CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)
-{
-	if (dist.LengthSquared() <= owner.m_ignoreLength)
-	{
-		owner.ChangeState(std::make_shared<SearchAround>());			// ステート切り替え
-		return;
-	}
 }
 
 // ========== 周囲の捜索 ==========
@@ -1038,16 +1044,10 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 
 		if (owner.m_isNowRotFin)
 		{
-			owner.m_isNowRotFin = false;			// 回転完了状態であれば、観点途中状態に変更
+			owner.m_isNowRotFin = false;			// 回転完了状態であれば、回転途中状態に変更
 		}
 
 		owner.m_angle += owner.m_rotationSpd;		// 回転角度更新
-
-		// 念のための回転制御
-		if (owner.m_angle >= owner.m_maxDegAngle)
-		{
-			owner.m_angle -= owner.m_maxDegAngle;
-		}
 
 		// 回転終了
 		if (owner.m_angle >= owner.m_baseAngle + owner.m_maxDegAng)
@@ -1079,12 +1079,6 @@ void Enemy::SearchAround::SearchPlayer(Enemy& owner)
 		}
 
 		owner.m_angle -= owner.m_rotationSpd;
-
-		// 念のための回転制御
-		if (owner.m_angle < owner.m_minDegAngle)
-		{
-			owner.m_angle += owner.m_maxDegAngle;
-		}
 
 		// 回転終了
 		if (owner.m_angle <= owner.m_baseAngle - owner.m_maxDegAng)

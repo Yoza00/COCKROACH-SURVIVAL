@@ -37,9 +37,32 @@ void CameraBase::SetTarget(const std::shared_ptr<KdGameObject>& target)
 
 void CameraBase::SetMovingPos(int num)
 {
+	// 前回確認した値と同じ場合は処理を省略する
 	if (m_playerNowMovingPos == num)return;
 
-	m_playerNowMovingPos = num;
+	// 前回記録した数値と今回確認した数値を更新しておく
+	m_oldMovingPos			= m_playerNowMovingPos;
+	m_playerNowMovingPos	= num;
+
+	if (m_oldMovingPos == 1)
+	{
+		// 直前に天井にいた場合は反転フラグを起動する
+		m_isInversion = true;
+	}
+	else
+	{
+		// 直前に天井にいなかった場合は反転しない
+		m_isInversion = false;
+	}
+
+	if (m_oldMovingPos == 4)
+	{
+		m_isMoveCeiling = true;
+	}
+	else
+	{
+		m_isMoveCeiling = false;
+	}
 
 	// 天井移動であるならばY軸回転用フラグを起動
 	if (num == 1)
@@ -116,14 +139,28 @@ void CameraBase::UpdateRotateByMouse()
 		m_DegAng.y += _mouseMove.x * m_mouseCorrectValue;
 
 		m_DegAng.x = std::clamp(m_DegAng.x, -90.0f, 0.0f);
-		m_DegAng.z = 0.0f;
+
+		if (m_DegAng.z == 180.0f)
+		{
+			m_DegAng.z =0.0f;
+		}
 		break;
 	case 1:	// 天井にいる場合
+		if (!m_isSetValue)
+		{
+			m_isSetValue = true;
+			m_DegAng = { 0.0f,0.0f,180.0f };
+
+			if (m_isMoveCeiling)
+			{
+				m_DegAng.y = 180.0f;
+			}
+		}
+
 		m_DegAng.x -= _mouseMove.y * m_mouseCorrectValue;
 		m_DegAng.y -= _mouseMove.x * m_mouseCorrectValue;
 
 		m_DegAng.x = std::clamp(m_DegAng.x, -30.0f, 60.0f);
-		m_DegAng.z = 180.0f;
 		break;
 	case 2:
 		// 一度だけ実行する処理
@@ -131,6 +168,11 @@ void CameraBase::UpdateRotateByMouse()
 		{
 			m_isSetValue = true;
 			m_DegAng = { -90.0f,90.0f,0.0f };
+
+			if (m_isInversion)
+			{
+				m_DegAng *= -1;
+			}
 		}
 
 		// 回転量更新
@@ -141,8 +183,16 @@ void CameraBase::UpdateRotateByMouse()
 
 		// 回転量の値制御
 		{
-			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
-			m_DegAng.y = std::clamp(m_DegAng.y, 80.0f, 100.0f);
+			if (!m_isInversion)
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, -110.0f, -70.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, 80.0f, 100.0f);
+			}
+			else
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, 70.0f, 90.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, -100.0f, -80.0f);
+			}
 		}
 		break;
 	case 3:
@@ -151,6 +201,11 @@ void CameraBase::UpdateRotateByMouse()
 		{
 			m_isSetValue = true;
 			m_DegAng = { -90.0f,-90.0f,0.0f };
+
+			if (m_isInversion)
+			{
+				m_DegAng *= -1;
+			}
 		}
 
 		{
@@ -159,8 +214,16 @@ void CameraBase::UpdateRotateByMouse()
 		}
 
 		{
-			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
-			m_DegAng.y = std::clamp(m_DegAng.y, -100.0f, -80.0f);
+			if (!m_isInversion)
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, -110.0f, -70.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, -100.0f, -80.0f);
+			}
+			else
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, 70.0f, 110.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, 80.0f, 100.0f);
+			}
 		}
 		break;
 	case 4:
@@ -169,6 +232,12 @@ void CameraBase::UpdateRotateByMouse()
 		{
 			m_isSetValue = true;
 			m_DegAng = { -90.0f,180.0f,0.0f };
+
+			if (m_isInversion)
+			{
+				m_DegAng *= -1;
+				m_DegAng.y = 0.0f;
+			}
 		}
 
 		{
@@ -177,8 +246,16 @@ void CameraBase::UpdateRotateByMouse()
 		}
 
 		{
-			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
-			m_DegAng.y = std::clamp(m_DegAng.y, 170.0f, 190.0f);
+			if (!m_isInversion)
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, -110.0f, -70.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, 170.0f, 190.0f);
+			}
+			else
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, 70.0f, 110.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, -10.0f, 10.0f);
+			}
 		}
 		break;
 	case 5:	// 壁(オブジェクトの側面)にいる場合
@@ -187,6 +264,12 @@ void CameraBase::UpdateRotateByMouse()
 		{
 			m_isSetValue = true;
 			m_DegAng = { -90.0f,0.0f,0.0f };
+
+			if (m_isInversion)
+			{
+				m_DegAng *= -1;
+				m_DegAng.y = -180.0f;
+			}
 		}
 
 		{
@@ -195,8 +278,16 @@ void CameraBase::UpdateRotateByMouse()
 		}
 
 		{
-			m_DegAng.x = std::clamp(m_DegAng.x, -120.0f, -70.0f);
-			m_DegAng.y = std::clamp(m_DegAng.y, -10.0f, 10.0f);
+			if (!m_isInversion)
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, -110.0f, -70.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, -10.0f, 10.0f);
+			}
+			else
+			{
+				m_DegAng.x = std::clamp(m_DegAng.x, 70.0f, 110.0f);
+				m_DegAng.y = std::clamp(m_DegAng.y, -190.0f, -170.0f);
+			}
 		}
 		break;
 	}

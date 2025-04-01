@@ -116,7 +116,9 @@ void Player::Update()
 	{
 		// 移動処理
 		{
+			bool	_isBackWalk = false;
 
+			// 前進以外は得意としないので、前進以外の移動量はやや低く設定する
 			if (GetAsyncKeyState('W') & 0x8000)
 			{
 				_moveVec += Math::Vector3::TransformNormal({ 0.0f,0.0f,1.0f }, _cameraMat);
@@ -136,7 +138,10 @@ void Player::Update()
 			{
 				_moveVec += Math::Vector3::TransformNormal({ 0.0f,0.0f,-0.3f }, _cameraMat);
 				m_actionType = ActionType::Run;
+				_isBackWalk = true;
 			}
+
+			m_isBackWalk = _isBackWalk;
 		}
 	}
 
@@ -479,6 +484,13 @@ void Player::HitJudge()
 
 void Player::NormalCheck()
 {
+	// 後ろ歩きでは処理を実行しない
+	// 後ろ歩きは苦手とするため
+	if (m_isBackWalk)
+	{
+		return;
+	}
+
 	// =============================
 	// 法線取得用レイ(進行方向にやや下方向に飛ばすレイ)
 	// =============================
@@ -606,95 +618,6 @@ void Player::GroundCheck()
 	}
 }
 
-bool Player::FutureGroundCheck()
-{
-	// 進行方向への方向ベクトルがゼロベクトルならリターン
-	if (m_moveDir.LengthSquared() == 0.0f)
-	{
-		return false;
-	}
-
-	Math::Vector3	_moveDir	= m_moveDir;		// 移動方向
-	Math::Vector3	_gravityDir = m_gravityDir;		// 重力方向
-
-	// 作成した変数を正規化
-	_moveDir.Normalize();
-	_gravityDir.Normalize();
-
-	// レイの長さ
-	Math::Vector3	_rayPos = m_pos + (_moveDir * m_moveSpeed) + (_gravityDir * m_gravity);
-
-	// 作成した変数を使用してレイ情報を設定
-	KdCollider::RayInfo	_rayInfo;
-	_rayInfo.m_pos		= _rayPos;
-	_rayInfo.m_dir		= _moveDir * -1;
-	_rayInfo.m_range	= m_adJustHeight + 0.05f;
-	_rayInfo.m_type		= KdCollider::TypeGround;
-	
-	/*
-	進行方向に進んで重力方向に移動した座標から進行方向と反対方向にレイを発射している。
-	長さは通常の地面を判定する際に使用するレイの長さと同じで、レイと当たり判定を行うオブジェクトタイプも同じ
-	*/
-
-	// オブジェクト情報をリセット
-	m_wpObject.reset();
-
-	std::list<KdCollider::CollisionResult>	_retRayList;	// ヒットオブジェクト格納用リスト
-
-	// レイ情報をもとにすべてのオブジェクトと当たり判定を行い、ヒットオブジェクトがあればリストに格納する
-	for (auto& obj : SceneManager::Instance().GetObjList())
-	{
-		if (obj->Intersects(_rayInfo, &_retRayList))
-		{
-			// ヒットオブジェクトが家具タイプであればウィークポイントとしてポインタを保持しておく
-			// 保持しておくのは、家具オブジェクトの回転角度を取得るため
-			if (obj->GetStageObjeType() == StageObjectType::Furniture)
-			{
-				m_wpObject = obj;
-			}
-		}
-	}
-
-	Math::Vector3	_groundPos	= {};		// ヒットした座標
-	Math::Vector3	_normalVec	= {};		// 法線ベクトル
-	float			_maxOverLap = 0.0f;		// 重なり量
-	float			_rotY		= 0.0f;		// 家具の回転角度
-	bool			_isHit		= false;	// 一番近くでヒットしているオブジェクトを求められたかどうか
-
-	for (auto& ret : _retRayList)
-	{
-		// 当たり判定の結果、その時点の重なり量よりも重なり量が大きければ
-		// 各パラメータを更新する
-		if (_maxOverLap < ret.m_overlapDistance)
-		{
-			_maxOverLap = ret.m_overlapDistance;	// 重なり量更新
-			_groundPos	= ret.m_hitPos;				// ヒット座標更新
-			_normalVec	= ret.m_normal;				// ヒットオブジェクトの面からの法線ベクトル更新
-			_isHit		= true;						// 一番近くでヒットしたオブジェクトが更新されたのでフラグも更新
-		}
-	}
-
-	if (_isHit)
-	{
-		_normalVec.Normalize();		// 最終的な法線ベクトルを正規化
-
-		const std::shared_ptr<KdGameObject>	_spObj = m_wpObject.lock();
-		
-		// アクセスチェックして、ヒットオブジェクトの回転角度を取得
-		if (_spObj)
-		{
-			_rotY = _spObj->GetRotationY();
-		}
-
-		// 法線は回転が考慮されていないので、回転を考慮した法線ベクトルに変換する
-		CheckMovePosition(_normalVec, _rotY);
-
-		return true;
-	}
-
-	return false;
-}
-
 void Player::HitSphereCheck()
 {
 	// =============================
@@ -752,40 +675,54 @@ void Player::EatFoodSphereCheck()
 {
 	std::shared_ptr<EatTips>	_spTips = m_wpTips.lock();
 
+	// アクセスチェックを行い、アクセスできる場合は、描画を行わないように設定しておく
+	if (_spTips)
+	{
+		_spTips->SetIsDraw(false);
+	}
+
 	// 食べる処理用の球判定
 	KdCollider::SphereInfo	_eatSphere;
 	_eatSphere.m_sphere.Center	= m_pos;
 	_eatSphere.m_sphere.Radius	= m_canEatDistance;
-	_eatSphere.m_type			= KdCollider::TypeGround;
+	_eatSphere.m_type			= KdCollider::TypeBump;
 
-	std::list<KdCollider::CollisionResult>	_retEatSphereList;
-
+	// 全てのオブジェクトと設定したスフィアとの当たり判定を行い、
+	// Tipsを表示するかどうかを設定する
 	for (auto& _obj : SceneManager::Instance().GetObjList())
 	{
+		// 設定したスフィアとオブジェクトが当たった場合
 		if (_obj->Intersects(_eatSphere, nullptr))
 		{
-			if (_obj->GetStageObjeType() == StageObjectType::Feed)
-			{
-				if (_spTips)
-				{
-					_spTips->SetIsDraw(true);
-				}
+			//// 餌である場合
+			//if (_obj->GetStageObjeType() == StageObjectType::Feed)
+			//{
+			//	if (_spTips)
+			//	{
+			//		// Tipsを表示させる
+			//		_spTips->SetIsDraw(true);
+			//	}
 
-				if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-				{
-					_obj->SetLife(m_decreaceFoodLife);
-				}
-			}
-			else
+			//	// 表示されている間、左クリックで食べることができる
+			//	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+			//	{
+			//		// 一定の値を引数に置き、餌のライフを減少させていく
+			//		_obj->SetLife(m_decreaceFoodLife);
+			//	}
+			//}
+
+			if (_spTips)
 			{
-				if (_spTips)
-				{
-					_spTips->SetIsDraw(false);
-				}
+				// Tipsを表示させる
+				_spTips->SetIsDraw(true);
+			}
+
+			// 表示されている間、左クリックで食べることができる
+			if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+			{
+				// 一定の値を引数に置き、餌のライフを減少させていく
+				_obj->SetLife(m_decreaceFoodLife);
 			}
 		}
 	}
-	/*
-	この処理は、自身の持つ一定の大きさのスフィア内に餌がある時に左クリックすれば食事ができるというもの。
-	*/
 }

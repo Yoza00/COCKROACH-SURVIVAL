@@ -94,9 +94,13 @@ protected:
 	// カメラ回転用マウス座標の差分
 	POINT						m_FixMousePos{};
 
-	int							m_playerNowMovingPos = 0;						// プレイヤーの移動状態
+	int							m_playerNowMovingPos = 0;	// プレイヤーの移動状態
+
+	int							m_oldMovingPos	= 0;		// 直前に移動していた場所
+	bool						m_isInversion	= false;	// 反転させるかどうか
 
 	bool						m_isRotateY = false;							// Y軸方向に回転させるかどうか(天井移動時のフラグ)
 
 	bool						m_isSetValue = false;		// 値をセットしたかどうか(固定値をセットしたかどうか判別用のフラグ)
+	bool						m_isMoveCeiling = false;
 };

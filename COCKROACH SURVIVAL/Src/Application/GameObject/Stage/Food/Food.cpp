@@ -97,7 +97,7 @@ void Food::SetState(const std::string& _filePath, const Math::Vector3& _pos, con
 		m_mWorld = _scaleMat * _transMat;
 
 		m_pCollider = std::make_unique<KdCollider>();
-		m_pCollider->RegisterCollisionShape("FoodCollision" + std::to_string(_number), m_spModel, KdCollider::TypeGround);
+		m_pCollider->RegisterCollisionShape("FoodCollision" + std::to_string(_number), m_spModel, KdCollider::TypeBump);
 	}
 }
 

@@ -302,8 +302,6 @@ private:
 		void Enter(Enemy& owner)			override;
 		void Update(Enemy& owner)			override;
 		void Exit(Enemy& owner)				override;
-
-		void CheckMoveFinish(Enemy& owner, const Math::Vector3& dist)	override;
 	};
 
 	// 周囲の捜索(周囲にプレイヤーがいるかどうかを確かめるためのステート)

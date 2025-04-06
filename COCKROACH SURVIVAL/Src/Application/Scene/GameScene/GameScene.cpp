@@ -156,7 +156,7 @@ void GameScene::Init()
 	}
 
 	// プレイヤー
-	Math::Vector3	_playerPos = { -63.74f,12.60f,58.33f };
+	Math::Vector3	_playerPos = { -60.0f,0.50f,58.33f };
 	std::shared_ptr<Player>	_spPlayer = std::make_shared<Player>();
 	_spPlayer->Init();
 	_spPlayer->SetPos(_playerPos);

@@ -30,10 +30,6 @@ public:
 		m_name = _name;
 	}
 
-	///*void SetRotY(float _rotY = 0.0f)
-	//{
-	//	m_rotY = _rotY;
-	//}*/
 	void SetRotationY(float rotationY)override
 	{
 		m_rotationY = rotationY;
@@ -43,8 +39,6 @@ public:
 	{
 		m_scale = _scale;
 	}
-
-	//const float GetRotY()const { return m_rotY; }
 
 private:
 
@@ -63,6 +57,5 @@ private:
 	std::string							m_filePath;
 	std::string							m_name;
 
-	//float								m_rotY		= 0.0f;
 	float								m_scale		= 0.25f;
 };

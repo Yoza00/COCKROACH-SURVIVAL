@@ -33,6 +33,6 @@ public:
 
 	Math::Matrix					m_nozzleMat = Math::Matrix::Identity;
 
-	//// 必要なウィークポインタ
+	// 必要なウィークポインタ
 	std::weak_ptr<Enemy>			m_wpParent;
 };

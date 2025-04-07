@@ -694,23 +694,6 @@ void Player::EatFoodSphereCheck()
 		// 設定したスフィアとオブジェクトが当たった場合
 		if (_obj->Intersects(_eatSphere, nullptr))
 		{
-			//// 餌である場合
-			//if (_obj->GetStageObjeType() == StageObjectType::Feed)
-			//{
-			//	if (_spTips)
-			//	{
-			//		// Tipsを表示させる
-			//		_spTips->SetIsDraw(true);
-			//	}
-
-			//	// 表示されている間、左クリックで食べることができる
-			//	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-			//	{
-			//		// 一定の値を引数に置き、餌のライフを減少させていく
-			//		_obj->SetLife(m_decreaceFoodLife);
-			//	}
-			//}
-
 			if (_spTips)
 			{
 				// Tipsを表示させる

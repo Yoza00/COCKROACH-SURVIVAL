@@ -16,20 +16,20 @@ struct KdAmbientParameter
 
 	// 距離フォグ
 	Math::Vector3	m_distanceFogColor;
-	float			m_distanceFogDensity = 0.0f;		// フォグ減衰率
+	float			m_distanceFogDensity		= 0.0f;		// フォグ減衰率
 
 	// 高さフォグ
 	Math::Vector3	m_heightFogColor;
-	float			m_heightFogTopValue = 0.0f;			// フォグを開始する上限の高さ
-	float			m_heightFogBottomValue = 0.0f;		// フォグ色に染まる下限の高さ
-	float			m_heightFogBeginDistance = 0.0f;	// フォグの開始する距離
+	float			m_heightFogTopValue			= 0.0f;		// フォグを開始する上限の高さ
+	float			m_heightFogBottomValue		= 0.0f;		// フォグ色に染まる下限の高さ
+	float			m_heightFogBeginDistance	= 0.0f;		// フォグの開始する距離
 
 	// コーンライト
-	Math::Vector3	m_coneLightPos;						// 座標
-	Math::Vector3	m_coneLightDir;						// 方向
-	float			m_coneLightRange;					// 長さ
-	float			m_coneLightAngle;					// 左右の広がりの角度
-	Math::Vector3	m_coneLightColor;					// 色
+	Math::Vector3	m_coneLightPos;							// 座標
+	Math::Vector3	m_coneLightDir;							// 方向
+	float			m_coneLightRange			= 0.0f;		// 長さ
+	float			m_coneLightAngle			= 0.0f;		// 左右の広がりの角度
+	Math::Vector3	m_coneLightColor;						// 色
 };
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////

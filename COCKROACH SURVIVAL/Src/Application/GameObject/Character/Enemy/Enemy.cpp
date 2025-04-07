@@ -38,7 +38,7 @@ void Enemy::Update()
 		_pos.y -= 0.35f;
 
 		// 各要素の行列を作成
-		Math::Matrix	_scaleMat = Math::Matrix::CreateScale(m_scale);											// 拡縮行列
+		Math::Matrix	_scaleMat = Math::Matrix::CreateScale(m_scale);									// 拡縮行列
 		Math::Matrix	_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));	// Y軸における回転行列
 		Math::Matrix	_transMat = Math::Matrix::CreateTranslation(_pos);								// 座標行列
 
@@ -68,8 +68,8 @@ void Enemy::DrawLit()
 		KdShaderManager::Instance().WorkAmbientController().SetConeLight(
 			m_sightPos,
 			m_mWorld.Backward(),
-			50.0f,
-			DirectX::XMConvertToRadians(30.0f),
+			sqrtf(m_sightRange),
+			DirectX::XMConvertToRadians(30),
 			{ 3,0,0 }
 		);
 	}
@@ -132,7 +132,6 @@ void Enemy::SetGoal(const Math::Vector3& goalPos)
 	else if ((*m_grid)[_goalNode.z][_goalNode.x] == 1)
 	{
 		// ゴールが障害物の場所であり、移動可能な範囲で一番近づくことができる経路を求められる
-		//FindNearestWalkableNode(_goalNode);	// 経路探索
 		FindPath(m_pos, GridToWorld(FindNearestWalkableNode(_goalNode)));
 	}
 }

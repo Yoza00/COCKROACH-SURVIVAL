@@ -28,6 +28,7 @@ void Weapon::Update()
 		m_mWorld = _transMat;
 	}
 
+	// スプレー缶のノズルの座標を取得する
 	{
 		const KdModelWork::Node* _pNozzlePoint = m_spModel->FindNode("nozzlePoint");
 		if (_pNozzlePoint)

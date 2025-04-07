@@ -63,6 +63,17 @@ void Enemy::DrawLit()
 {
 	if (!m_spModel)return;
 
+	// コーンライト描画
+	{
+		KdShaderManager::Instance().WorkAmbientController().SetConeLight(
+			m_sightPos,
+			m_mWorld.Backward(),
+			50.0f,
+			DirectX::XMConvertToRadians(30.0f),
+			{ 3,0,0 }
+		);
+	}
+
 	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 }
 

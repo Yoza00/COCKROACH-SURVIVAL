@@ -17,6 +17,19 @@ struct PointLight
 	int		IsBright = 0;	// 明度用ライトかどうか
 };
 
+// コーンライト
+struct ConeLight
+{
+	int				enable	= 0;			// フラグ
+	Math::Vector3	pos		= {};			// 座標
+
+	Math::Vector3	dir		= {};			// 方向
+	float			range	= 0.0f;			// 長さ
+
+	float			angle	= 0.0f;			// 広がり
+	Math::Vector3	color	= { 3,1,1 };	// 色
+};
+
 //==========================
 //
 // 各パイプラインステートの呼び出しID
@@ -119,6 +132,10 @@ public:
 		float			_blank3[3] = { 0.0f, 0.0f ,0.0f };
 
 		std::array<PointLight, MaxPointLightNum> PointLights;
+
+		// コーンライト
+		// １本だけ
+		ConeLight		ConeLight;
 	};
 
 	static KdShaderManager& Instance()
@@ -197,6 +214,10 @@ public:
 	void WriteCBDirectionalLight(const Math::Vector3& dir, const Math::Vector3& col);
 	void WriteCBShadowArea(const Math::Matrix& proj, float dirLightHeight);
 	void WriteCBPointLight(const std::list<PointLight>& pointLights);
+
+	// コーンライト
+	void WriteCBConeLightEnable(bool enable);
+	void WriteCBConeLight(const Math::Vector3& pos, const Math::Vector3& dir, float range, float angle, const Math::Vector3& color);
 
 	//==========================
 	//

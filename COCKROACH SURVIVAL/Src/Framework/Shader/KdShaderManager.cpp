@@ -489,6 +489,27 @@ void KdShaderManager::WriteCBPointLight(const std::list<PointLight>& pointLights
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+// コーンライトのデータをGPUに転送
+// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+void KdShaderManager::WriteCBConeLightEnable(bool enable)
+{
+	m_cb9_Light.Work().ConeLight.enable = enable;
+
+	m_cb9_Light.Write();
+}
+
+void KdShaderManager::WriteCBConeLight(const Math::Vector3& pos, const Math::Vector3& dir, float range, float angle, const Math::Vector3& color)
+{
+	m_cb9_Light.Work().ConeLight.pos	= pos;
+	m_cb9_Light.Work().ConeLight.dir	= dir;
+	m_cb9_Light.Work().ConeLight.range	= range;
+	m_cb9_Light.Work().ConeLight.angle	= angle;
+	m_cb9_Light.Work().ConeLight.color	= color;
+
+	m_cb9_Light.Write();
+}
+
+// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 // パラメータの解放：シェーダー本体・共通の定数バッファ・各パイプラインステート
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 #pragma warning(disable:4239)

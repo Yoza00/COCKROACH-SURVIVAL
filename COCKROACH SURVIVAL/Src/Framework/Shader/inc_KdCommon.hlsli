@@ -60,4 +60,17 @@ cbuffer cbLight : register(b9)
 	    float3	    Pos;			// 座標
 	    int			IsBright;		// 明度用ライトかどうか
 	} g_PointLights[100];
+
+	// コーンライト
+	// 敵の視界を表示するためのもので、1本しか使用しないため、配列化しない
+	struct ConeLight
+	{
+		int		enable;				// 描画フラグ
+		
+		float3	pos;				// 描画座標
+		float3	dir;				// 描画方向
+		float	range;				// 描画距離(長さ)
+		float	angle;				// 左右への角度(広がり)
+		float3	color;				// ライトの色
+	} g_ConeLight;					// コーンライトの変数名
 };

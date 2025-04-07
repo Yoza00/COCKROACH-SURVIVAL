@@ -23,6 +23,13 @@ struct KdAmbientParameter
 	float			m_heightFogTopValue = 0.0f;			// フォグを開始する上限の高さ
 	float			m_heightFogBottomValue = 0.0f;		// フォグ色に染まる下限の高さ
 	float			m_heightFogBeginDistance = 0.0f;	// フォグの開始する距離
+
+	// コーンライト
+	Math::Vector3	m_coneLightPos;						// 座標
+	Math::Vector3	m_coneLightDir;						// 方向
+	float			m_coneLightRange;					// 長さ
+	float			m_coneLightAngle;					// 左右の広がりの角度
+	Math::Vector3	m_coneLightColor;					// 色
 };
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -65,6 +72,10 @@ public:
 	// 高さフォグの設定
 	void SetheightFog(const Math::Vector3& col, float topValue, float bottomValue, float distance);
 
+	// コーンライトを有効化
+	void SetConeLightEnable(bool enable);
+	void SetConeLight(const Math::Vector3& pos, const Math::Vector3& dir, float range, float angle, const Math::Vector3& color);
+
 private:
 
 	void WriteLightParams(); 
@@ -81,8 +92,9 @@ private:
 	float		m_dirLightHeight = 0.0f;
 
 	// 変更があるかを判定するフラグ
-	bool m_dirtyLightAmb = true;
-	bool m_dirtyLightDir = true;
-	bool m_dirtyFogDist = true;
-	bool m_dirtyFogHeight = true;
+	bool m_dirtyLightAmb	= true;		// 環境光
+	bool m_dirtyLightDir	= true;		// 平行光
+	bool m_dirtyFogDist		= true;		// 霧(距離)
+	bool m_dirtyFogHeight	= true;		// 霧(高さ)
+	bool m_dirtyConeLight	= true;		// コーンライト
 };

@@ -216,6 +216,69 @@ float4 main(VSOutput In) : SV_Target0
 		}
 	}
 
+	//-------------------------
+	// コーンライト
+	//-------------------------
+	{
+		// 光源に向いたベクトルを算出する
+
+		// 光源から発射座標へのベクトルを算出する
+		float3 toDir = g_ConeLight.pos - In.wPos;
+
+		// 光源の距離
+		float len = length(toDir);
+
+		if (len < g_ConeLight.range)
+		{
+			// 距離内
+
+			// 光源に向いたベクトルを方向ベクトルに変更
+			toDir = normalize(toDir);
+			// ↑方向ベクトルなので、長さを１にする
+			
+			// 光源に向いたベクトルと光源の逆ベクトルで角度を算出する
+			// 逆ベクトルを使用するのは、負の数が発生するのを防ぐため
+			float rad = acos(saturate(dot(toDir, -g_ConeLight.dir)));
+			// saturate()...丸め誤差(0未満の値)をなくす為の関数(1<x<0の範囲)
+
+			if (rad < g_ConeLight.angle)
+			{
+				// コーンライト内確定
+
+				// 減衰率(サイド)
+				float _angleIn = g_ConeLight.angle * 0.8f;
+				float _side = 1 - (rad - _angleIn) / (g_ConeLight.angle - _angleIn);
+				
+				// 減衰率
+				float atte = saturate(1 - len / g_ConeLight.range) * _side;
+				// 光源の位置から何%の影響を受けるのかを計算
+				// attenuation(減衰) の略
+
+				// 拡散
+				float lightDiffuse = saturate(dot(normalize(wN), toDir));
+				// 光の面に対する入射角を確認して、光の影響度を計算している。
+				// 入射角が垂直からのずれが大きいほど影響度が少なく、
+				// 垂直に近いほど影響度が大きくなる。
+
+				// ディヒューズ減衰
+				lightDiffuse *= atte;
+				
+				// コーンライト内確定
+				outColor += (g_ConeLight.color * lightDiffuse) * baseDiffuse * baseColor.a;
+
+				// スペキュラー計算
+				// 反射した光の強さを求める
+				// Blinn-Phong NDF
+				float spec = BlinnPhong(-toDir, vCam, wN, specPower);
+
+				spec *= atte; // 減衰
+				
+				// 光の色 * 反射光の強さ * 材質の反射色 * 透明率 * 適当な調整値
+				outColor += (g_ConeLight.color * spec) * baseSpecular * baseColor.a;
+			}
+		}
+	}
+
 	outColor += g_AmbientLight.rgb * baseColor.rgb * baseColor.a;
 	
 	// 自己発光色の適応

@@ -16,10 +16,10 @@ struct WayPoint
 // グリッド情報を定義
 struct Node
 {
-	int		x, z;						// ノードの座標
-	float	gCost = 0;					// スタートからこのノードまでのコスト
-	float	hCost = 0;					// このノードからゴールまでの推定コスト
-	Node* parent = nullptr;				// 親ノード
+	int		x, z;				// ノードの座標
+	float	gCost	= 0;		// スタートからこのノードまでのコスト
+	float	hCost	= 0;		// このノードからゴールまでの推定コスト
+	Node*	parent	= nullptr;	// 親ノード
 
 	// 総コスト計算
 	float fCost()const
@@ -94,106 +94,93 @@ public:
 
 	const Math::Vector3& GetRightHandPos()const { return m_rightHandPos; }
 
-private:
+private:	// 変数たち
 
-	const int						m_int_resetValue		= 0;						// int型の初期化の値
-	const Math::Vector3				m_correctionPosValue	= { 0.0f, 0.05f, 0.0f };	// 座標補正値
+	// ========== 定数 =============
+	const int	m_int_resetValue			= 0;		// int型の初期化の値
+	const int	m_sprayAnimationFinishCnt	= 10;		// スプレー噴射アニメーション終了までのカウンタ
+	const int	m_seaMaxCnt					= 180;		// Searchステートにいる最大時間
+	const int	m_resetTimer				= 600;		// タイマーのリセット値
+	const int	m_minWayNumber				= 0;		// ウェイポイントの最小番号
+	const int	m_maxWayPoint				= 9;		// ウェイポイントの最大番号
+	const int	Reset_findPathCnt			= 60;		// 経路の再計算を行う際に、カウンタをリセットする際に使用するリセット値
 
-	// =========== エフェクト関連 ==========
-	const int						m_sprayAnimationFinishCnt	= 10;
-	int								m_currentSprayAnimationCnt	= m_int_resetValue;
-	// =====================================
+	const float	m_moveSpeed					= 0.1f;		// 移動速度
+	const float	m_gravityPow				= 0.01f;	// 更新時に加算される重力の強さ
+	const float	m_minDegAngle				= -360.0f;	// 回転角度の最小値
+	const float	m_maxDegAngle				= 360.0f;	// 回転角度の最大値
+	const float	m_attackDistance			= 5.0f;		// 攻撃可能距離
+	const float	m_sightSize					= 80.0f;	// 中心からの角度
+	const float	m_sightAreaSize				= 100.0f;	// ぼんやりと見えている範囲
+	const float	m_sightRange				= 2000.0f;	// 判定の距離
+	const float	m_maxAngle					= 1.0f;		// 回転角度の最大値
+	const float	m_rotThreshold				= 3.5f;		// 回転する閾値(回転度数がここよりも小さい場合は回転処理をしない)
+	const float	m_rotSpdCorrect				= 2.0f;		// << モデルの回転時に使用する >> 回転させる速度を補正するための変数
+	const float	m_rotationSpd				= 1.0f;		// 回転速度
+	const float	m_maxDegAng					= 60.0f;	// 最大回転角度
+	const float	m_ignoreLength				= 2.5f;		// 無視する距離
 
-	std::shared_ptr<KdModelWork>	m_spModel		= nullptr;					// モデル
+	const Math::Vector3	m_correctionPosValue	= { 0.0f, 0.05f, 0.0f };	// 座標補正値
+	const Math::Vector3	m_mapOrigin				= { -62.0f,0.04f,79.0f };	// グリッドの原点補正用
+	// ============================
 
-	std::shared_ptr<KdAnimator>		m_spAnimator	= nullptr;					// アニメーター
+	std::shared_ptr<KdModelWork>	m_spModel		= nullptr;	// モデル
+	std::shared_ptr<KdAnimator>		m_spAnimator	= nullptr;	// アニメーター
 
-	std::weak_ptr<Player>			m_wpPlayer;									// Playerクラスのウィークポインタ
+	std::weak_ptr<Player>			m_wpPlayer;					// Playerクラスのウィークポインタ
 	std::weak_ptr<Weapon>			m_wpWeapon;
 
-	Math::Vector3					m_pos			= Math::Vector3::Zero;		// 座標
-	const float						m_moveSpeed		= 0.1f;						// 移動速度
-	float							m_scale			= 1.0f;						// 拡縮サイズ
+	std::vector<WayPoint>			m_wayPoints;				// ウェイポイントの配列
+	std::vector<std::vector<int>>*	m_grid;						// 参照するグリッド
 
-	float							m_gravity		= 0.0f;						// 重力
-	const float						m_gravityPow	= 0.01f;					// 更新時に加算される重力の強さ
 
-	Math::Vector3					m_loseSightPos	= Math::Vector3::Zero;		// 見失った場所
+	std::vector<Node>				m_path;						// 計算された経路
 
-	const float						m_minDegAngle	= -360.0f;					// 回転角度の最小値
-	const float						m_maxDegAngle	= 360.0f;					// 回転角度の最大値
+	size_t							m_currentPathIndex			= 0;					// 現在の経路インデックス
 
-	const float						m_attackDistance = 5.0f;
+	int								m_currentSprayAnimationCnt	= m_int_resetValue;		// 現在のスプレーアニメーションカウンタ
+	int								m_searchCnt					= 0;					// Searchステートにいる間に使用するフレーム
+	int								m_frameCnt					= 0;					// フレームカウンタ
+	int								m_searchTimer				= 600;					// 捜索する制限時間(無くなれば次のステートへ)
+	int								m_wayNumber					= 0;					// ウェイトポイントの番号
+	int								m_findPathCnt				= 0;					// 経路の再計算までのカウンタ(0でフラグが起動する)
 
-	Math::Matrix					m_attackPoint_HighMat	= Math::Matrix::Identity;	// 高所判定のポイントの行列
-	Math::Matrix					m_attackPoint_LowMat	= Math::Matrix::Identity;	// 低所判定のポイントの行列
-	Math::Vector3					m_attackPoint_highPos	= Math::Vector3::Zero;		// 高所判定のポイントの座標(これ以上の高さが高所判定)
-	Math::Vector3					m_attackPoint_LowPos	= Math::Vector3::Zero;		// 低所判定のポイントの座標(これ以下の高さが低所判定)
+	float							m_scale						= 1.0f;					// 拡縮サイズ
+	float							m_gravity					= 0.0f;					// 重力
+	float							m_adJustHeight				= -0.1f;					// モデルの高さ補正用変数
+	float							m_angle						= 0.0f;					// モデルの回転角度
+	float							m_baseAngle					= 0.0f;					// 基準角度(ステートに入ったとき、一度だけ現在の角度を代入する)
 
-	// ========== 座標補正用変数 ==========
-	float							m_adJustHeight	= -0.1f;						// モデルの高さ補正用変数
-	// ====================================
+	bool							m_isSight					= false;				// 視界内かどうか
+	bool							m_isSearchFin				= false;				// 周囲の捜索が終了したかどうか
+	bool							m_isNowRotFin				= false;				// 今、回転終了しているかどうか(途中であれば、回転完了まで待つ)
+	bool							m_isMoveNextPos				= false;				// 次の場所へ移動するかどうか
+	bool							m_isTurnFinish				= false;				// 回転処理が終わったかどうか(回転終わるまで移動しない)
+	bool							m_isFixNextPos				= false;				// 次の場所を決定すべきかどうか(見失ってから、巡回ルートに戻る際に使用する)
+	bool							m_isActFindPath				= false;				// 経路の再計算を行うかどうか
+
+	Math::Vector3					m_pos						= Math::Vector3::Zero;	// 座標
+	Math::Vector3					m_loseSightPos				= Math::Vector3::Zero;	// 見失った場所
+	Math::Vector3					m_attackPoint_highPos		= Math::Vector3::Zero;	// 高所判定のポイントの座標(これ以上の高さが高所判定)
+	Math::Vector3					m_attackPoint_LowPos		= Math::Vector3::Zero;	// 低所判定のポイントの座標(これ以下の高さが低所判定)
+	Math::Vector3					m_sightPos					= Math::Vector3::Zero;	// 視界の開始座標
+	Math::Vector3					m_nextPos					= Math::Vector3::Zero;	// 次の場所の座標
+	Math::Vector3					m_rightHandPos				= Math::Vector3::Zero;
+
+	Math::Matrix					m_attackPoint_HighMat		= Math::Matrix::Identity;	// 高所判定のポイントの行列
+	Math::Matrix					m_attackPoint_LowMat		= Math::Matrix::Identity;	// 低所判定のポイントの行列
+	Math::Matrix					m_localSightMat;										// 視界の根本の行列
+	Math::Matrix					m_rightHandMat;											// 右手の行列
+
+	SearchPhase						m_searchPhase				= SearchPhase::RotRight;	// 今の状態
 	
-	// ========== 視界関係で必要となる変数 ==========
-	const float						m_sightSize		= 80.0f;					// 中心からの角度
-	const float						m_sightAreaSize = 100.0f;					// ぼんやりと見えている範囲
-	const float						m_sightRange	= 2000.0f;					// 判定の距離
-	float							m_angle			= 0.0f;						// モデルの回転角度
-	const float						m_maxAngle		= 1.0f;						// 回転角度の最大値
-	const float						m_rotThreshold	= 3.5f;						// 回転する閾値(回転度数がここよりも小さい場合は回転処理をしない)
-	const float						m_rotSpdCorrect = 2.0f;						// << モデルの回転時に使用する >> 回転させる速度を補正するための変数
-	bool							m_isSight		= false;					// 視界内かどうか
-	Math::Vector3					m_sightPos		= Math::Vector3::Zero;		// 視界の開始座標
-	Math::Matrix					m_localSightMat;							// 視界の根本の行列
+private:	// 関数たち
 
-	int								m_searchCnt		= 0;						// Searchステートにいる間に使用するフレーム
-	const int						m_seaMaxCnt		= 180;						// Searchステートにいる最大時間
-	// ==============================================
-
-	// ========== 周囲の捜索に必要な変数 ==========
-	bool							m_isSearchFin	= false;					// 周囲の捜索が終了したかどうか
-	bool							m_isNowRotFin	= false;					// 今、回転終了しているかどうか(途中であれば、回転完了まで待つ)
-	SearchPhase						m_searchPhase	= SearchPhase::RotRight;	// 今の状態
-	float							m_baseAngle		= 0.0f;						// 基準角度(ステートに入ったとき、一度だけ現在の角度を代入する)
-	int								m_frameCnt		= 0;						// フレームカウンタ
-	const float						m_rotationSpd	= 1.0f;						// 回転速度
-	const float						m_maxDegAng		= 60.0f;					// 最大回転角度
-	int								m_searchTimer	= 600;						// 捜索する制限時間(無くなれば次のステートへ)
-	const int						m_resetTimer	= 600;						// タイマーのリセット値
-	// ============================================
-
-	// ========== 徘徊処理に必要な変数 ==========
-	std::vector<WayPoint>			m_wayPoints;								// ウェイポイントの配列
-	int								m_wayNumber		= 0;						// ウェイトポイントの番号
-	const int						m_minWayNumber	= 0;						// ウェイポイントの最小番号
-	const int						m_maxWayPoint	= 9;						// ウェイポイントの最大番号
-	bool							m_isMoveNextPos = false;					// 次の場所へ移動するかどうか
-	bool							m_isTurnFinish	= false;					// 回転処理が終わったかどうか(回転終わるまで移動しない)
-	Math::Vector3					m_nextPos		= Math::Vector3::Zero;		// 次の場所の座標
-	const float						m_ignoreLength	= 2.5f;						// 無視する距離
-	bool							m_isFixNextPos	= false;					// 次の場所を決定すべきかどうか(見失ってから、巡回ルートに戻る際に使用する)
-	// ==========================================
-
-	// ========== 攻撃に必要な変数 ==========
-	Math::Matrix					m_rightHandMat;								// 右手の行列
-	Math::Vector3					m_rightHandPos = Math::Vector3::Zero;
-	// ======================================
-
-	// ========== 経路探索用 ==========
-	bool							m_isActFindPath		= false;				// 経路の再計算を行うかどうか
-	int								m_findPathCnt		= 0;					// 経路の再計算までのカウンタ(0でフラグが起動する)
-	const int						Reset_findPathCnt	= 60;					// 経路の再計算を行う際に、カウンタをリセットする際に使用するリセット値
-
-	std::vector<Node>				m_path;											// 計算された経路
-	size_t							m_currentPathIndex	= 0;						// 現在の経路インデックス
-	std::vector<std::vector<int>>*	m_grid;											// 参照するグリッド
-	const Math::Vector3				m_mapOrigin			= { -62.0f,0.04f,79.0f };	// グリッドの原点補正用
-	
 	// ヒューリスティック関数
 	float Heuristic(const Node& a, const Node& b)
 	{
 		return	std::abs(static_cast<float>(a.x) - static_cast<float>(b.x)) +
-				std::abs(static_cast<float>(a.z) - static_cast<float>(b.z));
+			std::abs(static_cast<float>(a.z) - static_cast<float>(b.z));
 	}
 
 	// 経路探索(A*)
@@ -208,8 +195,7 @@ private:
 	// 見失ったところが障害物であった際に使用する
 	// 移動可能範囲内でできる限り近づくことのできる経路を探索するための関数
 	Node FindNearestWalkableNode(const Node& targetNode);
-	// ================================
-
+	
 	// 当たり判定を行う関数
 	void HitCheck();
 

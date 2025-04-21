@@ -31,6 +31,8 @@ private:
 	// プレイヤーのウィークポインタ
 	std::weak_ptr<Player>	m_wpPlyer;
 
+private:
+
 	// プレイヤーの死亡フラグをチェック
 	bool CheckPlayer();
 };

@@ -42,16 +42,17 @@ private:
 
 	std::weak_ptr<Player>	m_wpPlayer;
 
-	Math::Vector3	m_pos			= Math::Vector3::Zero;
-	float			m_gravity		= 0.0f;
+	const int		m_lifeValue		= 100;		// 体力
+	const int		m_maxLifeSpan	= 3000;		// 消えるまでのタイムリミット
 
-	const int		m_lifeValue		= 100;
-	const int		m_maxLifeSpan	= 3000;
+	Math::Vector3	m_pos		= Math::Vector3::Zero;
 
 	// 存在に関係するもの
 	// 生成されてから一定時間経過後にステージに残っている。もしくは、プレイヤーが食事することでライフがなくなることで消える
 	int				m_lifeSpan	= 0;	// 存在時間
 	int				m_life		= 0;	// ライフ(０になると消える)
+
+	float			m_gravity	= 0.0f;
 
 	FoodParm		m_parm;
 };

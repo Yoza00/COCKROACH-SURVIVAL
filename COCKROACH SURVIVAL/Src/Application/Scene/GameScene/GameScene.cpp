@@ -31,84 +31,71 @@
 void GameScene::Event()
 {
 	const std::shared_ptr<Player>		_spPlayer	= m_wpPlayer.lock();
+	if (!_spPlayer)return;
 
-	if (_spPlayer)
+	if (_spPlayer->IsDead() == true)
 	{
-		if (GetAsyncKeyState(VK_SPACE) && GetAsyncKeyState(VK_RSHIFT))
+		if (!m_isSceneChange)
 		{
-			_spPlayer->SetPos({ 0.0f,15.0f,0.0f });
-		}
+			m_isSceneChange = true;
 
-		if (_spPlayer->IsDead() == true)
-		{
-			if (!m_isSceneChange)
-			{
-				m_isSceneChange = true;
+			std::shared_ptr<Notice>	_spNotice = std::make_shared<Notice>();
+			_spNotice->SetFilePath("Asset/Textures/GameObject/UI/Notice/Finish.png");
+			_spNotice->Init();
+			_spNotice->SetDrawPos(Math::Vector2::Zero);
+			_spNotice->SetIncetanceDeleteLimit();
+			m_objList.push_back(_spNotice);
 
-				std::shared_ptr<Notice>	_spNotice = std::make_shared<Notice>();
-				_spNotice->SetFilePath("Asset/Textures/GameObject/UI/Notice/Finish.png");
-				_spNotice->Init();
-				_spNotice->SetDrawPos(Math::Vector2::Zero);
-				_spNotice->SetIncetanceDeleteLimit();
-				m_objList.push_back(_spNotice);
+			std::shared_ptr<SceneChange>	_spChange = std::make_shared<SceneChange>();
+			_spChange->SetFilePath("Asset/Textures/GameObject/SceneChange/BlackScreen.png");
+			_spChange->Init();
+			_spChange->SetDrawPos(Math::Vector2::Zero);
+			m_objList.push_back(_spChange);
 
-				std::shared_ptr<SceneChange>	_spChange = std::make_shared<SceneChange>();
-				_spChange->SetFilePath("Asset/Textures/GameObject/SceneChange/BlackScreen.png");
-				_spChange->Init();
-				_spChange->SetDrawPos(Math::Vector2::Zero);
-				m_objList.push_back(_spChange);
-
-				int	_score = _spPlayer->GetScore();
-				SceneManager::Instance().SetScore(_score);
-				return;
-			}
+			int	_score = _spPlayer->GetScore();
+			SceneManager::Instance().SetScore(_score);
+			return;
 		}
 	}
 
 	// 食べ物の生成処理
 	// 現在までに生成された食べ物の個数が最大数を超えていないか確認
-	if (m_nowFoodCnt < MAX_FOODNUM)
+	if (m_nowFoodCnt >= MAX_FOODNUM)return;
+
+	m_foodCnt--;
+
+	if (m_foodCnt > 0)return;
+
+	// 生成座標をランダムで決定
+	RandomMakePos();
+
+	// 生成
 	{
-		m_foodCnt--;				// 食べ物の生成カウンタを更新
-		
-		// 生成カウンタがなくなれば生成処理を行う
-		if (m_foodCnt < 0)
+		std::shared_ptr<Food>	_spFood = std::make_shared<Food>();
+		_spFood->Init();
+		_spFood->SetState("Asset/Models/Terrains/GameScene/Food/Cookie.gltf", m_makePos, 1.0f, m_nowFoodCnt);
+		_spFood->SetPlayer(_spPlayer);
+		_spFood->SetParm(m_food.m_addHP, m_food.m_addRestNum, m_food.m_addScore);		// 仮置き(HP5回復、空腹度5回復、スコア100加算)
+		m_objList.push_back(_spFood);
+
+
+		// ここに餌のバーのインスタンスを作成するように記載する
+		// プレイヤー情報を取得し、一定の距離内にならないと表示されないようにしておく
 		{
-			// 生成座標をランダムで決定
-			RandomMakePos();
-			
-			if (_spPlayer)
-			{
-				// 生成
-				{
-					std::shared_ptr<Food>	_spFood = std::make_shared<Food>();
-					_spFood->Init();
-					_spFood->SetState("Asset/Models/Terrains/GameScene/Food/Cookie.gltf", m_makePos, 1.0f, m_nowFoodCnt);
-					_spFood->SetPlayer(_spPlayer);
-					_spFood->SetParm(m_food.m_addHP, m_food.m_addRestNum, m_food.m_addScore);		// 仮置き(HP5回復、空腹度5回復、スコア100加算)
-					m_objList.push_back(_spFood);
+			std::shared_ptr<FoodBarHP>	_spFoodBar = std::make_shared<FoodBarHP>();
+			_spFoodBar->SetFilePath("Asset/Textures/GameObject/UI/Bar/FoodBar/FoodHPBar.png");
+			_spFoodBar->Init();
+			_spFoodBar->SetDrawPos();
+			m_objList.push_back(_spFoodBar);
 
-
-					// ここに餌のバーのインスタンスを作成するように記載する
-					// プレイヤー情報を取得し、一定の距離内にならないと表示されないようにしておく
-					{
-						std::shared_ptr<FoodBarHP>	_spFoodBar = std::make_shared<FoodBarHP>();
-						_spFoodBar->SetFilePath("Asset/Textures/GameObject/UI/Bar/FoodBar/FoodHPBar.png");
-						_spFoodBar->Init();
-						_spFoodBar->SetDrawPos();
-						m_objList.push_back(_spFoodBar);
-
-						_spFoodBar->SetCamera(m_wpCamera.lock());
-						_spFoodBar->SetFood(_spFood);
-						_spFoodBar->SetPlayer(m_wpPlayer.lock());
-					}
-				}
-
-				// 生成時間をリセット
-				m_foodCnt = MAKE_FOOD_TIME;
-			}
+			_spFoodBar->SetCamera(m_wpCamera.lock());
+			_spFoodBar->SetFood(_spFood);
+			_spFoodBar->SetPlayer(m_wpPlayer.lock());
 		}
 	}
+
+	// 生成時間をリセット
+	m_foodCnt = MAKE_FOOD_TIME;
 }
 
 void GameScene::Init()
@@ -329,7 +316,6 @@ void GameScene::Init()
 
 	// カメラ
 	std::shared_ptr<TPSCamera>	_spCamera = std::make_shared<TPSCamera>();
-	//std::shared_ptr<FPSCamera>	_spCamera = std::make_shared<FPSCamera>();
 	_spCamera->Init();
 	m_objList.push_back(_spCamera);
 
@@ -349,7 +335,7 @@ void GameScene::Init()
 	m_RandomGen = std::make_shared<KdRandomGenerator>();
 
 	// ========== サウンド関連 ==========
-	//KdAudioManager::Instance().StopAllSound();			// すべての音を止める
+	KdAudioManager::Instance().StopAllSound();			// すべての音を止める
 
 	KdAudioManager::Instance().Play("Asset/Sounds/BGM/Game/dozikkomarch.wav", true)->SetVolume(0.4f);		// 指定の音楽をループ再生
 	// ==================================

@@ -171,9 +171,7 @@ void Player::Update()
 	}
 
 	_moveVec.Normalize();
-	m_moveDir = _moveVec;
-
-	m_direction = m_moveDir;
+	m_direction = _moveVec;
 
 	m_pos += _moveVec * m_moveSpeed;	// 座標更新
 
@@ -623,14 +621,16 @@ void Player::HitSphereCheck()
 	// =============================
 	// スフィア判定
 	// =============================
-	KdCollider::SphereInfo	_sphere;						// スフィア情報
+	KdCollider::SphereInfo	_sphere;		// スフィア情報
 	
 	if (!m_isCeiling)
 	{
-		_sphere.m_sphere.Center = m_pos;						// スフィアの中心座標
+		// 壁ではない場合はキャラの座標をスフィアの中心座標とする
+		_sphere.m_sphere.Center = m_pos;
 	}
 	else
 	{
+		// 壁を移動中の場合はスフィアの座標を補正する
 		_sphere.m_sphere.Center = m_pos - Math::Vector3(0.0f, 0.1f, 0.0f);
 	}
 
@@ -691,21 +691,37 @@ void Player::EatFoodSphereCheck()
 	// Tipsを表示するかどうかを設定する
 	for (auto& _obj : SceneManager::Instance().GetObjList())
 	{
-		// 設定したスフィアとオブジェクトが当たった場合
-		if (_obj->Intersects(_eatSphere, nullptr))
-		{
-			if (_spTips)
-			{
-				// Tipsを表示させる
-				_spTips->SetIsDraw(true);
-			}
+		//// 設定したスフィアとオブジェクトが当たった場合
+		//if (_obj->Intersects(_eatSphere, nullptr))
+		//{
+		//	if (_spTips)
+		//	{
+		//		// Tipsを表示させる
+		//		_spTips->SetIsDraw(true);
+		//	}
 
-			// 表示されている間、左クリックで食べることができる
-			if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-			{
-				// 一定の値を引数に置き、餌のライフを減少させていく
-				_obj->SetLife(m_decreaceFoodLife);
-			}
+		//	// 表示されている間、左クリックで食べることができる
+		//	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+		//	{
+		//		// 一定の値を引数に置き、餌のライフを減少させていく
+		//		_obj->SetLife(m_decreaceFoodLife);
+		//	}
+		//}
+
+		// 設定したスフィア情報をもとに、当たっていなければ次のオブジェクトとの当たり判定を行う
+		if (_obj->Intersects(_eatSphere, nullptr) == false)continue;
+
+		if (_spTips)
+		{
+			// Tipsを表示させる
+			_spTips->SetIsDraw(true);
+		}
+
+		// 表示されている間、左クリックで食べることができる
+		if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+		{
+			// 一定の値を引数に置き、餌のライフを減少させていく
+			_obj->SetLife(m_decreaceFoodLife);
 		}
 	}
 }

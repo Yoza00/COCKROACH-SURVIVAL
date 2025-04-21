@@ -22,9 +22,9 @@ void Weapon::Update()
 			return;
 		}
 
-		Math::Vector3	_parentPos = _spParent->GetRightHandPos();
+		Math::Vector3	_parentPos	= _spParent->GetRightHandPos();
 
-		Math::Matrix		_transMat = Math::Matrix::CreateTranslation(_parentPos);
+		Math::Matrix	_transMat	= Math::Matrix::CreateTranslation(_parentPos);
 		m_mWorld = _transMat;
 	}
 

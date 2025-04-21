@@ -93,7 +93,7 @@ void TitleScene::Init()
 	m_uniCamera = std::make_unique<KdCamera>();
 
 	// ========== サウンド関連 ==========
-	//KdAudioManager::Instance().StopAllSound();				// すべての音楽を停止
+	KdAudioManager::Instance().StopAllSound();				// すべての音楽を停止
 
 	// BGMをループ再生
 	KdAudioManager::Instance().Play("Asset/Sounds/BGM/Title/hinatabokko.wav", true)->SetVolume(0.4f);

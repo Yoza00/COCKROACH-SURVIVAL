@@ -77,11 +77,10 @@ public:
 
 private:
 	// カメラ回転用角度
-	Math::Vector3				m_DegAng		= Math::Vector3::Zero;
+	Math::Vector3				m_DegAng			= Math::Vector3::Zero;
 	const float					m_mouseCorrectValue = 0.15f;		// マウスの補正値(移動量の補正値)
 
 protected:
-	void UpdateRotateByMouse();
 
 	std::shared_ptr<KdCamera>	m_spCamera		= nullptr;
 	std::weak_ptr<KdGameObject>	m_wpTarget;
@@ -94,13 +93,15 @@ protected:
 	// カメラ回転用マウス座標の差分
 	POINT						m_FixMousePos{};
 
-	int							m_playerNowMovingPos = 0;	// プレイヤーの移動状態
+	int							m_playerNowMovingPos	= 0;	// プレイヤーの移動状態
+	int							m_oldMovingPos			= 0;	// 直前に移動していた場所
 
-	int							m_oldMovingPos	= 0;		// 直前に移動していた場所
-	bool						m_isInversion	= false;	// 反転させるかどうか
-
-	bool						m_isRotateY = false;							// Y軸方向に回転させるかどうか(天井移動時のフラグ)
-
-	bool						m_isSetValue = false;		// 値をセットしたかどうか(固定値をセットしたかどうか判別用のフラグ)
+	bool						m_isInversion	= false;		// 反転させるかどうか
+	bool						m_isRotateY		= false;		// Y軸方向に回転させるかどうか(天井移動時のフラグ)
+	bool						m_isSetValue	= false;		// 値をセットしたかどうか(固定値をセットしたかどうか判別用のフラグ)
 	bool						m_isMoveCeiling = false;
+
+protected:
+
+	void UpdateRotateByMouse();
 };

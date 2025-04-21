@@ -42,10 +42,10 @@ private:
 	int		m_singleW	= 0;		// 1当たりに表示する横幅の大きさ
 	//			↑これを使用して切り取り範囲を調節する
 
+	const float	m_correctionValue	= 30.0f;	// 距離の補正値(描画距離を決めるためにかけ合わせる量)
+
 	bool	m_isDrawPosCheckFinish = false;		// 表示座標を確認しきったかどうか
 	//			↑更新処理で一度だけ表示座標を確認し、確認しきったらフラグを起動する
-
-	const float	m_correctionValue	= 30.0f;	// 距離の補正値(描画距離を決めるためにかけ合わせる量)
 
 	// プレイヤーと餌の距離を計算
 	// true：描画する false：描画しない

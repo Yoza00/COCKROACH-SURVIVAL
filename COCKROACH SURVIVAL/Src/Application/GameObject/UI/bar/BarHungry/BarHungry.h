@@ -23,10 +23,9 @@ public:
 
 private:
 
+	std::weak_ptr<Player>	m_wpPlayer;
+
 	// 何も動作しないとじんわり、アクションを起こすと結構減少する
 	float	m_restNum = 0.0f;	// 残量
-
 	float	m_singleW = 0.0f;	// 値が１の時に表示する幅のための変数
-
-	std::weak_ptr<Player>	m_wpPlayer;
 };
